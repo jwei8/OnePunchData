@@ -66,4 +66,4 @@ print(top_1000_animes.info())
 print(top_1000_animes.describe(include='all'))
 print(genre_counts)
 
-df.to_csv('anime_processed.csv', index=False)
+top_1000_animes.to_csv('anime_processed.csv', index=False)
