@@ -30,6 +30,7 @@ class TopPackedBubbleChart {
             .attr('height', vis.config.containerHeight);
 
         vis.chartArea = vis.svg.append('g')
+            .attr('class', 'top-level-group')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
             .attr('width', vis.config.width)
             .attr('height', vis.config.height);
@@ -69,7 +70,7 @@ class TopPackedBubbleChart {
 
         vis.nodes = vis.pack(vis.root).leaves();
 
-        console.log(vis.nodes)
+        console.log(vis.nodes[0].data.animes)
 
         vis.renderVis();
     }
@@ -89,20 +90,20 @@ class TopPackedBubbleChart {
                 .data(vis.nodes, d => d.data.genre)
             .join('g')
                 .on('click', (event, d) => {
-                    console.log("clicked");
                     vis.zoomToBubble(d);
                 })
                 .attr('class', 'top-level-bubble-group')
-                .attr("transform", d => `translate(${d.x}, ${d.y})`);
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                .attr('opacity', 0.5);
 
         const bubbles = bubblesGroups.selectAll('.bubble')
                 .data(d => d, d => d.data.genre)
             .join('circle')
                 .attr('class', 'bubble')
                 .attr('r', d => d.r)
-                .attr('stroke', '#000000')
-                .attr('stroke-width', 4)
-                .attr('fill', 'yellow');
+                //.attr('stroke', '#000000')
+                //.attr('stroke-width', 2)
+                .attr('fill', '#ADD8E6');
 
         const text = bubblesGroups.selectAll('.top-bubble-title')
                 .data(d => d, d => d.data.genre)
@@ -140,6 +141,4 @@ class TopPackedBubbleChart {
             .duration(750) // Transition duration
             .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`);
     }
-    
-    
 }
