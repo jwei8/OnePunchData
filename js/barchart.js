@@ -3,7 +3,7 @@ class Barchart {
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 500,
+            containerWidth: 1200,
             containerHeight: 260,
             margin: {
                 top: 30,
@@ -27,12 +27,14 @@ class Barchart {
 
         vis.xScale = d3.scaleBand()
             .range([0, vis.width])
+            .padding(0.1)
             .paddingInner(0.2);
 
         vis.yScale = d3.scaleLinear()
-            .range([0, vis.height]);
+            .range([vis.height, 0]);
 
         vis.xAxis = d3.axisBottom(vis.xScale)
+            .ticks(6)
             .tickSizeOuter(0);
 
         vis.yAxis = d3.axisLeft(vis.yScale)
@@ -61,7 +63,7 @@ class Barchart {
         vis.svg.append('text')
             .attr('class', 'axis-title')
             .attr('x', 0)
-            .attr('y', 10)
+            .attr('y', 24)
             .text('View 2');
     }
 
@@ -84,20 +86,24 @@ class Barchart {
         });
         console.log(vis.flattenedData);
 
-        //
-        let groupByGenre = d3.rollups(vis.data, v => v.length, d => d.Genre);
-        let genreCount = groupByGenre.map(data => data[1]);
+        // Set the scale input domains
+        vis.xScale.domain(vis.flattenedData.map(d => d.Year));
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Count)]);
 
-        var minYear = d3.min(vis.data, d => d.YearReleased);
-        var maxYear = d3.max(vis.data, d => d.YearReleased);
+        // let groupByGenre = d3.rollups(vis.data, v => v.length, d => d.Genre);
+        // let genreCount = groupByGenre.map(data => data[1]);
 
-        vis.xScale.domain([minYear, maxYear]) // year
-        vis.yScale.domain(genreCount); // count of anime per genre
+        // var minYear = d3.min(vis.data, d => d.YearReleased);
+        // var maxYear = d3.max(vis.data, d => d.YearReleased);
 
-        vis.transformedData = groupByGenre.map(([year, count]) => ({
-            year,
-            count,
-        }));
+        // vis.xScale.domain([minYear, maxYear]) // year
+        // vis.yScale.domain(genreCount); // count of anime per genre
+        // vis.yScale.domain([0, d3.max(vis.genreCount)]);
+
+        // vis.transformedData = groupByGenre.map(([year, count]) => ({
+        //     year,
+        //     count,
+        // }));
         // console.log(vis.transformedData)
 
         vis.renderVis();
@@ -114,13 +120,13 @@ class Barchart {
             .attr('height', d => vis.height - vis.yScale(d.Count))
             .attr('x', d => vis.xScale(d.Year))
             .attr('y', d => vis.yScale(d.Count))
-            .on("click", function (event, d) {
-                // Check if current category is active and toggle class
-                const isActive = d3.select(this).classed("active");
+        // .on("click", function (event, d) {
+        //     // Check if current category is active and toggle class
+        //     const isActive = d3.select(this).classed("active");
 
-                d3.selectAll(".bar.active").classed("active", false);
-                d3.select(this).classed("active", !isActive);
-            });
+        //     d3.selectAll(".bar.active").classed("active", false);
+        //     d3.select(this).classed("active", !isActive);
+        // });
 
         // Update axes
         vis.xAxisG.call(vis.xAxis).call((g) => g.select(".domain").remove());
