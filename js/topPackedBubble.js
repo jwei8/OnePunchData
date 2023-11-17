@@ -1,6 +1,6 @@
 class TopPackedBubbleChart {
 
-    constructor(_config, _data) {
+    constructor(_config, _data, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
           containerWidth: 800,
@@ -14,6 +14,8 @@ class TopPackedBubbleChart {
           }
         }
         this.data = _data;
+        this.dispatcher = _dispatcher;
+        this.clickedNode = null;
         this.initVis();
       }
 
@@ -38,8 +40,14 @@ class TopPackedBubbleChart {
         vis.chartArea.append('rect')
             .attr('width', vis.config.width)
             .attr('height', vis.config.height)
-            .attr('fill', 'none');
+            .attr('fill', 'transparent')
+            .on('click', (event, d) => {
+                if (!d3.select(event.currentTarget).classed('.top-level-bubble-group')) {
+                    vis.zoomOut();
+                }
+            })
         
+
         vis.svg.append('rect')
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight)
@@ -70,8 +78,6 @@ class TopPackedBubbleChart {
 
         vis.nodes = vis.pack(vis.root).leaves();
 
-        console.log(vis.nodes[0].data.animes)
-
         vis.renderVis();
     }
 
@@ -86,26 +92,27 @@ class TopPackedBubbleChart {
             .force('charge', d3.forceManyBody().strength(500))
             .force("collision", d3.forceCollide().radius(d => d.r + 4).strength(0.8));
 
-        const bubblesGroups = vis.chartArea.selectAll('.top-level-bubble-group')
+        vis.bubblesGroups = vis.chartArea.selectAll('.top-level-bubble-group')
                 .data(vis.nodes, d => d.data.genre)
             .join('g')
+                .attr('class', 'top-level-bubble-group')
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                //.attr('fill', 'none')
+                .attr('opacity', 0.6);
+
+        vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
+                .data(d => d, d => d.data.genre)
+            .join('circle')
                 .on('click', (event, d) => {
                     vis.zoomToBubble(d);
                 })
-                .attr('class', 'top-level-bubble-group')
-                .attr("transform", d => `translate(${d.x}, ${d.y})`)
-                .attr('opacity', 0.5);
-
-        const bubbles = bubblesGroups.selectAll('.bubble')
-                .data(d => d, d => d.data.genre)
-            .join('circle')
                 .attr('class', 'bubble')
                 .attr('r', d => d.r)
                 //.attr('stroke', '#000000')
                 //.attr('stroke-width', 2)
                 .attr('fill', '#ADD8E6');
 
-        const text = bubblesGroups.selectAll('.top-bubble-title')
+        vis.genreText = vis.bubblesGroups.selectAll('.top-bubble-title')
                 .data(d => d, d => d.data.genre)
             .join('text')
                 .attr('class', 'top-bubble-title')
@@ -119,26 +126,92 @@ class TopPackedBubbleChart {
                 .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
 
         simulation.on("tick", () => {
-            bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
+            vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         });
     }
 
 
-    zoomToBubble(clickedNode) {
+    zoomToBubble(currClickedNode) {
         let vis = this;
+        const prevNode = vis.clickedNode;
+        vis.clickedNode = currClickedNode;
     
         // Calculate the scale for zooming
         const targetRadius = Math.min(vis.config.width, vis.config.height) / 2;
-        const scale = targetRadius / clickedNode.r;
+        const scale = targetRadius / currClickedNode.r;
     
         // Calculate the translation needed to center the bubble
         // Adjust the translation to account for initial chart area translation
-        const translateX = vis.config.width / 2 - scale * clickedNode.x + vis.config.margin.left;
-        const translateY = vis.config.height / 2 - scale * clickedNode.y + vis.config.margin.top;
-    
-        // Apply the transformation
-        vis.chartArea.transition()
-            .duration(750) // Transition duration
-            .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`);
+        const translateX = vis.config.width / 2 - scale * currClickedNode.x + vis.config.margin.left;
+        const translateY = vis.config.height / 2 - scale * currClickedNode.y + vis.config.margin.top;
+
+        // remove previous groups vis if it exists
+        vis.svg.selectAll('.bubble-anime').transition()
+            .duration(250)
+            .attr('opacity', 0)
+            .on('end', () => {
+                vis.svg.select('.anime-level-group').remove()
+
+                vis.genreText.each(function() {
+                    let textElement = d3.select(this);
+                    if (textElement.text() === prevNode.data.genre) {
+                        // Apply fade-out transition to the matching element
+                        textElement.transition()
+                            .duration(750)
+                            .style("opacity", 1);
+                    }
+                });
+            });
+
+
+        setTimeout(() => {
+            // Start the zoom transition
+            vis.genreText.each(function() {
+                let textElement = d3.select(this);
+                if (textElement.text() === currClickedNode.data.genre) {
+                    // Apply fade-out transition to the matching element
+                    textElement.transition()
+                        .duration(750)
+                        .style("opacity", 0);
+                }
+            });
+
+            vis.chartArea.transition()
+                .duration(750)
+                .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
+                .on("end", () => {
+                    vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
+                }); 
+
+        }, 350);
     }
+
+    zoomOut() {
+        let vis = this;
+        const prevNode = vis.clickedNode;
+        vis.clickedNode = null;
+        // remove previous groups vis if it exists
+        vis.svg.selectAll('.bubble-anime').transition()
+            .duration(250)
+            .attr('opacity', 0)
+            .on('end', () => {
+                vis.svg.select('.anime-level-group').remove()
+
+                vis.genreText.each(function() {
+                    let textElement = d3.select(this);
+                    if (textElement.text() === prevNode.data.genre) {
+                        // Apply fade-out transition to the matching element
+                        textElement.transition()
+                            .duration(350)
+                            .style("opacity", 1)
+                            .on('end', () => {
+                                vis.chartArea.transition()
+                                                .duration(750)
+                                                .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
+                            });
+                    }
+                });
+            });
+    }
+      
 }

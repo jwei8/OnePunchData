@@ -1,6 +1,10 @@
 /**
  * Load data from CSV file
- */
+ */ 
+
+const dispatcher = d3.dispatch('topToDrillDown')
+
+let topLevelBubble, animeLevelBubble;
 
 d3.csv('data/anime_processed.csv')
   .then(data => {
@@ -22,15 +26,15 @@ d3.csv('data/anime_processed.csv')
 
     topLevelBubble = new TopPackedBubbleChart({
       parentElement: '#packed-bubble'
-    }, data);
+    }, data, dispatcher);
 
     animeLevelBubble = new AnimePackedBubbleChart({
       parentElement: '#packed-bubble'
     });
-
-    animeLevelBubble.updateVis("Action", root.children[0].data.animes);
-  
-
   })
   .catch(error => console.error(error));
+
+  dispatcher.on('topToDrillDown', (genreName, animes) => {
+    animeLevelBubble.updateVis(genreName, animes);
+  })
 

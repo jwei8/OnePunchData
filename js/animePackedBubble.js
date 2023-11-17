@@ -25,20 +25,6 @@ class AnimePackedBubbleChart {
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement);
 
-        vis.chartArea = vis.svg.append('g')
-            .attr('class', 'anime-level-group')
-            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
-            .attr('width', vis.config.width)
-            .attr('height', vis.config.height);
-
-        vis.chartArea.append('circle')
-            .attr('r', vis.config.width / 2)
-            .attr('fill', '#ADD8E6')
-            //.attr('fill', 'none')
-            .attr('cx', vis.config.width / 2)
-            .attr('cy', vis.config.width / 2)
-            .attr('opacity', 0.5);
-
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerWidth])
             .padding(15);
@@ -53,8 +39,6 @@ class AnimePackedBubbleChart {
 
         vis.minScore = d3.min(animeData, d => d.Score);
 
-        console.log(vis.minScore)
-
         vis.anime = animeData.map(d => {
             return {
                 ...d,
@@ -67,13 +51,17 @@ class AnimePackedBubbleChart {
 
         vis.nodes = vis.pack(vis.root).leaves();
 
-        console.log(vis.nodes)
-
         vis.renderVis();
       }
 
       renderVis() {
         let vis = this;
+
+        vis.chartArea = vis.svg.append('g')
+            .attr('class', 'anime-level-group')
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
+            .attr('width', vis.config.width)
+            .attr('height', vis.config.height);
 
         const chargeStrength = d => -10 * d.r;
 
@@ -87,8 +75,7 @@ class AnimePackedBubbleChart {
                 .data(vis.nodes, d => d.data.MAL_ID)
             .join('g')
                 .attr('class', 'anime-level-bubble-group')
-                .attr("transform", d => `translate(${d.x}, ${d.y})`)
-                .attr('opacity', 0.8);
+                .attr("transform", d => `translate(${d.x}, ${d.y})`);
 
         const bubbles = animeGroups.selectAll('.bubble-anime')
                 .data(d => d, d => d.data.MAL_ID)
@@ -97,13 +84,16 @@ class AnimePackedBubbleChart {
                 .attr('r', d => d.r)
                 //.attr('stroke', '#000000')
                 //.attr('stroke-width', 2)
-                .attr('fill', '#ADD8E6');
+                .attr('fill', '#ADD8E6')
+                .attr('opacity', 0);
 
         simulation.on("tick", () => {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         });
 
-
+        bubbles.transition()
+            .duration(500)
+            .attr('opacity', 0.8);
       }
 
 }
