@@ -33,7 +33,18 @@ rect {
 }
 /* https://www.heavy.ai/blog/12-color-palettes-for-telling-better-stories-with-your-data */
 
-.cat-Action rect {
+/* action: #ea5545
+Sci-Fi: #f46a9b
+drama: #ef9b20
+Slice of life: #e2f770
+mystery: #ede15b
+comedy: #bdcf32
+adventure: #87bc45
+game: #27aeef
+music: #b33dc6
+harem: #d48e2d */
+
+/* .cat-Action rect {
     fill: #ea5545;
 }
 .cat-Sci-Fi rect {
@@ -43,7 +54,7 @@ rect {
     fill: #ef9b20;
 }
 .cat-Slice rect {
-    fill: rgb(241, 203, 91);
+    fill: #e2f770;
 }
 .cat-Mystery rect {
     fill: #ede15b;
@@ -62,4 +73,4 @@ rect {
 }
 .cat-Harem rect {
     fill: #d48e2d;
-}
+} */
