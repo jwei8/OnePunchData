@@ -1,0 +1,37 @@
+rect {
+    shape-rendering: crispEdges;
+}
+
+.cat-Action rect {
+    fill: #608fda;
+}
+
+.cat-Sci-Fi rect {
+    fill: #2dd467;
+}
+.cat-Drama rect {
+    fill: #d4c32d;
+}
+
+.cat-Slice rect {
+    fill: #2d30d4;
+}
+
+.cat-Mystery rect {
+    fill: #d42d2d;
+}
+.cat-Comedy rect {
+    fill: #d42db0;
+}
+.cat-Adventure rect {
+    fill: #d42da5;
+}
+.cat-Game rect {
+    fill: #2dd4cc;
+}
+.cat-Music rect {
+    fill: #e3dc98;
+}
+.cat-Harem rect {
+    fill: #d48e2d;
+}
