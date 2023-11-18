@@ -1,36 +1,64 @@
+/* Axis */
+.axis line {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  font-size: 8px;
+  fill: #6b6b6b;
+}
+.axis-title {
+  font-size: 13px;
+  fill: #1b1919;
+}
+.y-axis .tick:first-child line {
+  stroke: #b1b1b1;
+}
+.y-axis .tick:first-child text {
+  display: none;
+}
+.x-axis .tick:first-child line {
+  display: none;
+}
+.axis path {
+  display: none;
+}
+
+
+
+/* Stacked bar chart */
 rect {
     shape-rendering: crispEdges;
 }
+/* https://www.heavy.ai/blog/12-color-palettes-for-telling-better-stories-with-your-data */
 
 .cat-Action rect {
-    fill: #608fda;
+    fill: #ea5545;
 }
-
 .cat-Sci-Fi rect {
-    fill: #2dd467;
+    fill: #f46a9b;
 }
 .cat-Drama rect {
-    fill: #d4c32d;
+    fill: #ef9b20;
 }
-
 .cat-Slice rect {
-    fill: #2d30d4;
+    fill: rgb(241, 203, 91);
 }
-
 .cat-Mystery rect {
-    fill: #d42d2d;
+    fill: #ede15b;
 }
 .cat-Comedy rect {
-    fill: #d42db0;
+    fill: #bdcf32;
 }
 .cat-Adventure rect {
-    fill: #d42da5;
+    fill: #87bc45;
 }
 .cat-Game rect {
-    fill: #2dd4cc;
+    fill: #27aeef;
 }
 .cat-Music rect {
-    fill: #e3dc98;
+    fill: #b33dc6;
 }
 .cat-Harem rect {
     fill: #d48e2d;
