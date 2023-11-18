@@ -1,6 +1,6 @@
 class AnimePackedBubbleChart {
 
-    constructor(_config) {
+    constructor(_config, _genreToInfo, _globalMinScore) {
         this.config = {
           parentElement: _config.parentElement,
           containerWidth: 800,
@@ -12,6 +12,15 @@ class AnimePackedBubbleChart {
             bottom: 40,
             left: 40
           }
+        }
+        this.genreToInfo = _genreToInfo;
+        this.globalMinScore = _globalMinScore;
+        this.ratingToColor = {
+            "G - All Ages": "#ffffff",
+            "PG - Children": "#a2a2a2",
+            "PG-13 - Teens 13 or older": "#4e4e4e",
+            "R - 17+ (violence & profanity)": "#000000",
+            "R+ - Mild Nudity": "#000000",
         }
         this.initVis();
       }
@@ -37,14 +46,14 @@ class AnimePackedBubbleChart {
 
         vis.genre = genreToView;
 
-        vis.minScore = d3.min(animeData, d => d.Score);
-
         vis.anime = animeData.map(d => {
             return {
                 ...d,
-                Score: d.Score - vis.minScore + 0.05
+                Score: d.Score - vis.globalMinScore + 0.05
             };
         });
+
+        console.log(vis.anime.length);
 
         vis.root = d3.hierarchy({ children: vis.anime })
             .sum(d => d.Score);
@@ -63,7 +72,7 @@ class AnimePackedBubbleChart {
             .attr('width', vis.config.width)
             .attr('height', vis.config.height);
 
-        const chargeStrength = d => -10 * d.r;
+        const chargeStrength = d => vis.genreToInfo[vis.genre].chargeModifier * d.r;
 
         const simulation = d3.forceSimulation(vis.nodes)
             .force("x", d3.forceX(vis.config.width / 2).strength(0.5))
@@ -80,11 +89,14 @@ class AnimePackedBubbleChart {
         const bubbles = animeGroups.selectAll('.bubble-anime')
                 .data(d => d, d => d.data.MAL_ID)
             .join('circle')
+                .on('click', (event, d) => {
+                    console.log(d.data)
+                })
                 .attr('class', 'bubble-anime')
                 .attr('r', d => d.r)
                 //.attr('stroke', '#000000')
-                //.attr('stroke-width', 2)
-                .attr('fill', '#ADD8E6')
+               // .attr('stroke-width', 2)
+                .attr('fill', d => vis.ratingToColor[d.data.Rating])
                 .attr('opacity', 0);
 
         simulation.on("tick", () => {
@@ -93,7 +105,7 @@ class AnimePackedBubbleChart {
 
         bubbles.transition()
             .duration(500)
-            .attr('opacity', 0.8);
+            .attr('opacity', 1);
       }
 
 }

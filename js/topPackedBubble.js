@@ -1,6 +1,6 @@
 class TopPackedBubbleChart {
 
-    constructor(_config, _data, _dispatcher) {
+    constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
           containerWidth: 800,
@@ -14,6 +14,7 @@ class TopPackedBubbleChart {
           }
         }
         this.data = _data;
+        this.genreToInfo = _genreToInfo;
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
         this.initVis();
@@ -47,7 +48,6 @@ class TopPackedBubbleChart {
                 }
             })
         
-
         vis.svg.append('rect')
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight)
@@ -86,6 +86,8 @@ class TopPackedBubbleChart {
 
         let vis = this;
 
+        vis.simulationActive = true;
+
         const simulation = d3.forceSimulation(vis.nodes)
             .force("x", d3.forceX(vis.config.width / 2).strength(0.5))
             .force("y", d3.forceY(vis.config.height / 2).strength(0.5))
@@ -98,19 +100,21 @@ class TopPackedBubbleChart {
                 .attr('class', 'top-level-bubble-group')
                 .attr("transform", d => `translate(${d.x}, ${d.y})`)
                 //.attr('fill', 'none')
-                .attr('opacity', 0.6);
+                .attr('opacity', 0.7);
 
         vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
                 .data(d => d, d => d.data.genre)
             .join('circle')
                 .on('click', (event, d) => {
-                    vis.zoomToBubble(d);
+                    if (!vis.simulationActive) {
+                        vis.zoomToBubble(d);
+                    }
                 })
                 .attr('class', 'bubble')
                 .attr('r', d => d.r)
                 //.attr('stroke', '#000000')
                 //.attr('stroke-width', 2)
-                .attr('fill', '#ADD8E6');
+                .attr('fill', d => vis.genreToInfo[d.data.genre].color);
 
         vis.genreText = vis.bubblesGroups.selectAll('.top-bubble-title')
                 .data(d => d, d => d.data.genre)
@@ -127,6 +131,8 @@ class TopPackedBubbleChart {
 
         simulation.on("tick", () => {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
+        }).on("end", () => {
+            vis.simulationActive = false;
         });
     }
 
