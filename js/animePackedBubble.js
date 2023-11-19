@@ -39,6 +39,8 @@ class AnimePackedBubbleChart {
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerWidth])
             .padding(15);
+        
+        vis.radiusScale = d3.scaleLinear().range([2,20]);
       }
 
       updateVis(genreToView, animeData) {
@@ -48,6 +50,8 @@ class AnimePackedBubbleChart {
 
         vis.genre = genreToView;
 
+        console.log(d3.min(animeData, d => d.Score));
+        console.log(d3.max(animeData, d => d.Score));
         vis.anime = animeData.map(d => {
             return {
                 ...d,
@@ -55,12 +59,14 @@ class AnimePackedBubbleChart {
             };
         });
 
-        console.log(vis.anime.length);
-
         vis.root = d3.hierarchy({ children: vis.anime })
             .sum(d => d.Score);
 
         vis.nodes = vis.pack(vis.root).leaves();
+
+        console.log(d3.min(vis.anime, d => d.Score));
+        console.log(d3.max(vis.anime, d => d.Score));
+        vis.radiusScale.domain([d3.min(vis.anime, d => d.Score), d3.max(vis.anime, d => d.Score)]);
 
         vis.renderVis();
       }
@@ -95,7 +101,7 @@ class AnimePackedBubbleChart {
                     console.log(d.data)
                 })
                 .attr('class', 'bubble-anime')
-                .attr('r', d => d.r)
+                .attr('r', d => vis.radiusScale(d.data.Score))
                 //.attr('stroke', '#000000')
                // .attr('stroke-width', 2)
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
@@ -116,19 +122,16 @@ class AnimePackedBubbleChart {
 
       renderLegend() {
         let vis = this;
+        console.log(vis.radiusScale(9.19 - this.globalMinScore));
         
-        console.log(vis.genreToInfo)
-        console.log(vis.genre)
         const categories = [
-          ["4", "#b2e061", 6, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
-          ["6", "#ffee65", 20, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
-          ["8", "#7eb0d5", 30, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
-          ["10", "#fd7f6f", 40, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100]
-      ].map(([name, color, r, x, y]) => ({ name, color, r, x, y }));
+          ["7.5", vis.radiusScale(7.5 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2],
+          ["8.5", vis.radiusScale(8.5 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2],
+          ["9.19", vis.radiusScale(9.19 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2]
+      ].map(([name, r, x, y]) => ({ name, r, x, y }));
 
         vis.legendGroup = vis.svg.append('g')
-            .attr('class', 'legend')
-            .attr('transform', `translate(${vis.config.margin.left + 10}, ${-vis.config.margin.top - 20 })`);
+            .attr('class', 'legend');
         
         const legendItems = vis.legendGroup.selectAll(".legend-item")
             .data(categories)
@@ -138,9 +141,10 @@ class AnimePackedBubbleChart {
         
         // add legend text tittle
         vis.legendGroup.append('text')
-        .style('font-size', 12)
-        .attr('x', 10)
-        .attr('y', 60)
+        .style('font-size', 14)
+        .attr('x', vis.config.containerWidth + vis.config.legendWidth / 2)
+        .attr('text-anchor', 'middle')
+        .attr('y', 20)
         .text("The Rating of the Anime");
 
         //adding circles

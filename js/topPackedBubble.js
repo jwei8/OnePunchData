@@ -88,6 +88,7 @@ class TopPackedBubbleChart {
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerHeight])
             .padding(15);
+        vis.radiusScale = d3.scaleSqrt().range([20,190]);
 
         vis.updateVis();
     }
@@ -100,11 +101,22 @@ class TopPackedBubbleChart {
         vis.groupedAnimesObjects = vis.groupedAnimes.map(([genre, animes]) => {
             return {genre: genre, count: animes.length, animes: animes};
         });
+        console.log(d3.min(vis.groupedAnimesObjects, d => d.count));
+        console.log(d3.max(vis.groupedAnimesObjects, d => d.count));
+
+
+        vis.radiusScale.domain([d3.min(vis.groupedAnimesObjects, d => d.count), d3.max(vis.groupedAnimesObjects, d => d.count)]);
 
         vis.root = d3.hierarchy({ children: vis.groupedAnimesObjects })
             .sum(d => d.count);
 
         vis.nodes = vis.pack(vis.root).leaves();
+        console.log(vis.nodes);
+        console.log(vis.radiusScale(300));
+        console.log(vis.radiusScale(200));
+        console.log(vis.radiusScale(100));
+        console.log(vis.radiusScale(50));
+
 
         vis.renderVis();
     }
@@ -120,7 +132,7 @@ class TopPackedBubbleChart {
             .force("x", d3.forceX(vis.config.width / 2).strength(0.5))
             .force("y", d3.forceY(vis.config.height / 2).strength(0.5))
             .force('charge', d3.forceManyBody().strength(500))
-            .force("collision", d3.forceCollide().radius(d => d.r + 4).strength(0.8));
+            .force("collision", d3.forceCollide().radius(d => vis.radiusScale(d.data.count) + 2).strength(0.8));
 
         vis.bubblesGroups = vis.chartArea.selectAll('.top-level-bubble-group')
                 .data(vis.nodes, d => d.data.genre)
@@ -130,7 +142,6 @@ class TopPackedBubbleChart {
                 //.attr('fill', 'none')
                 .attr('opacity', 0.7);
 
-        console.log(this.bubblesGroups);
 
         vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
                 .data(d => d, d => d.data.genre)
@@ -141,11 +152,11 @@ class TopPackedBubbleChart {
                     }
                 })
                 .attr('class', 'bubble')
-                .attr('r', d => d.r)
+                .attr('r', d => vis.radiusScale(d.data.count))
                 //.attr('stroke', '#000000')
                 //.attr('stroke-width', 2)
                 .attr('fill', d => vis.genreToInfo[d.data.genre].color);
-
+        
         vis.genreText = vis.bubblesGroups.selectAll('.top-bubble-title')
                 .data(d => d, d => d.data.genre)
             .join('text')
@@ -184,6 +195,7 @@ class TopPackedBubbleChart {
         const translateX = vis.config.width / 2 - scale * currClickedNode.x + vis.config.margin.left;
         const translateY = vis.config.height / 2 - scale * currClickedNode.y + vis.config.margin.top;
 
+        vis.svg.select('.legend').remove();
         // remove previous groups vis if it exists
         vis.svg.selectAll('.bubble-anime').transition()
             .duration(250)
@@ -201,8 +213,7 @@ class TopPackedBubbleChart {
                     }
                 });
             });
-
-
+        
         setTimeout(() => {
             // Start the zoom transition
             vis.genreText.each(function() {
@@ -229,7 +240,9 @@ class TopPackedBubbleChart {
         let vis = this;
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
+
         // remove previous groups vis if it exists
+        vis.svg.select('.legend').remove();
         vis.svg.selectAll('.bubble-anime').transition()
             .duration(250)
             .attr('opacity', 0)
@@ -247,6 +260,9 @@ class TopPackedBubbleChart {
                                 vis.chartArea.transition()
                                                 .duration(750)
                                                 .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
+                                                .on('end', () => {
+                                                    vis.renderLegend(); // This should now include a transition
+                                                });
                             });
                     }
                 });
@@ -255,17 +271,36 @@ class TopPackedBubbleChart {
 
     renderLegend() {
         let vis = this;
-    
-        const categories = [
-          ["50+", "#b2e061", 50, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
-          ["100+", "#ffee65", 80, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 70],
-          ["200+", "#7eb0d5", 120, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 30],
-          ["300+", "#fd7f6f", 150, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2]
-      ].map(([name, color, r, x, y]) => ({ name, color, r, x, y }));
 
+
+        const categories = [
+          ["50", vis.radiusScale(50), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 105],
+          ["100", vis.radiusScale(100), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 75],
+          ["200", vis.radiusScale(200), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 35],
+          ["300", vis.radiusScale(300), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2]
+      ].map(([name, r, x, y]) => ({ name, r, x, y }));
+      console.log(categories);
+
+       //legend
+       vis.svg.append('rect')
+       .attr('width', vis.config.legendWidth)
+       .attr('height', vis.config.legendHeight)
+       .attr('rx', 10)          
+       .attr('ry', 10)
+       .attr('x', 800)   
+       .attr('y', 0)       
+       .attr('fill', 'white')   
+       .attr('stroke', 'grey') 
+       .attr('stroke-width', '2px');
+   
         vis.legendGroup = vis.svg.append('g')
             .attr('class', 'legend');
         
+        vis.legendGroup.style('opacity', 0);
+
+        vis.legendGroup.transition()
+            .duration(750)
+            .style('opacity', 1); // Fade-in transition for the legend
         const legendItems = vis.legendGroup.selectAll(".legend-item")
             .data(categories)
             .enter()
@@ -277,14 +312,14 @@ class TopPackedBubbleChart {
         .style('font-size', 12)
         .attr('x', vis.config.containerWidth + vis.config.legendWidth / 2)
         .attr('text-anchor', 'middle')
-        .attr('y', 30)
+        .attr('y', 20)
         .text("The # of Anime in the Genre");
     
         console.log(vis.config.containerWidth + vis.config.legendWidth / 2);
         //adding circles
         legendItems.append('circle')
           .attr('fill', 'none')
-          .attr('stroke', d => d.color)
+          .attr('stroke', 'red')
           .attr('stroke-width', 2)
           .attr('r', d => d.r);       
 
