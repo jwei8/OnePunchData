@@ -1,23 +1,20 @@
-class Scatterplot {
+class ScatterPlot {
 
-    /**
-     * Class constructor with basic chart configuration
-     * @param {Object}
-     * @param {Array}
-     */
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: _config.containerWidth || 600,
-            containerHeight: _config.containerHeight || 400,
-            margin: _config.margin || {
-                top: 25,
-                right: 20,
-                bottom: 20,
-                left: 35
+            containerWidth: 1000,
+            containerHeight: 600,
+            margin: {
+                top: 30,
+                right: 5,
+                bottom: 40,
+                left: 40
             },
-            tooltipPadding: _config.tooltipPadding || 15
+            // Todo: Add or remove attributes from config as needed
+            tooltipPadding: 10, // Added a tooltip padding configuration
         }
+        //   this.dispatcher = _dispatcher;
         this.data = _data;
         this.initVis();
     }
@@ -28,44 +25,57 @@ class Scatterplot {
     initVis() {
         let vis = this;
 
-        // Calculate inner chart size. Margin specifies the space around the actual chart.
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+        vis.genres = ['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem'];
+        vis.genreToInfo = {
+            "Action": { color: "#fd7f6f" },
+            "Comedy": { color: "#7eb0d5" },
+            "Sci-Fi": { color: "#b2e061", },
+            "Adventure": { color: "#bd7ebe" },
+            "Music": { color: "#ffb55a" },
+            "Game": { color: "#beb9db", },
+            "Mystery": { color: "#fdcce5" },
+            "Harem": { color: "#8bd3c7" },
+            "Drama": { color: "#bbd2de" },
+            "Slice of Life": { color: "#ffee65" },
+        }
 
-        // Initialize scales
+        // Extract genre names for the domain
+        const genres = Object.keys(vis.genreToInfo);
+
+        // Create the color scale
         vis.colorScale = d3.scaleOrdinal()
-            .range(['#d3eecd', '#7bc77e', '#2a8d46']) // light green to dark green
-            .domain(['Easy', 'Intermediate', 'Difficult']);
+            .domain(genres)
+            .range(genres.map(genre => vis.genreToInfo[genre].color));
 
+        // Set up x-axis scale
         vis.xScale = d3.scaleLinear()
             .range([0, vis.width]);
 
+        // Set up y-axis scale
         vis.yScale = d3.scaleLinear()
             .range([vis.height, 0]);
 
-        // Initialize axes
+        // Set up x-axis
         vis.xAxis = d3.axisBottom(vis.xScale)
-            .ticks(6)
-            .tickSize(-vis.height - 10)
-            .tickPadding(10)
-            .tickFormat(d => d + ' km');
+            .tickSizeOuter(0)
+            .tickFormat(d3.format('.2f'));
 
+        // Set up y-axis
         vis.yAxis = d3.axisLeft(vis.yScale)
-            .ticks(6)
-            .tickSize(-vis.width - 10)
-            .tickPadding(10);
+            .tickSizeOuter(0)
+            .tickFormat(d3.format('.2f')); // Use fixed-point notation with two decimal places
+
 
         // Define size of SVG drawing area
-        vis.svg = d3.select(vis.config.parentElement).append('svg')
+        vis.svg = d3.select(vis.config.parentElement)
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight);
 
-        // Append group element that will contain our actual chart
-        // and position it according to the given margin config
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
-        // Append empty x-axis group and move it to the bottom of the chart
         vis.xAxisG = vis.chart.append('g')
             .attr('class', 'axis x-axis')
             .attr('transform', `translate(0,${vis.height})`);
@@ -74,22 +84,43 @@ class Scatterplot {
         vis.yAxisG = vis.chart.append('g')
             .attr('class', 'axis y-axis');
 
-        // Append both axis titles
-        vis.chart.append('text')
-            .attr('class', 'axis-title')
-            .attr('y', vis.height - 15)
-            .attr('x', vis.width + 10)
-            .attr('dy', '.71em')
-            .style('text-anchor', 'end')
-            .text('Distance');
-
+        // Append axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('dy', '.71em')
-            .text('Hours');
+            .attr('x', 20)
+            .attr('y', 20)
+            .text('Correlation of Score VS Completed: Dropped ');
+
+        // Append x-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('x', vis.config.containerWidth / 2)
+            .attr('y', vis.config.containerHeight - 5) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Completed:Dropped Ratio');
+
+        // Append y-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -vis.config.containerHeight / 2)
+            .attr('y', 15) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Score');
+
+
+        // Initialize stack generator and specify the categories or layers
+        // that we want to show in the chart
+        vis.stack = d3.stack()
+            .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+
+        // Initialize x-axis and append it to the chart
+        vis.xAxisG.call(vis.xAxis);
+
+        // Initialize y-axis and append it to the chart
+        vis.yAxisG.call(vis.yAxis);
     }
+
 
     /**
      * Prepare the data and scales before we render it.
@@ -97,63 +128,95 @@ class Scatterplot {
     updateVis() {
         let vis = this;
 
-        // Specificy accessor functions
-        vis.colorValue = d => d.difficulty;
-        vis.xValue = d => d.time;
-        vis.yValue = d => d.distance;
+        // Accessor functions
+        vis.colorValue = d => d.PrimaryGenre;
+        vis.xValue = d => d.CompletedDroppedRatio;
+        vis.yValue = d => d.Scored;
 
         // Set the scale input domains
-        vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
-        vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
+        vis.xScale.domain([d3.min(vis.data, vis.xValue), d3.max(vis.data, vis.xValue)]);
+        vis.yScale.domain([d3.min(vis.data, vis.yValue), d3.max(vis.data, vis.yValue)]);
 
+        // Update x-axis
+        vis.xAxisG.call(vis.xAxis);
+
+        // Update y-axis
+        vis.yAxisG.call(vis.yAxis);
+
+        // Render the visualization
         vis.renderVis();
+
     }
 
-    /**
-     * Bind data to visual elements.
-     */
     renderVis() {
         let vis = this;
 
-        // Add circles
-        const circles = vis.chart.selectAll('.point')
-            .data(vis.data, d => d.trail)
+        vis.chart.selectAll('.point')
+            .data(vis.data)
             .join('circle')
             .attr('class', 'point')
             .attr('r', 4)
             .attr('cy', d => vis.yScale(vis.yValue(d)))
             .attr('cx', d => vis.xScale(vis.xValue(d)))
-            .attr('fill', d => vis.colorScale(vis.colorValue(d)));
-
-        // Tooltip event listeners
-        circles
+            .attr('fill', d => vis.colorScale(vis.colorValue(d)))
             .on('mouseover', (event, d) => {
-                d3.select('#tooltip')
-                    .style('display', 'block')
-                    .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-                    .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-                    .html(`
-              <div class="tooltip-title">${d.trail}</div>
-              <div><i>${d.region}</i></div>
-              <ul>
-                <li>${d.distance} km, ~${d.time} hours</li>
-                <li>${d.difficulty}</li>
-                <li>${d.season}</li>
-              </ul>
-            `);
+                // Handle mouseover
             })
             .on('mouseleave', () => {
-                d3.select('#tooltip').style('display', 'none');
+                // Handle mouseleave
             });
 
-        // Update the axes/gridlines
-        // We use the second .call() to remove the axis and just show gridlines
-        vis.xAxisG
-            .call(vis.xAxis)
-            .call(g => g.select('.domain').remove());
+        // Render the legend
+        vis.renderLegend();
+    }
 
-        vis.yAxisG
-            .call(vis.yAxis)
-            .call(g => g.select('.domain').remove())
+    renderLegend() {
+        let vis = this;
+
+        if (vis.svg.select('.legend').empty()) {
+            vis.legend = vis.svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${vis.config.containerWidth - 150},${20})`);
+        }
+
+        // Add legend entries
+        const genres = vis.colorScale.domain();
+        const legendEntry = vis.legend.selectAll('.legend-entry')
+            .data(genres)
+            .join('g')
+            .attr('class', 'legend-entry')
+            .attr('transform', (d, i) => `translate(0, ${i * 20})`)
+            .style('cursor', 'pointer')
+            .on('click', (event, selectedGenre) => {
+                vis.data.forEach(d => {
+                    d.filtered = (selectedGenre !== d.PrimaryGenre);
+                });
+                vis.updateFiltered();
+            });
+
+        // Add the colored rectangles
+        legendEntry.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 12)
+            .attr('height', 12)
+            .attr('fill', d => vis.colorScale(d));
+
+        // Add the text labels
+        legendEntry.append('text')
+            .attr('x', 20)
+            .attr('y', 12)
+            .text(d => d);
+
+        // Initial rendering with no genre filtered
+        vis.updateFiltered();
+    }
+
+    updateFiltered() {
+        let vis = this;
+
+        vis.chart.selectAll('.point')
+            .attr('fill-opacity', d => d.filtered ? 0.1 : 1)
+            .attr('stroke-opacity', d => d.filtered ? 0.1 : 1);
     }
 }
