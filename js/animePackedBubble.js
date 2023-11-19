@@ -5,6 +5,8 @@ class AnimePackedBubbleChart {
           parentElement: _config.parentElement,
           containerWidth: 800,
           containerHeight: 800,
+          legendWidth: 400,
+          legendHeight: 400,
           tooltipPadding: 15,
           margin: {
             top: 40,
@@ -17,9 +19,9 @@ class AnimePackedBubbleChart {
         this.globalMinScore = _globalMinScore;
         this.ratingToColor = {
             "G - All Ages": "#ffffff",
-            "PG - Children": "#a2a2a2",
-            "PG-13 - Teens 13 or older": "#4e4e4e",
-            "R - 17+ (violence & profanity)": "#000000",
+            "PG - Children": "#ffff00",
+            "PG-13 - Teens 13 or older": "#75147c",
+            "R - 17+ (violence & profanity)": "#ff0000",
             "R+ - Mild Nudity": "#000000",
         }
         this.initVis();
@@ -103,9 +105,54 @@ class AnimePackedBubbleChart {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         });
 
+        vis.renderLegend();
+
         bubbles.transition()
             .duration(500)
             .attr('opacity', 1);
+
+      }
+
+
+      renderLegend() {
+        let vis = this;
+        
+        console.log(vis.genreToInfo)
+        console.log(vis.genre)
+        const categories = [
+          ["4", "#b2e061", 6, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
+          ["6", "#ffee65", 20, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
+          ["8", "#7eb0d5", 30, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100],
+          ["10", "#fd7f6f", 40, vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 100]
+      ].map(([name, color, r, x, y]) => ({ name, color, r, x, y }));
+
+        vis.legendGroup = vis.svg.append('g')
+            .attr('class', 'legend')
+            .attr('transform', `translate(${vis.config.margin.left + 10}, ${-vis.config.margin.top - 20 })`);
+        
+        const legendItems = vis.legendGroup.selectAll(".legend-item")
+            .data(categories)
+            .enter()
+            .append('g')
+            .attr('transform', d => `translate(${d.x},${d.y})`)
+        
+        // add legend text tittle
+        vis.legendGroup.append('text')
+        .style('font-size', 12)
+        .attr('x', 10)
+        .attr('y', 60)
+        .text("The Rating of the Anime");
+
+        //adding circles
+        legendItems.append('circle')
+          .attr('fill', 'none')
+          .attr('stroke', vis.genreToInfo[vis.genre].color)
+          .attr('stroke-width', 2)
+          .attr('r', d => d.r);
+    
+        // change the color for the selected text
+        legendItems.select("text")
+            .text(d => d.name);          
       }
 
 }
