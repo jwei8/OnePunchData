@@ -199,43 +199,40 @@ class TopPackedBubbleChart {
 
         vis.svg.select('.legend').remove();
         // remove previous groups vis if it exists
-        vis.svg.selectAll('.bubble-anime').transition()
+        let bubbles = vis.svg.selectAll('.bubble-anime');
+        let total = bubbles.size();
+        let counter = 0;
+
+        if (total === 0) {
+            // Zooming in from global
+            vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode);
+            return;
+        }
+
+        // switch to other bubble
+        bubbles.transition()
             .duration(250)
             .attr('opacity', 0)
             .on('end', () => {
-                vis.svg.select('.anime-level-group').remove()
+                counter++;
+                if (counter === total) {
+                    // Only run code when all transitions complete
+                    vis.svg.select('.anime-level-group').remove();
 
-                vis.genreText.each(function() {
-                    let textElement = d3.select(this);
-                    if (textElement.text() === prevNode.data.genre) {
-                        // Apply fade-out transition to the matching element
-                        textElement.transition()
-                            .duration(750)
-                            .style("opacity", 1);
-                    }
-                });
-            });
-        
-        setTimeout(() => {
-            // Start the zoom transition
-            vis.genreText.each(function() {
-                let textElement = d3.select(this);
-                if (textElement.text() === currClickedNode.data.genre) {
-                    // Apply fade-out transition to the matching element
-                    textElement.transition()
-                        .duration(750)
-                        .style("opacity", 0);
+                    vis.genreText.each(function() {
+                        let textElement = d3.select(this);
+                        if (textElement.text() === prevNode.data.genre) {
+                            // Apply fade-out transition to the matching element
+                            textElement.transition()
+                                .duration(500)
+                                .style("opacity", 1)
+                                .on('end', () => {
+                                    vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode);
+                                });
+                        }
+                    });
                 }
             });
-
-            vis.chartArea.transition()
-                .duration(750)
-                .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
-                .on("end", () => {
-                    vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
-                }); 
-
-        }, 350);
     }
 
     zoomOut() {
@@ -331,6 +328,28 @@ class TopPackedBubbleChart {
           .attr('y', d => d.y - 355)
           .attr('text-anchor', 'middle')
           .text(d => d.name);
+      }
+
+      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
+        let vis = this;
+
+        vis.chartArea.transition()
+            .duration(750)
+            .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
+            .on("end", () => {
+                vis.genreText.each(function() {
+                    let textElement = d3.select(this);
+                    if (textElement.text() === currClickedNode.data.genre) {
+                        // Apply fade-out transition to the matching element
+                        textElement.transition()
+                            .duration(500)
+                            .style("opacity", 0)
+                            .on('end', () => {
+                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
+                            });
+                    }
+                });
+            });
       }
       
 }
