@@ -51,8 +51,6 @@ class AnimePackedBubbleChart {
 
         vis.genre = genreToView;
 
-        console.log(d3.min(animeData, d => d.Score));
-        console.log(d3.max(animeData, d => d.Score));
         vis.anime = animeData.map(d => {
             return {
                 ...d,
@@ -64,9 +62,6 @@ class AnimePackedBubbleChart {
             .sum(d => d.Score);
 
         vis.nodes = vis.pack(vis.root).leaves();
-
-        console.log(d3.min(vis.anime, d => d.Score));
-        console.log(d3.max(vis.anime, d => d.Score));
 
         vis.radiusScale.domain([vis.globalMinScore, vis.globalMaxScore]);
 

@@ -29,9 +29,6 @@ class TopPackedBubbleChart {
         vis.config.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.config.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
 
-        console.log(vis.config.width);
-        console.log(vis.config.height);
-
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', vis.config.containerWidth + vis.config.legendWidth)
@@ -99,7 +96,7 @@ class TopPackedBubbleChart {
         vis.groupedAnimes = d3.groups(vis.data, d => d.Genre);
 
         vis.groupedAnimesObjects = vis.groupedAnimes.map(([genre, animes]) => {
-            return {genre: genre, count: animes.length, animes: animes};
+            return {genre: genre, count: animes.length, animes: animes, isClickable: true};
         });
         console.log(d3.min(vis.groupedAnimesObjects, d => d.count));
         console.log(d3.max(vis.groupedAnimesObjects, d => d.count));
@@ -126,7 +123,7 @@ class TopPackedBubbleChart {
 
         let vis = this;
 
-        vis.simulationActive = true;
+        vis.notClickableGlobal = true;
 
         const simulation = d3.forceSimulation(vis.nodes)
             .force("x", d3.forceX(vis.config.width / 2).strength(0.5))
@@ -147,7 +144,7 @@ class TopPackedBubbleChart {
                 .data(d => d, d => d.data.genre)
             .join('circle')
                 .on('click', (event, d) => {
-                    if (!vis.simulationActive) {
+                    if (!vis.notClickableGlobal && d.data.isClickable) {
                         vis.zoomToBubble(d);
                     }
                 })
@@ -176,17 +173,23 @@ class TopPackedBubbleChart {
         simulation.on("tick", () => {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         }).on("end", () => {
-            vis.simulationActive = false;
+            vis.notClickableGlobal = false;
         });
     }
 
 
     zoomToBubble(currClickedNode) {
         let vis = this;
+        vis.notClickableGlobal = true;
         const prevNode = vis.clickedNode;
         vis.clickedNode = currClickedNode;
 
-        console.log(currClickedNode)
+        // Make current node notClickable and prev node clickable
+        currClickedNode.data.isClickable = false;
+
+        if (prevNode != null) {
+            prevNode.data.isClickable = true;
+        }
     
         // Calculate the scale for zooming
         const targetRadius = Math.min(vis.config.width, vis.config.height) / 2;
@@ -237,8 +240,13 @@ class TopPackedBubbleChart {
 
     zoomOut() {
         let vis = this;
+        vis.notClickableGlobal = true;
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
+
+        if (prevNode != null) {
+            prevNode.data.isClickable = true;
+        }
 
         // remove previous groups vis if it exists
         vis.svg.select('.legend').remove();
@@ -257,11 +265,12 @@ class TopPackedBubbleChart {
                             .style("opacity", 1)
                             .on('end', () => {
                                 vis.chartArea.transition()
-                                                .duration(750)
-                                                .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
-                                                .on('end', () => {
-                                                    vis.renderLegend(); // This should now include a transition
-                                                });
+                                    .duration(750)
+                                    .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
+                                    .on('end', () => {
+                                        vis.notClickableGlobal = false;
+                                        vis.renderLegend(); // This should now include a transition
+                                    });
                             });
                     }
                 });
@@ -346,6 +355,7 @@ class TopPackedBubbleChart {
                             .style("opacity", 0)
                             .on('end', () => {
                                 vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
+                                vis.notClickableGlobal = false;
                             });
                     }
                 });
