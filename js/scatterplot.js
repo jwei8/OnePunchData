@@ -15,6 +15,7 @@ class ScatterPlot {
             tooltipPadding: 10, // Added a tooltip padding configuration
         }
         //   this.dispatcher = _dispatcher;
+        this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
         this.initVis();
     }
@@ -119,6 +120,10 @@ class ScatterPlot {
 
         // Initialize y-axis and append it to the chart
         vis.yAxisG.call(vis.yAxis);
+
+        vis.tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
     }
 
 
@@ -160,11 +165,28 @@ class ScatterPlot {
             .attr('cx', d => vis.xScale(vis.xValue(d)))
             .attr('fill', d => vis.colorScale(vis.colorValue(d)))
             .on('mouseover', (event, d) => {
-                // Handle mouseover
+                vis.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                vis.tooltip.html(d.Name + "<br/> Score: " + d.Score + "<br/> Rating: " + d.Rating)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
             })
-            .on('mouseleave', () => {
-                // Handle mouseleave
+            .on('mouseout', () => {
+                vis.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
+            .on('click', (event, d) => {
+                if (vis.selectedGenre === d.PrimaryGenre) {
+                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                } else {
+                    vis.selectedGenre = d.PrimaryGenre; // Select the new genre
+                }
+                vis.updateFiltered();
+                vis.updateLegendColors();
             });
+        ;
 
         // Render the legend
         vis.renderLegend();
@@ -179,6 +201,8 @@ class ScatterPlot {
                 .attr('transform', `translate(${vis.config.containerWidth - 150},${20})`);
         }
 
+
+
         // Add legend entries
         const genres = vis.colorScale.domain();
         const legendEntry = vis.legend.selectAll('.legend-entry')
@@ -188,11 +212,15 @@ class ScatterPlot {
             .attr('transform', (d, i) => `translate(0, ${i * 20})`)
             .style('cursor', 'pointer')
             .on('click', (event, selectedGenre) => {
-                vis.data.forEach(d => {
-                    d.filtered = (selectedGenre !== d.PrimaryGenre);
-                });
+                if (vis.selectedGenre === selectedGenre) {
+                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                } else {
+                    vis.selectedGenre = selectedGenre; // Select the new genre
+                }
                 vis.updateFiltered();
+                vis.updateLegendColors();
             });
+
 
         // Add the colored rectangles
         legendEntry.append('rect')
@@ -216,7 +244,25 @@ class ScatterPlot {
         let vis = this;
 
         vis.chart.selectAll('.point')
-            .attr('fill-opacity', d => d.filtered ? 0.1 : 1)
-            .attr('stroke-opacity', d => d.filtered ? 0.1 : 1);
+            .attr('fill', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ? vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
+            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ? 1 : 0.3) // Lower opacity for greyed-out points
+            .attr('stroke-opacity', 1)
+            .each(function(d) {
+                if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                    d3.select(this).raise(); // Bring the selected points to the front
+                }
+            });
+
+        vis.updateLegendColors();
     }
+
+    updateLegendColors() {
+        let vis = this;
+
+        vis.legend.selectAll('.legend-entry rect')
+            .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
+            .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
+    }
+
+
 }
