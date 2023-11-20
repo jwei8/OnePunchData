@@ -1,7 +1,5 @@
 class Barchart {
 
-
-
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
@@ -85,7 +83,7 @@ class Barchart {
             .attr('class', 'axis-title')
             .attr('x', 0)
             .attr('y', 20)
-            .text('View 2');
+        // .text('View 2');
 
         // Initialize stack generator and specify the categories or layers
         // that we want to show in the chart
@@ -126,7 +124,6 @@ class Barchart {
 
         console.log(vis.flattenedData);
 
-
         // Set the scale input domains
         vis.xScale.domain(vis.flattenedData.map(d => d.Year));
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
@@ -145,7 +142,21 @@ class Barchart {
     renderVis() {
         let vis = this;
 
-        // const bars = vis.chart.selectAll('.category')
+        vis.bars = vis.chart.selectAll(".category")
+            .data(vis.stackedData)
+            .join("g")
+            .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
+            .selectAll("rect")
+            .data(d => d)
+            .join("rect")
+            .attr('x', d => vis.xScale(d.data.Year))
+            .attr('y', d => vis.yScale(d[1]))
+            .attr('width', vis.xScale.bandwidth())
+            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+            .attr("height", 0);
+
+        // original
+        // vis.bars = vis.chart.selectAll('.category')
         //     .data(vis.stackedData)
         //     .join('g')
         //     .attr('class', d => `category cat-${d.key}`)
@@ -158,6 +169,73 @@ class Barchart {
         //     .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
         //     .attr('width', vis.xScale.bandwidth());
 
+        // https://gist.github.com/mbostock/3887051
+        // const group = vis.chart.selectAll("group")
+        //     .data(vis.flattenedData)
+        //     .join("g")
+        //     .attr("transform", function (d) { return "translate(" + vis.xScale(d.Year) + ",0)"; }) // place each bar along the x-axis at the place defined by the xScale variable
+        //     .selectAll("rect")
+        //     .data(d => vis.valueKeys.map(key => ({ key, value: d[key] }))) // use the keys to access the data separately
+        //     .join("rect")
+        //     .attr("x", function (d) { return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
+        //     .attr("y", function (d) { return vis.yScale(d.value); }) // draw the height of the barse using the data from the keys as the height value
+        //     .attr("width", vis.x1.bandwidth()) // bar is the width defined by the x1 variable
+        //     .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
+        //     .attr("fill", function (d) { return vis.genreToInfo[d.key].color; });
+
+        // Update axes
+        vis.xAxisG.call(vis.xAxis).call((g) => g.select(".domain").remove());
+        vis.yAxisG.call(vis.yAxis).call((g) => g.select(".domain").remove());
+
+        // d3.selectAll("input").on("change", vis.change);
+        d3.selectAll("input").on("change", change);
+
+        function change() {
+            if (this.value === "grouped") vis.transitionGrouped();
+            if (this.value === "stacked") vis.transitionStacked();
+        }
+    }
+
+    // change() {
+    //     let vis = this;
+    //     if (this.value === "grouped") {
+    //         vis.transitionGrouped();
+    //     }
+    //     if (this.value === "stacked") {
+    //         vis.transitionStacked();
+    //     };
+    //     // if (this.value === "grouped") console.log('group');
+    //     // if (this.value === "stacked") console.log('stacked');
+    // }
+
+    transitionGrouped() {
+        let vis = this;
+
+        // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+
+        console.log('test1');
+
+        // group.transition()
+        //     .duration(500)
+        //     .delay((d, i) => i * 20)
+        // .attr("x", (d, i) => x(i) + x.bandwidth() / n * d[2])
+        // .attr("width", x.bandwidth() / n)
+        // .transition()
+        // .attr("y", d => y(d[1] - d[0]))
+        // .attr("height", d => y(0) - y(d[1] - d[0]));
+
+
+        // vis.rect
+        //     .data(d => {vis.valueKeys.map(key => ({ key, value: d[key] }))}) // use the keys to access the data separately
+        //     .transition()
+        //     .duration(500)
+        //     // .delay((d, i) => i * 20)
+        //     .attr('x', d => {console.log(d); vis.xScale(d.data.Year)})
+        //     .attr('y', d => vis.yScale(d[1]))
+        //     .attr('width', vis.xScale.bandwidth())
+        //     // .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
+        //     .attr("height", function (d) { console.log(d.value); return (vis.yScale(0) - vis.yScale(d.value)) })
+
         const group = vis.chart.selectAll("group")
             .data(vis.flattenedData)
             .join("g")
@@ -165,14 +243,41 @@ class Barchart {
             .selectAll("rect")
             .data(d => vis.valueKeys.map(key => ({ key, value: d[key] }))) // use the keys to access the data separately
             .join("rect")
-            .attr("x", function (d) { return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
+            .attr("x", function (d) { console.log(d); return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
             .attr("y", function (d) { return vis.yScale(d.value); }) // draw the height of the barse using the data from the keys as the height value
             .attr("width", vis.x1.bandwidth()) // bar is the width defined by the x1 variable
             .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
-            .attr("fill", function (d) { return vis.genreToInfo[d.key].color ; });
+            .attr("fill", function (d) { return vis.genreToInfo[d.key].color; });
 
-        // Update axes
-        vis.xAxisG.call(vis.xAxis).call((g) => g.select(".domain").remove());
-        vis.yAxisG.call(vis.yAxis).call((g) => g.select(".domain").remove());
     }
+
+    transitionStacked() {
+        let vis = this;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
+
+        vis.bars.transition()
+            .duration(500)
+            .delay((d, i) => i * 20)
+            .attr('y', d => vis.yScale(d[1]))
+            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+            .transition()
+            .attr('x', d => vis.xScale(d.data.Year))
+            .attr('width', vis.xScale.bandwidth());
+
+        // const bars = vis.chart.selectAll('.category')
+        //     .data(vis.stackedData)
+        //     .join('g')
+        //     .attr('class', d => `category cat-${d.key}`)
+        //     .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
+        //     .selectAll('rect')
+        //     .data(d => d)
+        //     .join('rect')
+        //     .attr('x', d => vis.xScale(d.data.Year))
+        //     .attr('y', d => vis.yScale(d[1]))
+        //     .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+        //     .attr('width', vis.xScale.bandwidth());
+    }
+
+
 }
