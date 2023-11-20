@@ -88,7 +88,7 @@ class TopPackedBubbleChart {
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerHeight])
             .padding(15);
-        vis.radiusScale = d3.scaleSqrt().range([20,190]);
+        vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
         vis.updateVis();
     }
@@ -185,10 +185,12 @@ class TopPackedBubbleChart {
         let vis = this;
         const prevNode = vis.clickedNode;
         vis.clickedNode = currClickedNode;
+
+        console.log(currClickedNode)
     
         // Calculate the scale for zooming
         const targetRadius = Math.min(vis.config.width, vis.config.height) / 2;
-        const scale = targetRadius / currClickedNode.r;
+        const scale = targetRadius / vis.radiusScale(currClickedNode.data.count);
     
         // Calculate the translation needed to center the bubble
         // Adjust the translation to account for initial chart area translation
@@ -321,7 +323,7 @@ class TopPackedBubbleChart {
           .attr('fill', 'none')
           .attr('stroke', 'red')
           .attr('stroke-width', 2)
-          .attr('r', d => d.r);       
+          .attr('r', d => d.r);
 
           legendItems.append('text')
           .style('font-size', 12)

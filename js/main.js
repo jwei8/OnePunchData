@@ -24,6 +24,7 @@ d3.csv('data/anime_processed.csv')
   .then(data => {
 
     const globalMinScore = d3.min(data, d => d.Score);
+    const globalMaxScore = d3.max(data, d => d.Score);
 
     topLevelBubble = new TopPackedBubbleChart({
       parentElement: '#packed-bubble'
@@ -31,7 +32,7 @@ d3.csv('data/anime_processed.csv')
 
     animeLevelBubble = new AnimePackedBubbleChart({
       parentElement: '#packed-bubble'
-    }, genreToInfo, globalMinScore);
+    }, genreToInfo, globalMinScore, globalMaxScore);
   })
   .catch(error => console.error(error));
 

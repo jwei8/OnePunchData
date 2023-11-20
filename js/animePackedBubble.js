@@ -1,6 +1,6 @@
 class AnimePackedBubbleChart {
 
-    constructor(_config, _genreToInfo, _globalMinScore) {
+    constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore) {
         this.config = {
           parentElement: _config.parentElement,
           containerWidth: 800,
@@ -17,6 +17,7 @@ class AnimePackedBubbleChart {
         }
         this.genreToInfo = _genreToInfo;
         this.globalMinScore = _globalMinScore;
+        this.globalMaxScore = _globalMaxScore;
         this.ratingToColor = {
             "G - All Ages": "#ffffff",
             "PG - Children": "#ffff00",
@@ -40,7 +41,7 @@ class AnimePackedBubbleChart {
             .size([vis.config.containerWidth, vis.config.containerWidth])
             .padding(15);
         
-        vis.radiusScale = d3.scaleLinear().range([2,20]);
+        vis.radiusScale = d3.scaleLinear().range([6,30]);
       }
 
       updateVis(genreToView, animeData) {
@@ -55,7 +56,7 @@ class AnimePackedBubbleChart {
         vis.anime = animeData.map(d => {
             return {
                 ...d,
-                Score: d.Score - vis.globalMinScore + 0.05
+                Score: d.Score
             };
         });
 
@@ -66,7 +67,8 @@ class AnimePackedBubbleChart {
 
         console.log(d3.min(vis.anime, d => d.Score));
         console.log(d3.max(vis.anime, d => d.Score));
-        vis.radiusScale.domain([d3.min(vis.anime, d => d.Score), d3.max(vis.anime, d => d.Score)]);
+
+        vis.radiusScale.domain([vis.globalMinScore, vis.globalMaxScore]);
 
         vis.renderVis();
       }
@@ -80,13 +82,13 @@ class AnimePackedBubbleChart {
             .attr('width', vis.config.width)
             .attr('height', vis.config.height);
 
-        const chargeStrength = d => vis.genreToInfo[vis.genre].chargeModifier * d.r;
+        const chargeStrength = d => vis.genreToInfo[vis.genre].chargeModifier * vis.radiusScale(d.data.Score);
 
         const simulation = d3.forceSimulation(vis.nodes)
             .force("x", d3.forceX(vis.config.width / 2).strength(0.5))
             .force("y", d3.forceY(vis.config.width / 2).strength(0.5))
             .force('charge', d3.forceManyBody().strength(chargeStrength))
-            .force("collision", d3.forceCollide().radius(d => d.r + 4).strength(0.8));
+            .force("collision", d3.forceCollide().radius(d => vis.radiusScale(d.data.Score) + 4).strength(0.8));
         
         const animeGroups = vis.chartArea.selectAll('.anime-level-bubble-group')
                 .data(vis.nodes, d => d.data.MAL_ID)
