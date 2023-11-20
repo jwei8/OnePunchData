@@ -6,15 +6,14 @@ class ScatterPlot {
             containerWidth: 1000,
             containerHeight: 600,
             margin: {
-                top: 30,
-                right: 5,
-                bottom: 40,
-                left: 40
+                top: 40,
+                right: 40,
+                bottom: 80,
+                left: 80
             },
             // Todo: Add or remove attributes from config as needed
             tooltipPadding: 10, // Added a tooltip padding configuration
         }
-        //   this.dispatcher = _dispatcher;
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
         this.initVis();
@@ -68,7 +67,6 @@ class ScatterPlot {
             .tickSizeOuter(0)
             .tickFormat(d3.format('.2f')); // Use fixed-point notation with two decimal places
 
-
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
             .attr('width', vis.config.containerWidth)
@@ -96,7 +94,7 @@ class ScatterPlot {
         vis.svg.append('text')
             .attr('class', 'axis-title')
             .attr('x', vis.config.containerWidth / 2)
-            .attr('y', vis.config.containerHeight - 5) // Adjust the position as needed
+            .attr('y', vis.config.containerHeight - 30) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
@@ -105,15 +103,14 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 15) // Adjust the position as needed
+            .attr('y', 30) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Score');
 
-
-        // Initialize stack generator and specify the categories or layers
-        // that we want to show in the chart
+        // Initialize stack generator and specify the categories or layers that we want to show in the chart
         vis.stack = d3.stack()
-            .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+            .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure',
+                'Game', 'Music', 'Harem']);
 
         // Initialize x-axis and append it to the chart
         vis.xAxisG.call(vis.xAxis);
@@ -121,6 +118,7 @@ class ScatterPlot {
         // Initialize y-axis and append it to the chart
         vis.yAxisG.call(vis.yAxis);
 
+        // tooltip
         vis.tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
@@ -133,7 +131,6 @@ class ScatterPlot {
     updateVis() {
         let vis = this;
 
-        // Accessor functions
         vis.colorValue = d => d.PrimaryGenre;
         vis.xValue = d => d.CompletedDroppedRatio;
         vis.yValue = d => d.Scored;
@@ -201,8 +198,6 @@ class ScatterPlot {
                 .attr('transform', `translate(${vis.config.containerWidth - 150},${20})`);
         }
 
-
-
         // Add legend entries
         const genres = vis.colorScale.domain();
         const legendEntry = vis.legend.selectAll('.legend-entry')
@@ -220,7 +215,6 @@ class ScatterPlot {
                 vis.updateFiltered();
                 vis.updateLegendColors();
             });
-
 
         // Add the colored rectangles
         legendEntry.append('rect')
@@ -244,8 +238,10 @@ class ScatterPlot {
         let vis = this;
 
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ? vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ? 1 : 0.3) // Lower opacity for greyed-out points
+            .attr('fill', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+                vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
+            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+                1 : 0.3) // Lower opacity for greyed-out points
             .attr('stroke-opacity', 1)
             .each(function(d) {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
@@ -263,6 +259,5 @@ class ScatterPlot {
             .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
             .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
     }
-
 
 }
