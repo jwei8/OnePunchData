@@ -3,6 +3,7 @@ class AnimePackedBubbleChart {
     constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore) {
         this.config = {
           parentElement: _config.parentElement,
+          parentElementLegend: _config.parentElementLegend,
           containerWidth: 800,
           containerHeight: 800,
           legendWidth: 400,
@@ -44,7 +45,7 @@ class AnimePackedBubbleChart {
         vis.radiusScale = d3.scaleLinear().range([6,30]);
       }
 
-      updateVis(genreToView, animeData) {
+      updateVis(genreToView, animeData, rerenderLegend) {
         let vis = this;
 
         //PERHAPS SCALE DATA BY GLOBAL MINIMUM rather than just the minimum in the genre
@@ -64,6 +65,8 @@ class AnimePackedBubbleChart {
         vis.nodes = vis.pack(vis.root).leaves();
 
         vis.radiusScale.domain([vis.globalMinScore, vis.globalMaxScore]);
+
+        vis.rerenderLegend = rerenderLegend;
 
         vis.renderVis();
       }
@@ -108,52 +111,92 @@ class AnimePackedBubbleChart {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         });
 
-        vis.renderLegend();
-
         bubbles.transition()
             .duration(500)
             .attr('opacity', 1);
+        
+        if (vis.rerenderLegend) {
+            vis.renderLegend();
+        }
 
       }
 
 
       renderLegend() {
         let vis = this;
-        console.log(vis.radiusScale(9.19 - this.globalMinScore));
-        
-        const categories = [
-          ["7.5", vis.radiusScale(7.5 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2],
-          ["8.5", vis.radiusScale(8.5 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2],
-          ["9.19", vis.radiusScale(9.19 - this.globalMinScore), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2]
-      ].map(([name, r, x, y]) => ({ name, r, x, y }));
 
-        vis.legendGroup = vis.svg.append('g')
+        const scores = [7.5, 8.5, 9.5];
+
+        //legend
+        vis.svgLegend = d3.select(vis.config.parentElementLegend)
+                          .attr('width', vis.config.legendWidth)
+                          .attr('height', vis.config.legendHeight);
+        
+        vis.svgLegend.append('rect')
+            .attr('width', vis.config.legendWidth)
+            .attr('height', vis.config.legendHeight)    
+            .attr('fill', 'white')
+            .attr('stroke', 'grey') 
+            .attr('stroke-width', '2px');
+
+        vis.legendGroup = vis.svgLegend.append('g')
             .attr('class', 'legend');
+
         
-        const legendItems = vis.legendGroup.selectAll(".legend-item")
-            .data(categories)
-            .enter()
-            .append('g')
-            .attr('transform', d => `translate(${d.x},${d.y})`)
-        
-        // add legend text tittle
         vis.legendGroup.append('text')
-        .style('font-size', 14)
-        .attr('x', vis.config.containerWidth + vis.config.legendWidth / 2)
-        .attr('text-anchor', 'middle')
-        .attr('y', 20)
-        .text("The Rating of the Anime");
+            .style('font-size', 12)
+            .attr('x', vis.config.legendWidth / 2)
+            .attr('text-anchor', 'middle')
+            .attr('y', 20)
+            .text("The score of Anime in the Genre");
+        
+        vis.legendGroup.selectAll('.legend-item')
+            .data(scores)
+            .enter()
+            .append('circle')
+            .attr('class', 'legend-item')
+            .attr('fill', 'none')
+            .attr('stroke', 'red')
+            .attr('stroke-width', 2)
+            .attr('r', d => vis.radiusScale(d))
+            .attr('cx', vis.config.legendWidth / 2)
+            .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d) - 100);
+        
+        vis.legendGroup.selectAll('.legend-item-text')
+            .data(scores)
+            .enter()
+            .append('text')
+            .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
+            .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 105) // Above the circle
+            .attr('class', 'legend-item-text')
+            .attr('text-anchor', 'middle') 
+            .style('alignment-baseline', 'top')
+            .text(d => `${d}`)
+            .attr('text-anchor', 'middle') // Center the text at the x position
+            .attr('alignment-baseline', 'middle') // Center the text vertically
+            .style('font-size', '12px'); // Set the font size
+        }
 
-        //adding circles
-        legendItems.append('circle')
-          .attr('fill', 'none')
-          .attr('stroke', vis.genreToInfo[vis.genre].color)
-          .attr('stroke-width', 2)
-          .attr('r', d => d.r);
-    
-        // change the color for the selected text
-        legendItems.select("text")
-            .text(d => d.name);          
+      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
+        let vis = this;
+
+        vis.chartArea.transition()
+            .duration(750)
+            .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
+            .on("end", () => {
+                vis.genreText.each(function() {
+                    let textElement = d3.select(this);
+                    if (textElement.text() === currClickedNode.data.genre) {
+                        // Apply fade-out transition to the matching element
+                        textElement.transition()
+                            .duration(500)
+                            .style("opacity", 0)
+                            .on('end', () => {
+                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
+                                vis.notClickableGlobal = false;
+                            });
+                    }
+                });
+            });
       }
-
 }

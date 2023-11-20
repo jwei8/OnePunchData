@@ -3,6 +3,7 @@ class TopPackedBubbleChart {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
+          parentElementLegend: _config.parentElementLegend,
           containerWidth: 800,
           containerHeight: 800,
           legendWidth: 400,
@@ -31,7 +32,7 @@ class TopPackedBubbleChart {
 
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
-            .attr('width', vis.config.containerWidth + vis.config.legendWidth)
+            .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight);
 
         vis.chartArea = vis.svg.append('g')
@@ -59,28 +60,6 @@ class TopPackedBubbleChart {
             .attr('stroke', 'grey') 
             .attr('stroke-width', '2px');
         
-        // cover the right side of the panel for legend
-        vis.svg.append('rect')
-            .attr('width', vis.config.legendWidth)
-            .attr('height', vis.config.legendHeight * 2)
-            .attr('rx', 10)          
-            .attr('ry', 10)
-            .attr('x', 800)   
-            .attr('y', 0)       
-            .attr('fill', 'white');
-
-        //legend
-        vis.svg.append('rect')
-            .attr('width', vis.config.legendWidth)
-            .attr('height', vis.config.legendHeight)
-            .attr('rx', 10)          
-            .attr('ry', 10)
-            .attr('x', 800)   
-            .attr('y', 0)       
-            .attr('fill', 'white')   
-            .attr('stroke', 'grey') 
-            .attr('stroke-width', '2px');
-        
 
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerHeight])
@@ -98,8 +77,6 @@ class TopPackedBubbleChart {
         vis.groupedAnimesObjects = vis.groupedAnimes.map(([genre, animes]) => {
             return {genre: genre, count: animes.length, animes: animes, isClickable: true};
         });
-        console.log(d3.min(vis.groupedAnimesObjects, d => d.count));
-        console.log(d3.max(vis.groupedAnimesObjects, d => d.count));
 
 
         vis.radiusScale.domain([d3.min(vis.groupedAnimesObjects, d => d.count), d3.max(vis.groupedAnimesObjects, d => d.count)]);
@@ -108,12 +85,6 @@ class TopPackedBubbleChart {
             .sum(d => d.count);
 
         vis.nodes = vis.pack(vis.root).leaves();
-        console.log(vis.nodes);
-        console.log(vis.radiusScale(300));
-        console.log(vis.radiusScale(200));
-        console.log(vis.radiusScale(100));
-        console.log(vis.radiusScale(50));
-
 
         vis.renderVis();
     }
@@ -200,7 +171,6 @@ class TopPackedBubbleChart {
         const translateX = vis.config.width / 2 - scale * currClickedNode.x + vis.config.margin.left;
         const translateY = vis.config.height / 2 - scale * currClickedNode.y + vis.config.margin.top;
 
-        vis.svg.select('.legend').remove();
         // remove previous groups vis if it exists
         let bubbles = vis.svg.selectAll('.bubble-anime');
         let total = bubbles.size();
@@ -208,7 +178,7 @@ class TopPackedBubbleChart {
 
         if (total === 0) {
             // Zooming in from global
-            vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode);
+            vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode);
             return;
         }
 
@@ -230,7 +200,7 @@ class TopPackedBubbleChart {
                                 .duration(500)
                                 .style("opacity", 1)
                                 .on('end', () => {
-                                    vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode);
+                                    vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode);
                                 });
                         }
                     });
@@ -249,7 +219,7 @@ class TopPackedBubbleChart {
         }
 
         // remove previous groups vis if it exists
-        vis.svg.select('.legend').remove();
+        //vis.svgLegend.selectAll('.legend').remove();
         vis.svg.selectAll('.bubble-anime').transition()
             .duration(250)
             .attr('opacity', 0)
@@ -280,28 +250,21 @@ class TopPackedBubbleChart {
     renderLegend() {
         let vis = this;
 
+        const circleDefinitions = [300, 200, 100, 50];
+     
+        //legend
+        vis.svgLegend = d3.select(vis.config.parentElementLegend)
+                          .attr('width', vis.config.legendWidth)
+                          .attr('height', vis.config.legendHeight);
+        
+        vis.svgLegend.append('rect')
+            .attr('width', vis.config.legendWidth)
+            .attr('height', vis.config.legendHeight)    
+            .attr('fill', 'white')
+            .attr('stroke', 'grey') 
+            .attr('stroke-width', '2px');
 
-        const categories = [
-          ["50", vis.radiusScale(50), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 105],
-          ["100", vis.radiusScale(100), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 75],
-          ["200", vis.radiusScale(200), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2 + 35],
-          ["300", vis.radiusScale(300), vis.config.containerWidth + vis.config.legendWidth / 2, vis.config.legendHeight / 2]
-      ].map(([name, r, x, y]) => ({ name, r, x, y }));
-      console.log(categories);
-
-       //legend
-       vis.svg.append('rect')
-       .attr('width', vis.config.legendWidth)
-       .attr('height', vis.config.legendHeight)
-       .attr('rx', 10)          
-       .attr('ry', 10)
-       .attr('x', 800)   
-       .attr('y', 0)       
-       .attr('fill', 'white')   
-       .attr('stroke', 'grey') 
-       .attr('stroke-width', '2px');
-   
-        vis.legendGroup = vis.svg.append('g')
+        vis.legendGroup = vis.svgLegend.append('g')
             .attr('class', 'legend');
         
         vis.legendGroup.style('opacity', 0);
@@ -309,39 +272,47 @@ class TopPackedBubbleChart {
         vis.legendGroup.transition()
             .duration(750)
             .style('opacity', 1); // Fade-in transition for the legend
-        const legendItems = vis.legendGroup.selectAll(".legend-item")
-            .data(categories)
-            .enter()
-            .append('g')
-            .attr('transform', d => `translate(${d.x},${d.y})`)
         
-        // add legend text tittle
         vis.legendGroup.append('text')
-        .style('font-size', 12)
-        .attr('x', vis.config.containerWidth + vis.config.legendWidth / 2)
-        .attr('text-anchor', 'middle')
-        .attr('y', 20)
-        .text("The # of Anime in the Genre");
-    
-        console.log(vis.config.containerWidth + vis.config.legendWidth / 2);
-        //adding circles
-        legendItems.append('circle')
-          .attr('fill', 'none')
-          .attr('stroke', 'red')
-          .attr('stroke-width', 2)
-          .attr('r', d => d.r);
+            .style('font-size', 12)
+            .attr('x', vis.config.legendWidth / 2)
+            .attr('text-anchor', 'middle')
+            .attr('y', 20)
+            .text("The # of Anime in the Genre");
+        
+        vis.legendGroup.selectAll('.legend-item')
+            .data(circleDefinitions)
+            .enter()
+            .append('circle')
+            .attr('class', 'legend-item')
+            .attr('fill', 'none')
+            .attr('stroke', 'red')
+            .attr('stroke-width', 2)
+            .attr('r', d => vis.radiusScale(d))
+            .attr('cx', vis.config.legendWidth / 2)
+            .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d));
+        
+        vis.legendGroup.selectAll('.legend-item-text')
+            .data(circleDefinitions)
+            .enter()
+            .append('text')
+            .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
+            .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 10) // Above the circle
+            .attr('class', 'legend-item-text')
+            .attr('text-anchor', 'middle') 
+            .style('alignment-baseline', 'top')
+            .text(d => `${d}`)
+            .attr('text-anchor', 'middle') // Center the text at the x position
+            .attr('alignment-baseline', 'middle') // Center the text vertically
+            .style('font-size', '12px'); // Set the font size
+        }
 
-          legendItems.append('text')
-          .style('font-size', 12)
-          .attr('x',  d => d.x - 1000)
-          .attr('y', d => d.y - 355)
-          .attr('text-anchor', 'middle')
-          .text(d => d.name);
-      }
-
-      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
+      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
         let vis = this;
-
+        let rerenderLegend = false;
+        if (prevNode === null) {
+            rerenderLegend = true;
+        }
         vis.chartArea.transition()
             .duration(750)
             .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
@@ -354,7 +325,7 @@ class TopPackedBubbleChart {
                             .duration(500)
                             .style("opacity", 0)
                             .on('end', () => {
-                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
+                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes, rerenderLegend);
                                 vis.notClickableGlobal = false;
                             });
                     }

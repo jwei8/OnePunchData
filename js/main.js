@@ -27,16 +27,18 @@ d3.csv('data/anime_processed.csv')
     const globalMaxScore = d3.max(data, d => d.Score);
 
     topLevelBubble = new TopPackedBubbleChart({
-      parentElement: '#packed-bubble'
+      parentElement: '#packed-bubble',
+      parentElementLegend: '#packed-bubble-legend'
     }, data, genreToInfo, dispatcher);
 
     animeLevelBubble = new AnimePackedBubbleChart({
-      parentElement: '#packed-bubble'
+      parentElement: '#packed-bubble',
+      parentElementLegend: '#packed-bubble-legend'
     }, genreToInfo, globalMinScore, globalMaxScore);
   })
   .catch(error => console.error(error));
 
-  dispatcher.on('topToDrillDown', (genreName, animes) => {
-    animeLevelBubble.updateVis(genreName, animes);
+  dispatcher.on('topToDrillDown', (genreName, animes, rerenderLegend) => {
+    animeLevelBubble.updateVis(genreName, animes, rerenderLegend);
   })
 
