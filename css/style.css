@@ -1,76 +1,105 @@
 /* Axis */
 .axis line {
-  fill: none;
-  stroke: #ddd;
-  shape-rendering: crispEdges;
+    fill: none;
+    stroke: #ddd;
+    shape-rendering: crispEdges;
 }
+
 .axis text {
-  font-size: 8px;
-  fill: #6b6b6b;
+    font-size: 8px;
+    fill: #6b6b6b;
 }
+
 .axis-title {
-  font-size: 13px;
-  fill: #1b1919;
+    font-size: 13px;
+    fill: #1b1919;
 }
+
 .y-axis .tick:first-child line {
-  stroke: #b1b1b1;
+    stroke: #b1b1b1;
 }
+
 .y-axis .tick:first-child text {
-  display: none;
+    display: none;
 }
+
 .x-axis .tick:first-child line {
-  display: none;
+    display: none;
 }
+
 .axis path {
-  display: none;
+    display: none;
 }
 
+.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 8px;
+    font: 12px sans-serif;
+    background: white;
+    border: solid 0.5px #aaa;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+}
 
+.tooltip-title {
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px;
+}
+
+.tooltip ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px;
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
 /* Stacked bar chart */
 rect {
     shape-rendering: crispEdges;
 }
+
 /* https://www.heavy.ai/blog/12-color-palettes-for-telling-better-stories-with-your-data */
 
-/* action: #ea5545
-Sci-Fi: #f46a9b
-drama: #ef9b20
-Slice of life: #e2f770
-mystery: #ede15b
-comedy: #bdcf32
-adventure: #87bc45
-game: #27aeef
-music: #b33dc6
-harem: #d48e2d */
+/* Legend */
+/* .legend-container {
+    width: 400px;
+}
 
-/* .cat-Action rect {
-    fill: #ea5545;
-}
-.cat-Sci-Fi rect {
-    fill: #f46a9b;
-}
-.cat-Drama rect {
-    fill: #ef9b20;
-}
-.cat-Slice rect {
-    fill: #e2f770;
-}
-.cat-Mystery rect {
-    fill: #ede15b;
-}
-.cat-Comedy rect {
-    fill: #bdcf32;
-}
-.cat-Adventure rect {
-    fill: #87bc45;
-}
-.cat-Game rect {
-    fill: #27aeef;
-}
-.cat-Music rect {
-    fill: #b33dc6;
-}
-.cat-Harem rect {
-    fill: #d48e2d;
-} */
+.legend {
+    margin: 20px 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: auto auto;
+  }
+  
+  .legend-btn {
+    display: inline-block;
+    margin: 0 20px 0 0;
+    cursor: pointer;
+    transition: all ease-in-out 200ms;
+  }
+  
+  .legend-btn:hover.legend-btn.inactive:hover {
+    opacity: 0.9;
+  }
+  
+  .legend-btn.inactive {
+    opacity: 0.5;
+  }
+  
+  .legend-symbol {
+    width: 12px;
+    height: 12px;
+    margin-right: 3px;
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid;
+  } */
