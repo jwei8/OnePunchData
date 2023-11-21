@@ -274,11 +274,12 @@ class TopPackedBubbleChart {
             .style('opacity', 1); // Fade-in transition for the legend
         
         vis.legendGroup.append('text')
-            .style('font-size', 12)
+            .style('font-size', 14)
+            .style('font-weight', 'bold')
             .attr('x', vis.config.legendWidth / 2)
             .attr('text-anchor', 'middle')
             .attr('y', 20)
-            .text("The # of Anime in the Genre");
+            .text("The Number Of Anime In the Genre");
         
         vis.legendGroup.selectAll('.legend-item')
             .data(circleDefinitions)
@@ -286,7 +287,7 @@ class TopPackedBubbleChart {
             .append('circle')
             .attr('class', 'legend-item')
             .attr('fill', 'none')
-            .attr('stroke', 'red')
+            .attr('stroke', '#2b2c41')
             .attr('stroke-width', 2)
             .attr('r', d => vis.radiusScale(d))
             .attr('cx', vis.config.legendWidth / 2)

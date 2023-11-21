@@ -127,6 +127,13 @@ class AnimePackedBubbleChart {
 
         const scores = [7.5, 8.5, 9.5];
 
+        const colortoRatingMap = [
+            ["G - All Ages", vis.config.legendHeight / 2 + 20],
+            ["PG - Children", vis.config.legendHeight / 2 + 40],
+            ["PG-13 - Teens 13 or older", vis.config.legendHeight / 2 + 60],
+            ["R - 17+ (violence & profanity)",vis.config.legendHeight / 2 + 80]
+        ].map(([name, y]) => ({ name, y }));
+
         //legend
         vis.svgLegend = d3.select(vis.config.parentElementLegend)
                           .attr('width', vis.config.legendWidth)
@@ -144,11 +151,12 @@ class AnimePackedBubbleChart {
 
         
         vis.legendGroup.append('text')
-            .style('font-size', 12)
+            .style('font-size', 14)
+            .style('font-weight', 'bold')
             .attr('x', vis.config.legendWidth / 2)
             .attr('text-anchor', 'middle')
             .attr('y', 20)
-            .text("The score of Anime in the Genre");
+            .text("The Score of Anime In The Genre");
         
         vis.legendGroup.selectAll('.legend-item')
             .data(scores)
@@ -156,18 +164,19 @@ class AnimePackedBubbleChart {
             .append('circle')
             .attr('class', 'legend-item')
             .attr('fill', 'none')
-            .attr('stroke', 'red')
+            .attr('stroke', '#2b2c41')
             .attr('stroke-width', 2)
             .attr('r', d => vis.radiusScale(d))
             .attr('cx', vis.config.legendWidth / 2)
-            .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d) - 100);
+            .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d) - 250);
         
         vis.legendGroup.selectAll('.legend-item-text')
             .data(scores)
             .enter()
             .append('text')
+            .attr('class', 'legend-item')
             .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
-            .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 105) // Above the circle
+            .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 255) // Above the circle
             .attr('class', 'legend-item-text')
             .attr('text-anchor', 'middle') 
             .style('alignment-baseline', 'top')
@@ -175,28 +184,36 @@ class AnimePackedBubbleChart {
             .attr('text-anchor', 'middle') // Center the text at the x position
             .attr('alignment-baseline', 'middle') // Center the text vertically
             .style('font-size', '12px'); // Set the font size
+        
+        //color incoding information
+        vis.legendGroup.append('text')
+            .style('font-size', 14)
+            .style('font-weight', 'bold')
+            .attr('x', vis.config.legendWidth / 2)
+            .attr('text-anchor', 'middle')
+            .attr('y', vis.config.legendHeight / 2)
+            .text("The Anime Age Rating");
+        
+        vis.legendGroup.selectAll('.legend-item-color')
+            .data(colortoRatingMap)
+            .enter()
+            .append('circle')
+            .attr('class', 'legend-item-color')
+            .attr('fill', d => vis.ratingToColor[d.name])
+            .attr('stroke', 'grey')
+            .attr('stroke-width', 1)
+            .attr('r', 8)
+            .attr('cx', vis.config.legendWidth / 4)
+            .attr('cy', d=> d.y);
+        
+        vis.legendGroup.selectAll('.legend-item-color-description')
+            .data(colortoRatingMap)
+            .enter()
+            .append('text')
+            .style('font-size', '12px')
+            .attr('class', 'legend-item-color-description')
+            .text(d => d.name)
+            .attr('x', vis.config.legendWidth / 4 + 20)
+            .attr('y', d=> d.y + 4);
         }
-
-      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
-        let vis = this;
-
-        vis.chartArea.transition()
-            .duration(750)
-            .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
-            .on("end", () => {
-                vis.genreText.each(function() {
-                    let textElement = d3.select(this);
-                    if (textElement.text() === currClickedNode.data.genre) {
-                        // Apply fade-out transition to the matching element
-                        textElement.transition()
-                            .duration(500)
-                            .style("opacity", 0)
-                            .on('end', () => {
-                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
-                                vis.notClickableGlobal = false;
-                            });
-                    }
-                });
-            });
-      }
 }
