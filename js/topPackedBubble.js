@@ -20,7 +20,7 @@ class TopPackedBubbleChart {
         this.genreToInfo = _genreToInfo;
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
-        this.currentlyZoomedOut = true;
+        this.zoomedIn = false;
         this.initVis();
       }
 
@@ -47,7 +47,8 @@ class TopPackedBubbleChart {
             .attr('height', vis.config.height)
             .attr('fill', 'transparent')
             .on('click', (event, d) => {
-                if (!d3.select(event.currentTarget).classed('.top-level-bubble-group') && !vis.currentlyZoomedOut) {
+                if (!vis.notClickableGlobal && vis.zoomedIn && !d3.select(event.currentTarget).classed('.top-level-bubble-group')) {
+                    console.log("CLICK OUTSIDE");
                     vis.zoomOut();
                 }
             })
@@ -117,8 +118,8 @@ class TopPackedBubbleChart {
                 .data(d => d, d => d.data.genre)
             .join('circle')
                 .on('click', (event, d) => {
-                    console.log('clicked!!!!')
                     if (!vis.notClickableGlobal && d.data.isClickable) {
+                        console.log("CLICK BUBBLE");
                         vis.zoomToBubble(d);
                     }
                 })
@@ -155,6 +156,7 @@ class TopPackedBubbleChart {
         vis.notClickableGlobal = true;
         const prevNode = vis.clickedNode;
         vis.clickedNode = currClickedNode;
+        vis.zoomedIn = true;
 
         // Make current node notClickable and prev node clickable
         currClickedNode.data.isClickable = false;
@@ -181,7 +183,6 @@ class TopPackedBubbleChart {
             // Zooming in from global
             vis.applyLegendTransitionTopToDrillDown();
             vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode);
-            vis.currentlyZoomedOut = false;
             return;
         }
 
@@ -197,7 +198,7 @@ class TopPackedBubbleChart {
 
                     vis.genreText.each(function() {
                         let textElement = d3.select(this);
-                        if (textElement.text() === prevNode.data.genre) {
+                        if (prevNode != null && (textElement.text() === prevNode.data.genre)) {
                             // Apply fade-out transition to the matching element
                             textElement.transition()
                                 .duration(500)
@@ -216,7 +217,7 @@ class TopPackedBubbleChart {
         vis.notClickableGlobal = true;
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
-        vis.currentlyZoomedOut = true;
+        vis.zoomedIn = false;
 
         if (prevNode != null) {
             vis.applyLegendTransitionDrillDownToTop();
