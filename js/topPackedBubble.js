@@ -108,38 +108,35 @@ class TopPackedBubbleChart {
         vis.bubblesGroups = vis.chartArea.selectAll('.top-level-bubble-group')
                 .data(vis.nodes, d => d.data.genre)
             .join('g')
-                .attr('class', 'top-level-bubble-group')
-                .attr("transform", d => `translate(${d.x}, ${d.y})`)
-                //.attr('fill', 'none')
-                .attr('opacity', 0.7);
-
-
-        vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
-                .data(d => d, d => d.data.genre)
-            .join('circle')
-                .on('click', (event, d) => {
+                .on('click', function(event, d) {
                     if (!vis.notClickableGlobal && d.data.isClickable) {
-                        console.log("CLICK BUBBLE");
+                        d3.select(this).select('.bubble')
+                            .attr('stroke-width', 0);
+
                         vis.zoomToBubble(d);
                     }
                 })
                 .on('mouseover', function(event, d) {
                     if (vis.clickedNode === null || d.data.genre !== vis.clickedNode.data.genre) {
-                        d3.select(this)
-                        .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
-                        .attr('stroke-width', 2); // Increase the stroke-width on hover
+                        d3.select(this).select('.bubble') 
+                            .attr('stroke-width', 2); 
                     }
                 })
-                // Add mouseout event
                 .on('mouseout', function(event, d) {
-                    d3.select(this)
-                      .attr('stroke', null)     // Reset the stroke on mouseout
-                      .attr('stroke-width', null); // Reset the stroke-width on mouseout
+                    d3.select(this).select('.bubble')  
+                        .attr('stroke-width', 0);
                 })
+                .attr('class', 'top-level-bubble-group')
+                .attr("transform", d => `translate(${d.x}, ${d.y})`)
+                .attr('opacity', 0.7);
+
+        vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
+                .data(d => d, d => d.data.genre)
+            .join('circle')
                 .attr('class', 'bubble')
                 .attr('r', d => vis.radiusScale(d.data.count))
-                //.attr('stroke', '#000000')
-                //.attr('stroke-width', 2)
+                .attr('stroke', '#2b2c41')  
+                .attr('stroke-width', 0)
                 .attr('fill', d => vis.genreToInfo[d.data.genre].color);
         
         vis.genreText = vis.bubblesGroups.selectAll('.top-bubble-title')
