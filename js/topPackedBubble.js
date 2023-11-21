@@ -122,6 +122,19 @@ class TopPackedBubbleChart {
                         vis.zoomToBubble(d);
                     }
                 })
+                .on('mouseover', function(event, d) {
+                    if (vis.clickedNode === null || d.data.genre !== vis.clickedNode.data.genre) {
+                        d3.select(this)
+                        .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
+                        .attr('stroke-width', 2); // Increase the stroke-width on hover
+                    }
+                })
+                // Add mouseout event
+                .on('mouseout', function(event, d) {
+                    d3.select(this)
+                      .attr('stroke', null)     // Reset the stroke on mouseout
+                      .attr('stroke-width', null); // Reset the stroke-width on mouseout
+                })
                 .attr('class', 'bubble')
                 .attr('r', d => vis.radiusScale(d.data.count))
                 //.attr('stroke', '#000000')

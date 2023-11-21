@@ -101,6 +101,17 @@ class AnimePackedBubbleChart {
                 .on('click', (event, d) => {
                     console.log(d.data)
                 })
+                .on('mouseover', function(event, d) {
+                    d3.select(this)
+                        .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
+                        .attr('stroke-width', 2); // Increase the stroke-width on hover
+                })
+                // Add mouseout event
+                .on('mouseout', function(event, d) {
+                    d3.select(this)
+                      .attr('stroke', null)     // Reset the stroke on mouseout
+                      .attr('stroke-width', null); // Reset the stroke-width on mouseout
+                })
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
                 //.attr('stroke', '#000000')
@@ -125,9 +136,10 @@ class AnimePackedBubbleChart {
 
         const colortoRatingMap = [
             ["G - All Ages", vis.config.legendHeight / 2 + 20],
-            ["PG - Children", vis.config.legendHeight / 2 + 40],
-            ["PG-13 - Teens 13 or older", vis.config.legendHeight / 2 + 60],
-            ["R - 17+ (violence & profanity)",vis.config.legendHeight / 2 + 80]
+            ["PG - Children", vis.config.legendHeight / 2 + 50],
+            ["PG-13 - Teens 13 or older", vis.config.legendHeight / 2 + 80],
+            ["R - 17+ (violence & profanity)",vis.config.legendHeight / 2 + 110],
+            ["R+ - Mild Nudity", vis.config.legendHeight / 2 + 140]
         ].map(([name, y]) => ({ name, y }));
 
         //legend
@@ -190,7 +202,7 @@ class AnimePackedBubbleChart {
             .attr('fill', d => vis.ratingToColor[d.name])
             .attr('stroke', 'grey')
             .attr('stroke-width', 1)
-            .attr('r', 8)
+            .attr('r', 10)
             .attr('cx', vis.config.legendWidth / 4)
             .attr('cy', d=> d.y);
         
