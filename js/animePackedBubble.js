@@ -42,7 +42,10 @@ class AnimePackedBubbleChart {
             .size([vis.config.containerWidth, vis.config.containerWidth])
             .padding(15);
         
-        vis.radiusScale = d3.scaleLinear().range([6,30]);
+        vis.radiusScale = d3.scaleLinear()
+                        .range([6,30])
+                        .domain([vis.globalMinScore, vis.globalMaxScore]);
+        vis.renderLegend();
       }
 
       updateVis(genreToView, animeData, rerenderLegend) {
@@ -63,8 +66,6 @@ class AnimePackedBubbleChart {
             .sum(d => d.Score);
 
         vis.nodes = vis.pack(vis.root).leaves();
-
-        vis.radiusScale.domain([vis.globalMinScore, vis.globalMaxScore]);
 
         vis.rerenderLegend = rerenderLegend;
 
@@ -114,11 +115,6 @@ class AnimePackedBubbleChart {
         bubbles.transition()
             .duration(500)
             .attr('opacity', 1);
-        
-        if (vis.rerenderLegend) {
-            vis.renderLegend();
-        }
-
       }
 
 
@@ -138,16 +134,10 @@ class AnimePackedBubbleChart {
         vis.svgLegend = d3.select(vis.config.parentElementLegend)
                           .attr('width', vis.config.legendWidth)
                           .attr('height', vis.config.legendHeight);
-        
-        vis.svgLegend.append('rect')
-            .attr('width', vis.config.legendWidth)
-            .attr('height', vis.config.legendHeight)    
-            .attr('fill', 'white')
-            .attr('stroke', 'grey') 
-            .attr('stroke-width', '2px');
 
         vis.legendGroup = vis.svgLegend.append('g')
-            .attr('class', 'legend');
+            .attr('class', 'legend-bubble')
+            .style('opacity', 0);
 
         
         vis.legendGroup.append('text')
@@ -158,11 +148,11 @@ class AnimePackedBubbleChart {
             .attr('y', 20)
             .text("The Score of Anime In The Genre");
         
-        vis.legendGroup.selectAll('.legend-item')
+        vis.legendGroup.selectAll('.legend-bubble-item')
             .data(scores)
             .enter()
             .append('circle')
-            .attr('class', 'legend-item')
+            .attr('class', 'legend-bubble-item')
             .attr('fill', 'none')
             .attr('stroke', '#2b2c41')
             .attr('stroke-width', 2)
@@ -170,16 +160,13 @@ class AnimePackedBubbleChart {
             .attr('cx', vis.config.legendWidth / 2)
             .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d) - 250);
         
-        vis.legendGroup.selectAll('.legend-item-text')
+        vis.legendGroup.selectAll('.legend-bubble-item-text')
             .data(scores)
             .enter()
             .append('text')
-            .attr('class', 'legend-item')
+            .attr('class', 'legend-bubble-item-text')
             .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
             .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 255) // Above the circle
-            .attr('class', 'legend-item-text')
-            .attr('text-anchor', 'middle') 
-            .style('alignment-baseline', 'top')
             .text(d => `${d}`)
             .attr('text-anchor', 'middle') // Center the text at the x position
             .attr('alignment-baseline', 'middle') // Center the text vertically
@@ -187,6 +174,7 @@ class AnimePackedBubbleChart {
         
         //color incoding information
         vis.legendGroup.append('text')
+            .attr('class', 'legend-bubble-item-color-title')
             .style('font-size', 14)
             .style('font-weight', 'bold')
             .attr('x', vis.config.legendWidth / 2)
@@ -194,11 +182,11 @@ class AnimePackedBubbleChart {
             .attr('y', vis.config.legendHeight / 2)
             .text("The Anime Age Rating");
         
-        vis.legendGroup.selectAll('.legend-item-color')
+        vis.legendGroup.selectAll('.legend-bubble-item-color')
             .data(colortoRatingMap)
             .enter()
             .append('circle')
-            .attr('class', 'legend-item-color')
+            .attr('class', 'legend-bubble-item-color')
             .attr('fill', d => vis.ratingToColor[d.name])
             .attr('stroke', 'grey')
             .attr('stroke-width', 1)
@@ -206,12 +194,12 @@ class AnimePackedBubbleChart {
             .attr('cx', vis.config.legendWidth / 4)
             .attr('cy', d=> d.y);
         
-        vis.legendGroup.selectAll('.legend-item-color-description')
+        vis.legendGroup.selectAll('.legend-bubble-item-color-description')
             .data(colortoRatingMap)
             .enter()
             .append('text')
             .style('font-size', '12px')
-            .attr('class', 'legend-item-color-description')
+            .attr('class', 'legend-bubble-item-color-description')
             .text(d => d.name)
             .attr('x', vis.config.legendWidth / 4 + 20)
             .attr('y', d=> d.y + 4);

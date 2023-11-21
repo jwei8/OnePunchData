@@ -20,6 +20,7 @@ class TopPackedBubbleChart {
         this.genreToInfo = _genreToInfo;
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
+        this.currentlyZoomedOut = true;
         this.initVis();
       }
 
@@ -46,7 +47,7 @@ class TopPackedBubbleChart {
             .attr('height', vis.config.height)
             .attr('fill', 'transparent')
             .on('click', (event, d) => {
-                if (!d3.select(event.currentTarget).classed('.top-level-bubble-group')) {
+                if (!d3.select(event.currentTarget).classed('.top-level-bubble-group') && !vis.currentlyZoomedOut) {
                     vis.zoomOut();
                 }
             })
@@ -67,6 +68,7 @@ class TopPackedBubbleChart {
         vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
         vis.updateVis();
+        vis.renderLegend();
     }
 
     updateVis() {
@@ -115,6 +117,7 @@ class TopPackedBubbleChart {
                 .data(d => d, d => d.data.genre)
             .join('circle')
                 .on('click', (event, d) => {
+                    console.log('clicked!!!!')
                     if (!vis.notClickableGlobal && d.data.isClickable) {
                         vis.zoomToBubble(d);
                     }
@@ -138,8 +141,6 @@ class TopPackedBubbleChart {
                 .attr("x", 0)
                 .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
         
-        
-        vis.renderLegend();
 
         simulation.on("tick", () => {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
@@ -178,7 +179,9 @@ class TopPackedBubbleChart {
 
         if (total === 0) {
             // Zooming in from global
+            vis.applyLegendTransitionTopToDrillDown();
             vis.applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode);
+            vis.currentlyZoomedOut = false;
             return;
         }
 
@@ -213,13 +216,14 @@ class TopPackedBubbleChart {
         vis.notClickableGlobal = true;
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
+        vis.currentlyZoomedOut = true;
 
         if (prevNode != null) {
+            vis.applyLegendTransitionDrillDownToTop();
             prevNode.data.isClickable = true;
         }
 
         // remove previous groups vis if it exists
-        //vis.svgLegend.selectAll('.legend').remove();
         vis.svg.selectAll('.bubble-anime').transition()
             .duration(250)
             .attr('opacity', 0)
@@ -239,7 +243,6 @@ class TopPackedBubbleChart {
                                     .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
                                     .on('end', () => {
                                         vis.notClickableGlobal = false;
-                                        vis.renderLegend(); // This should now include a transition
                                     });
                             });
                     }
@@ -251,7 +254,6 @@ class TopPackedBubbleChart {
         let vis = this;
 
         const circleDefinitions = [300, 200, 100, 50];
-     
         //legend
         vis.svgLegend = d3.select(vis.config.parentElementLegend)
                           .attr('width', vis.config.legendWidth)
@@ -260,18 +262,12 @@ class TopPackedBubbleChart {
         vis.svgLegend.append('rect')
             .attr('width', vis.config.legendWidth)
             .attr('height', vis.config.legendHeight)    
-            .attr('fill', 'white')
+            .attr('fill', 'transparent')
             .attr('stroke', 'grey') 
             .attr('stroke-width', '2px');
 
         vis.legendGroup = vis.svgLegend.append('g')
             .attr('class', 'legend');
-        
-        vis.legendGroup.style('opacity', 0);
-
-        vis.legendGroup.transition()
-            .duration(750)
-            .style('opacity', 1); // Fade-in transition for the legend
         
         vis.legendGroup.append('text')
             .style('font-size', 14)
@@ -332,6 +328,30 @@ class TopPackedBubbleChart {
                     }
                 });
             });
+      }
+
+      applyLegendTransitionTopToDrillDown() {
+        let vis = this;
+        vis.svgLegend.selectAll('.legend').transition()
+        .duration(500)
+        .style('opacity', 0)
+        .on('end', () => {
+            vis.svgLegend.selectAll('.legend-bubble').transition()
+                    .duration(500)
+                    .style('opacity', 1)
+        });
+      }
+
+      applyLegendTransitionDrillDownToTop() {
+        let vis = this;
+        vis.svgLegend.selectAll('.legend-bubble').transition()
+        .duration(500)
+        .style('opacity', 0)
+        .on('end', () => {
+            vis.svgLegend.selectAll('.legend').transition()
+                    .duration(500)
+                    .style('opacity', 1)
+        });
       }
       
 }
