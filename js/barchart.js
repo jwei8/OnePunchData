@@ -159,7 +159,6 @@ class Barchart {
             .attr('width', vis.xScale.bandwidth())
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
             .on('mouseover', (event, d) => {
-                const [x, y] = d3.pointer(event);
                 vis.tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
@@ -260,7 +259,6 @@ class Barchart {
             .attr('width', vis.xScale.bandwidth())
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
             .on('mouseover', (event, d) => {
-                const [x, y] = d3.pointer(event);
                 vis.tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
@@ -279,8 +277,8 @@ class Barchart {
                         <li>Slice of Life: ${d.data["Slice of Life"]}</li>
                     </ul>
                 `)
-                    .style("left", (x) + "px")
-                    .style("top", (y - 28) + "px");
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 100) + "px");
 
 
             })
