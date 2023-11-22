@@ -2,7 +2,11 @@ body {
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 13px;
     padding: 30px;
-  }
+}
+
+form {
+    margin-top: 20px;
+}
 
 /* Axis */
 .axis line {
@@ -71,5 +75,3 @@ body {
 rect {
     shape-rendering: crispEdges;
 }
-
-
