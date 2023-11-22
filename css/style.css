@@ -1,3 +1,9 @@
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 30px;
+  }
+
 /* Axis */
 .axis line {
     fill: none;
@@ -66,40 +72,4 @@ rect {
     shape-rendering: crispEdges;
 }
 
-/* https://www.heavy.ai/blog/12-color-palettes-for-telling-better-stories-with-your-data */
 
-/* Legend */
-/* .legend-container {
-    width: 400px;
-}
-
-.legend {
-    margin: 20px 0;
-    list-style: none;
-    display: grid;
-    grid-template-columns: auto auto;
-  }
-  
-  .legend-btn {
-    display: inline-block;
-    margin: 0 20px 0 0;
-    cursor: pointer;
-    transition: all ease-in-out 200ms;
-  }
-  
-  .legend-btn:hover.legend-btn.inactive:hover {
-    opacity: 0.9;
-  }
-  
-  .legend-btn.inactive {
-    opacity: 0.5;
-  }
-  
-  .legend-symbol {
-    width: 12px;
-    height: 12px;
-    margin-right: 3px;
-    display: inline-block;
-    border-radius: 50%;
-    border: 1px solid;
-  } */
