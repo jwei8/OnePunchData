@@ -2,6 +2,7 @@
  * Load data from CSV file
  */ 
 
+
 const dispatcher = d3.dispatch('topToDrillDown')
 
 let topLevelBubble, animeLevelBubble;
@@ -21,8 +22,9 @@ let genreToInfo = {
 
 
 d3.csv('data/anime_processed.csv')
-  .then(data => {
-
+  .then(_data => {
+    data = _data
+    
     const globalMinScore = d3.min(data, d => d.Score);
     const globalMaxScore = d3.max(data, d => d.Score);
 
@@ -35,6 +37,14 @@ d3.csv('data/anime_processed.csv')
       parentElement: '#packed-bubble',
       parentElementLegend: '#packed-bubble-legend'
     }, genreToInfo, globalMinScore, globalMaxScore);
+    
+    data.forEach(d => {
+      // Extract the year from the "Premiered" column and convert to number
+      d.YearReleased = parseInt(d.Premiered.match(/\d+/)[0]);
+    });
+
+    barchart = new Barchart({ parentElement: '#bar-chart' }, data);
+    barchart.updateVis();
   })
   .catch(error => console.error(error));
 
