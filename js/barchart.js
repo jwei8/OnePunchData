@@ -178,8 +178,8 @@ class Barchart {
                         <li>Slice of Life: ${d.data["Slice of Life"]}</li>
                     </ul>
                 `)
-                    .style("left", (x) + "px")
-                    .style("top", (y - 28) + "px");
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 100) + "px");
 
 
             })
