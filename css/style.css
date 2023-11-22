@@ -1,3 +1,4 @@
+
 body {
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 13px;
@@ -41,6 +42,7 @@ form {
     display: none;
 }
 
+
 .tooltip {
     position: absolute;
     text-align: center;
@@ -75,3 +77,4 @@ form {
 rect {
     shape-rendering: crispEdges;
 }
+
