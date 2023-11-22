@@ -14,7 +14,7 @@ class ScatterPlot {
             // Todo: Add or remove attributes from config as needed
             tooltipPadding: 10, // Added a tooltip padding configuration
         }
-        this.selectedGenre = null; // Initially, no genre is selected
+        this.selectedGenres = []; // Initially, no genres are selected
         this.data = _data;
         this.initVis();
     }
@@ -175,10 +175,11 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
-                if (vis.selectedGenre === d.PrimaryGenre) {
-                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                const index = vis.selectedGenres.indexOf(d.PrimaryGenre);
+                if (index === -1) {
+                    vis.selectedGenres.push(d.PrimaryGenre); // Add the genre if not already selected
                 } else {
-                    vis.selectedGenre = d.PrimaryGenre; // Select the new genre
+                    vis.selectedGenres.splice(index, 1); // Remove the genre if already selected
                 }
                 vis.updateFiltered();
                 vis.updateLegendColors();
@@ -207,10 +208,11 @@ class ScatterPlot {
             .attr('transform', (d, i) => `translate(0, ${i * 20})`)
             .style('cursor', 'pointer')
             .on('click', (event, selectedGenre) => {
-                if (vis.selectedGenre === selectedGenre) {
-                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                const index = vis.selectedGenres.indexOf(selectedGenre);
+                if (index === -1) {
+                    vis.selectedGenres.push(selectedGenre); // Add the genre if not already selected
                 } else {
-                    vis.selectedGenre = selectedGenre; // Select the new genre
+                    vis.selectedGenres.splice(index, 1); // Remove the genre if already selected
                 }
                 vis.updateFiltered();
                 vis.updateLegendColors();
@@ -238,13 +240,13 @@ class ScatterPlot {
         let vis = this;
 
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill', d => (vis.selectedGenres.length === 0 || vis.selectedGenres.includes(d.PrimaryGenre)) ?
                 vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill-opacity', d => (vis.selectedGenres.length === 0 || vis.selectedGenres.includes(d.PrimaryGenre)) ?
                 1 : 0.3) // Lower opacity for greyed-out points
             .attr('stroke-opacity', 1)
             .each(function(d) {
-                if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenres.length === 0 || vis.selectedGenres.includes(d.PrimaryGenre)) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
@@ -256,8 +258,8 @@ class ScatterPlot {
         let vis = this;
 
         vis.legend.selectAll('.legend-entry rect')
-            .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
-            .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
+            .attr('fill', d => vis.selectedGenres.length === 0 || vis.selectedGenres.includes(d) ? vis.colorScale(d) : '#d3d3d3')
+            .attr('fill-opacity', d => vis.selectedGenres.length === 0 || vis.selectedGenres.includes(d) ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
     }
 
 }
