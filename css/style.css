@@ -1,11 +1,80 @@
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 30px;
+}
+
+form {
+    margin-top: 20px;
+}
+
+/* Axis */
+.axis line {
+    fill: none;
+    stroke: #ddd;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-size: 8px;
+    fill: #6b6b6b;
+}
+
+.axis-title {
+    font-size: 13px;
+    fill: #1b1919;
+}
+
+.y-axis .tick:first-child line {
+    stroke: #b1b1b1;
+}
+
+.y-axis .tick:first-child text {
+    display: none;
+}
+
+.x-axis .tick:first-child line {
+    display: none;
+}
+
+.axis path {
+    display: none;
+}
+
+
 .tooltip {
     position: absolute;
     text-align: center;
     padding: 8px;
     font: 12px sans-serif;
     background: white;
-    border: solid 1px #aaa;
+    border: solid 0.5px #aaa;
     border-radius: 8px;
     pointer-events: none;
     opacity: 0;
 }
+
+.tooltip-title {
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px;
+}
+
+.tooltip ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 10px;
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Stacked bar chart */
+rect {
+    shape-rendering: crispEdges;
+}
+

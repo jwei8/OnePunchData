@@ -10,12 +10,30 @@
 <body>
     <h1>One Punch Data: Knockout Anime Recommendations!</h1>
 
-    <!-- todo: add visualizations -->
+    <div id="container-packed-bubble"> <svg id="packed-bubble"></svg> <svg id="packed-bubble-legend"></svg></div>
+
+    <form>
+        <label>
+            <input type="radio" name="mode" value="stacked" checked="" /> Stacked
+        </label>
+        <label>
+            <input type="radio" name="mode" value="grouped" /> Grouped
+        </label>
+
+    </form>
+
+    <div>
+        <svg id="bar-chart"></svg>
+    </div>
+
     <div class="visualization">
         <svg id="scatter-plot"></svg>
     </div>
 
     <script src="js/d3.v6.min.js"></script>
+    <script src="js/topPackedBubble.js"></script>
+    <script src="js/animePackedBubble.js"></script>
+    <script src="js/barchart.js"></script>
     <script src="js/scatterplot.js"></script>
     <script src="js/main.js"></script>
 </body>

@@ -20,7 +20,6 @@ columns_to_filter = [
     "Name",       # Categorical
     "Score",      # Quantitative
     "Genres",     # Categorical
-    "Type",       # Categorical
     "Episodes",   # Quantitative
     "Studios",    # Categorical
     "Source",     # Categorical
@@ -60,11 +59,15 @@ top_1000_animes['Episodes'] = pd.to_numeric(df['Episodes'], errors='coerce')
 
 # Count the occurrences of each unique first genre
 genre_counts = top_1000_animes['Genres'].value_counts()
+source_counts = top_1000_animes['Source'].value_counts()
+rating_counts = top_1000_animes['Rating'].value_counts()
 
 # Print the counts
 print(top_1000_animes.info())
 print(top_1000_animes.describe(include='all'))
 print(genre_counts)
+print(source_counts)
+print(rating_counts)
 
 top_1000_animes.rename(columns={'Genres':'Genre'}, inplace=True)
 
