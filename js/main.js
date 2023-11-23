@@ -3,7 +3,7 @@
  */
 let data, scatterPlot;
 
-const dispatcher = d3.dispatch('topToDrillDown')
+const dispatcher = d3.dispatch('mainToScatterGenreSelect');
 
 let topLevelBubble, animeLevelBubble;
 
@@ -61,7 +61,9 @@ d3.csv('data/anime_processed.csv')
   })
   .catch(error => console.error(error));
 
-dispatcher.on('topToDrillDown', (genreName, animes, rerenderLegend) => {
-  animeLevelBubble.updateVis(genreName, animes, rerenderLegend);
-})
-
+dispatcher.on('mainToScatterGenreSelect', (genreName, animes, rerenderLegend) => {
+  if (genreName !== null) {
+    animeLevelBubble.updateVis(genreName, animes, rerenderLegend);
+  }
+    scatterPlot.updateChart(genreName);
+});

@@ -254,6 +254,7 @@ class TopPackedBubbleChart {
                                     .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
                                     .on('end', () => {
                                         vis.notClickableGlobal = false;
+                                        vis.dispatcher.call('mainToScatterGenreSelect', null, null,null, null);
                                     });
                             });
                     }
@@ -333,7 +334,7 @@ class TopPackedBubbleChart {
                             .duration(500)
                             .style("opacity", 0)
                             .on('end', () => {
-                                vis.dispatcher.call('topToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes, rerenderLegend);
+                                vis.dispatcher.call('mainToScatterGenreSelect', null, currClickedNode.data.genre, currClickedNode.data.animes, rerenderLegend);
                                 vis.notClickableGlobal = false;
                             });
                     }

@@ -236,17 +236,24 @@ class ScatterPlot {
         vis.updateFiltered();
     }
 
+    updateChart(selectedGenre) {
+        let vis = this;
+        vis.selectedGenre = selectedGenre;
+        vis.updateFiltered();
+        console.log(selectedGenre);
+    }
+
     updateFiltered() {
         let vis = this;
-
+        console.log(vis.selectedGenre);
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
                 vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
                 1 : 0.3) // Lower opacity for greyed-out points
             .attr('stroke-opacity', 1)
             .each(function(d) {
-                if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
