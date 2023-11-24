@@ -134,32 +134,25 @@ class AnimePackedBubbleChart {
 
         const scores = [7.5, 8.5, 9.5];
 
+        const largestRadius = vis.radiusScale(scores[2]);
+
         const colortoRatingMap = [
-            ["G - All Ages", vis.config.legendHeight / 2 + 20],
-            ["PG - Children", vis.config.legendHeight / 2 + 50],
-            ["PG-13 - Teens 13 or older", vis.config.legendHeight / 2 + 80],
-            ["R - 17+ (violence & profanity)",vis.config.legendHeight / 2 + 110],
-            ["R+ - Mild Nudity", vis.config.legendHeight / 2 + 140]
-        ].map(([name, y]) => ({ name, y }));
+            ["G - All Ages", 20, "G"],
+            ["PG - Children", 50, "PG"],
+            ["PG-13 - Teens 13 or older", 80, "PG-13"],
+            ["R - 17+ (violence & profanity)", 110, "R"],
+            ["R+ - Mild Nudity", 140, "R+"]
+        ].map(([name, y, displayName]) => ({ name, y, displayName}));
 
         //legend
-        vis.svgLegend = d3.select(vis.config.parentElementLegend)
-                          .attr('width', vis.config.legendWidth)
-                          .attr('height', vis.config.legendHeight);
 
-        vis.legendGroup = vis.svgLegend.append('g')
+        vis.legendGroup = vis.svg.append('g')
             .attr('class', 'legend-bubble')
             .style('opacity', 0);
+        
+        const topOffset = 40;
+        const rightOffset = 20;
 
-        
-        vis.legendGroup.append('text')
-            .style('font-size', 14)
-            .style('font-weight', 'bold')
-            .attr('x', vis.config.legendWidth / 2)
-            .attr('text-anchor', 'middle')
-            .attr('y', 20)
-            .text("The Score of Anime In The Genre");
-        
         vis.legendGroup.selectAll('.legend-bubble-item')
             .data(scores)
             .enter()
@@ -169,51 +162,72 @@ class AnimePackedBubbleChart {
             .attr('stroke', '#2b2c41')
             .attr('stroke-width', 2)
             .attr('r', d => vis.radiusScale(d))
-            .attr('cx', vis.config.legendWidth / 2)
-            .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d) - 250);
+            .attr('cx', vis.config.containerWidth - (largestRadius) - rightOffset)
+            .attr('cy', d =>  2 * largestRadius - vis.radiusScale(d) + topOffset);
+
+
+        vis.legendGroup.append('text')
+            .style('font-size', 14)
+            .style('font-weight', 'bold')
+            .attr('x',  vis.config.containerWidth - (largestRadius) - rightOffset)
+            .attr('text-anchor', 'middle')
+            .attr('y', topOffset)
+            .attr('dy', -20)
+            .text("Anime Score");
         
         vis.legendGroup.selectAll('.legend-bubble-item-text')
             .data(scores)
             .enter()
             .append('text')
             .attr('class', 'legend-bubble-item-text')
-            .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
-            .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 255) // Above the circle
+            .attr('x', vis.config.containerWidth - (largestRadius) - rightOffset) // Horizontal center of the circle
+            .attr('y', d => 2 * largestRadius - (2 * vis.radiusScale(d)) + topOffset) // Above the circle
+            .attr('dy', -5)
             .text(d => `${d}`)
             .attr('text-anchor', 'middle') // Center the text at the x position
             .attr('alignment-baseline', 'middle') // Center the text vertically
             .style('font-size', '12px'); // Set the font size
         
+
+
+        vis.legendGroupAge = vis.svg.append('g')
+            .attr('class', 'legend-rating')
+            .style('opacity', 0);
+
+        const leftOffset = 20;
+
         //color incoding information
-        vis.legendGroup.append('text')
-            .attr('class', 'legend-bubble-item-color-title')
+        vis.legendGroupAge.append('text')
+            .attr('class', 'legend-rating-item-color-title')
             .style('font-size', 14)
             .style('font-weight', 'bold')
-            .attr('x', vis.config.legendWidth / 2)
-            .attr('text-anchor', 'middle')
-            .attr('y', vis.config.legendHeight / 2)
-            .text("The Anime Age Rating");
+            .attr('x', leftOffset - 10)
+            .attr('text-anchor', 'start')
+            .attr('y', topOffset)
+            .attr('dy', -20)
+            .text("Age Rating");
         
-        vis.legendGroup.selectAll('.legend-bubble-item-color')
+        vis.legendGroupAge.selectAll('.legend-rating-item-color')
             .data(colortoRatingMap)
             .enter()
             .append('circle')
-            .attr('class', 'legend-bubble-item-color')
+            .attr('class', 'legend-rating-item-color')
             .attr('fill', d => vis.ratingToColor[d.name])
             .attr('stroke', 'grey')
             .attr('stroke-width', 1)
             .attr('r', 10)
-            .attr('cx', vis.config.legendWidth / 4)
-            .attr('cy', d=> d.y);
+            .attr('cx', leftOffset)
+            .attr('cy', d=> d.y + 20);
         
-        vis.legendGroup.selectAll('.legend-bubble-item-color-description')
+        vis.legendGroupAge.selectAll('.legend-rating-item-color-description')
             .data(colortoRatingMap)
             .enter()
             .append('text')
-            .style('font-size', '12px')
-            .attr('class', 'legend-bubble-item-color-description')
-            .text(d => d.name)
-            .attr('x', vis.config.legendWidth / 4 + 20)
-            .attr('y', d=> d.y + 4);
+            .style('font-size', '15px')
+            .attr('text-anchor', 'start')
+            .attr('class', 'legend-rating-item-color-description')
+            .text(d => d.displayName)
+            .attr('x', leftOffset + 13)
+            .attr('y', d => d.y + 24);
         }
 }
