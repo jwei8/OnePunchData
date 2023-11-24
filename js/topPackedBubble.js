@@ -156,6 +156,19 @@ class TopPackedBubbleChart {
                 .attr("x", 0)
                 .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
         
+        vis.genreCount = vis.bubblesGroups.selectAll('.top-bubble-count')
+                .data(d => d, d => d.data.count)
+            .join('text')
+                .attr('class', 'top-bubble-count')
+                .attr('dy', "1.5em")
+                .attr('font-size', '15px')
+                .attr('fill', 'black')
+                .attr('font-weight', 'bold')
+                .attr('text-anchor', 'middle')
+                .text(d => d.data.count)
+                .attr("x", 0)
+                .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
+        
 
         simulation.on("tick", () => {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
@@ -215,6 +228,9 @@ class TopPackedBubbleChart {
                         let textElement = d3.select(this);
                         if (prevNode != null && (textElement.text() === prevNode.data.genre)) {
                             // Apply fade-out transition to the matching element
+                            vis.genreCount.transition()
+                            .duration(500)
+                            .style("opacity", 1)
                             textElement.transition()
                                 .duration(500)
                                 .style("opacity", 1)
@@ -223,6 +239,7 @@ class TopPackedBubbleChart {
                                 });
                         }
                     });
+
                 }
             });
     }
@@ -251,6 +268,10 @@ class TopPackedBubbleChart {
                     let textElement = d3.select(this);
                     if (textElement.text() === prevNode.data.genre) {
                         // Apply fade-out transition to the matching element
+                        vis.genreCount.transition()
+                            .duration(350)
+                            .style("opacity", 1)
+                        
                         textElement.transition()
                             .duration(350)
                             .style("opacity", 1)
@@ -344,6 +365,10 @@ class TopPackedBubbleChart {
                                 vis.notClickableGlobal = false;
                             });
                     }
+
+                vis.genreCount.transition()
+                    .duration(500)
+                    .style("opacity", 0)
                 });
             });
       }

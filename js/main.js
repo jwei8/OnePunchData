@@ -62,7 +62,6 @@ d3.csv('data/anime_processed.csv')
   .catch(error => console.error(error));
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
-    console.log(genreName)
     scatterPlot.updateChart(genreName);
 });
 

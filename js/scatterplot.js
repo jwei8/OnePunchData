@@ -240,12 +240,10 @@ class ScatterPlot {
         let vis = this;
         vis.selectedGenre = selectedGenre;
         vis.updateFiltered();
-        console.log(selectedGenre);
     }
 
     updateFiltered() {
         let vis = this;
-        console.log(vis.selectedGenre);
         vis.chart.selectAll('.point')
             .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
                 vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
