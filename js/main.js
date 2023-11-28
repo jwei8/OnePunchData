@@ -44,7 +44,7 @@ d3.csv('data/anime_processed.csv')
       d.YearReleased = parseInt(d.Premiered.match(/\d+/)[0]);
     });
 
-    barchart = new Barchart({ parentElement: '#bar-chart' }, data);
+    barchart = new Barchart({ parentElement: '#bar-chart' }, data, genreToInfo);
     barchart.updateVis();
 
     data.forEach(d => {
@@ -55,7 +55,7 @@ d3.csv('data/anime_processed.csv')
       d.CompletedDroppedRatio = d.Dropped !== 0 ? d.Completed / d.Dropped : d.Completed; // Prevent division by zero
     });
 
-    scatterPlot = new ScatterPlot({ parentElement: '#scatter-plot' }, data);
+    scatterPlot = new ScatterPlot({ parentElement: '#scatter-plot' }, data, genreToInfo);
     scatterPlot.updateVis();
 
   })

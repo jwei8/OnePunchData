@@ -22,8 +22,7 @@ class TopPackedBubbleChart {
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
         this.zoomedIn = false;
-        this.svgTitle = d3.select(this.config.parentTitleElement)
-;
+        this.svgTitle = d3.select(this.config.parentTitleElement);
         
         this.initVis();
       }
@@ -73,7 +72,7 @@ class TopPackedBubbleChart {
         vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
         vis.updateVis();
-        //vis.renderTitle();
+        vis.renderTitle();
     }
 
     updateVis() {
@@ -287,41 +286,6 @@ class TopPackedBubbleChart {
             });
     }
 
-    // renderTitle() {
-    //     let vis = this;
-
-    //     //title
-    //     // vis.svgTitle.append('rect')
-    //     // .attr('width', 400)
-    //     // .attr('height', 40)
-    //     // .attr('fill', 'white')
-    //     // .attr('stroke', 'grey') 
-    //     // .attr('stroke-width', '2px');
-
-    //     vis.legendTitleGroup = vis.svgTitle.append('g')
-    //                                 .attr('class', 'title');
-
-    //     vis.legendTitleGroup.append('text')
-    //         .attr('class', 'title-topView-text')
-    //         .style('font-size', '14px')
-    //         .attr('x', 0)
-    //         .attr('y', 20) // Set the y attribute to the desired position
-    //         .style('font-weight', 'bold')
-    //         .attr('text-anchor', 'middle') // Use 'middle' to horizontally center the text
-    //         //.attr('dominant-baseline', 'middle') // Use 'middle' to vertically center the text
-    //         .text("Top 10 Genres By Count Of Anime");
-
-    //     vis.legendTitleGroup.append('text')
-    //         .attr('class', 'title-drillDown-text')
-    //         .style('font-size', '14px')
-    //         .style('opacity', 0)
-    //         .attr('x', 0)
-    //         .attr('y', 20) // Set the y attribute to the desired position
-    //         .style('font-weight', 'bold')
-    //         .attr('text-anchor', 'middle') // Use 'middle' to horizontally center the text
-    //         //.attr('dominant-baseline', 'middle') // Use 'middle' to vertically center the text
-    //         .text("Anime in the Genre");
-    // } 
     
     renderTitle() {
         let vis = this;
@@ -335,7 +299,7 @@ class TopPackedBubbleChart {
             .attr('class', 'title-topView-text')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
-            .attr('text-anchor', 'start')
+            .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .text("Top 10 Genres By Count Of Anime");
     
@@ -345,7 +309,7 @@ class TopPackedBubbleChart {
             .style('font-size', '14px')
             .style('opacity', 0)
             .style('font-weight', 'bold')
-            .attr('text-anchor', 'start')
+            .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .text("Anime in the Genre");
     
@@ -364,10 +328,14 @@ class TopPackedBubbleChart {
             .attr('height', maxHeight);
 
         vis.legendTitleGroup
-            .attr('transform', `translate(${0}, ${maxHeight / 2})`);
+            .attr('transform', `translate(${maxWidth / 2}, ${maxHeight / 2})`);
+
+        // text1.attr('x', maxWidth / 2);
+
+        // text2.attr('x', maxWidth / 2);
     }
 
-      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
+    applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
         let vis = this;
 
         vis.chartArea.transition()
@@ -389,41 +357,48 @@ class TopPackedBubbleChart {
                     }
                 });
             });
-      }
+    }
 
     applyLegendTransitionTopToDrillDown() {
-    let vis = this;
+        let vis = this;
 
-    vis.svg.selectAll('.legend-bubble').transition()
+        vis.svg.selectAll('.legend-bubble').transition()
             .duration(750)
             .style('opacity', 1);
-    vis.svg.selectAll('.legend-rating').transition()
+            
+        vis.svg.selectAll('.legend-rating').transition()
             .duration(750)
             .style('opacity', 1);
-    // vis.svgTitle.selectAll('.title-topView-text').transition()
-    //         .duration(750)
-    //         .style('opacity', 0);
-    // vis.svgTitle.selectAll('.title-drillDown-text').transition()
-    //         .duration(750)
-    //         .style('opacity', 1);
+
+        vis.svgTitle.selectAll('.title-topView-text').transition()
+            .duration(375)
+            .style('opacity', 0)
+            .on('end', () => {
+                vis.svgTitle.selectAll('.title-drillDown-text').transition()
+                    .duration(375)
+                    .style('opacity', 1);
+            });
     }
 
     applyLegendTransitionDrillDownToTop() {
-    let vis = this;
+        let vis = this;
 
-    vis.svg.selectAll('.legend-bubble').transition()
+        vis.svg.selectAll('.legend-bubble').transition()
             .duration(750)
             .style('opacity', 0);
 
-    vis.svg.selectAll('.legend-rating').transition()
+        vis.svg.selectAll('.legend-rating').transition()
             .duration(750)
             .style('opacity', 0);
-    // vis.svgTitle.selectAll('.title-drillDown-text').transition()
-    //         .duration(750)
-    //         .style('opacity', 0);
-    // vis.svgTitle.selectAll('.title-topView-text').transition()
-    //         .duration(750)
-    //         .style('opacity', 1);
+
+        vis.svgTitle.selectAll('.title-drillDown-text').transition()
+            .duration(375)
+            .style('opacity', 0)
+            .on('end', () => {
+                vis.svgTitle.selectAll('.title-topView-text').transition()
+                    .duration(375)
+                    .style('opacity', 1);
+            });
     }
       
 }

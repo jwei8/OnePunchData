@@ -80,7 +80,15 @@ rect {
 
 #container-packed-bubble {
     display: flex;
-    flex-direction: column; /* Aligns children (charts) side by side */
+    flex-direction: column; 
     justify-content: center;
-    align-items: center; /* Aligns children to the start (left) horizontally */
+    align-items: center; 
+}
+
+
+#packed-bubble-scatter {
+    display: flex;
+    flex-direction: row; 
+    justify-content: start;
+    align-items: start; 
 }
