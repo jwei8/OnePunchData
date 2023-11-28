@@ -5,16 +5,14 @@ class TopPackedBubbleChart {
           parentElement: _config.parentElement,
           parentElementLegend: _config.parentElementLegend,
           parentTitleElement: _config.parentTitleElement,
-          containerWidth: 800,
-          containerHeight: 800,
-          legendWidth: 400,
-          legendHeight: 400,
+          containerWidth: 750,
+          containerHeight: 750,
           tooltipPadding: 15,
           margin: {
-            top: 40,
-            right: 40,
-            bottom: 40,
-            left: 40
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20
           }
         }
         this.data = _data;
@@ -51,7 +49,6 @@ class TopPackedBubbleChart {
             .attr('fill', 'transparent')
             .on('click', (event, d) => {
                 if (!vis.notClickableGlobal && vis.zoomedIn && !d3.select(event.currentTarget).classed('.top-level-bubble-group')) {
-                    console.log("CLICK OUTSIDE");
                     vis.zoomOut();
                 }
             })
@@ -64,15 +61,15 @@ class TopPackedBubbleChart {
             .attr('fill', 'none')   
             .attr('stroke', 'grey') 
             .attr('stroke-width', '2px');
-        
 
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerHeight])
             .padding(15);
-        vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
-        vis.updateVis();
+        vis.radiusScale = d3.scaleSqrt().range([35,175]);
+
         vis.renderTitle();
+        vis.updateVis();
     }
 
     updateVis() {
@@ -83,7 +80,6 @@ class TopPackedBubbleChart {
         vis.groupedAnimesObjects = vis.groupedAnimes.map(([genre, animes]) => {
             return {genre: genre, count: animes.length, animes: animes, isClickable: true};
         });
-
 
         vis.radiusScale.domain([d3.min(vis.groupedAnimesObjects, d => d.count), d3.max(vis.groupedAnimesObjects, d => d.count)]);
 
@@ -329,13 +325,9 @@ class TopPackedBubbleChart {
 
         vis.legendTitleGroup
             .attr('transform', `translate(${maxWidth / 2}, ${maxHeight / 2})`);
-
-        // text1.attr('x', maxWidth / 2);
-
-        // text2.attr('x', maxWidth / 2);
     }
 
-    applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
+    applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
         let vis = this;
 
         vis.chartArea.transition()

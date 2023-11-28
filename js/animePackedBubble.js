@@ -4,16 +4,14 @@ class AnimePackedBubbleChart {
         this.config = {
           parentElement: _config.parentElement,
           parentElementLegend: _config.parentElementLegend,
-          containerWidth: 800,
-          containerHeight: 800,
-          legendWidth: 400,
-          legendHeight: 400,
+          containerWidth: 750,
+          containerHeight: 750,
           tooltipPadding: 15,
           margin: {
-            top: 40,
-            right: 40,
-            bottom: 40,
-            left: 40
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20
           }
         }
         this.genreToInfo = _genreToInfo;
@@ -27,9 +25,9 @@ class AnimePackedBubbleChart {
             "R+ - Mild Nudity": "#000000",
         }
         this.initVis();
-      }
+    }
 
-      initVis() {
+    initVis() {
         let vis = this;
 
         vis.config.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
@@ -45,13 +43,12 @@ class AnimePackedBubbleChart {
         vis.radiusScale = d3.scaleLinear()
                         .range([6,30])
                         .domain([vis.globalMinScore, vis.globalMaxScore]);
+
         vis.renderLegend();
-      }
+    }
 
-      updateVis(genreToView, animeData) {
+    updateVis(genreToView, animeData) {
         let vis = this;
-
-        //PERHAPS SCALE DATA BY GLOBAL MINIMUM rather than just the minimum in the genre
 
         vis.genre = genreToView;
 
@@ -68,9 +65,9 @@ class AnimePackedBubbleChart {
         vis.nodes = vis.pack(vis.root).leaves();
 
         vis.renderVis();
-      }
+    }
 
-      renderVis() {
+    renderVis() {
         let vis = this;
 
         vis.chartArea = vis.svg.append('g')
@@ -107,13 +104,11 @@ class AnimePackedBubbleChart {
                 // Add mouseout event
                 .on('mouseout', function(event, d) {
                     d3.select(this)
-                      .attr('stroke', null)     // Reset the stroke on mouseout
-                      .attr('stroke-width', null); // Reset the stroke-width on mouseout
+                        .attr('stroke', null)     // Reset the stroke on mouseout
+                        .attr('stroke-width', null); // Reset the stroke-width on mouseout
                 })
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
-                //.attr('stroke', '#000000')
-               // .attr('stroke-width', 2)
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
                 .attr('opacity', 0);
 
@@ -124,10 +119,9 @@ class AnimePackedBubbleChart {
         bubbles.transition()
             .duration(500)
             .attr('opacity', 1);
-      }
+    }
 
-
-      renderLegend() {
+    renderLegend() {
         let vis = this;
 
         const scores = [7.5, 8.5, 9.5];
@@ -141,8 +135,6 @@ class AnimePackedBubbleChart {
             ["R - 17+ (violence & profanity)", 110, "R"],
             ["R+ - Mild Nudity", 140, "R+"]
         ].map(([name, y, displayName]) => ({ name, y, displayName}));
-
-        //legend
 
         vis.legendGroup = vis.svg.append('g')
             .attr('class', 'legend-bubble')
@@ -162,7 +154,6 @@ class AnimePackedBubbleChart {
             .attr('r', d => vis.radiusScale(d))
             .attr('cx', vis.config.containerWidth - (largestRadius) - rightOffset)
             .attr('cy', d =>  2 * largestRadius - vis.radiusScale(d) + topOffset);
-
 
         vis.legendGroup.append('text')
             .style('font-size', 14)
@@ -184,9 +175,7 @@ class AnimePackedBubbleChart {
             .text(d => `${d}`)
             .attr('text-anchor', 'middle') // Center the text at the x position
             .attr('alignment-baseline', 'middle') // Center the text vertically
-            .style('font-size', '12px'); // Set the font size
-        
-
+            .style('font-size', '12px'); // Set the font size 
 
         vis.legendGroupAge = vis.svg.append('g')
             .attr('class', 'legend-rating')
@@ -194,7 +183,7 @@ class AnimePackedBubbleChart {
 
         const leftOffset = 20;
 
-        //color incoding information
+        //color encoding information
         vis.legendGroupAge.append('text')
             .attr('class', 'legend-rating-item-color-title')
             .style('font-size', 14)
@@ -227,5 +216,5 @@ class AnimePackedBubbleChart {
             .text(d => d.displayName)
             .attr('x', leftOffset + 13)
             .attr('y', d => d.y + 24);
-        }
+    }
 }
