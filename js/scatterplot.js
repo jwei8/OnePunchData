@@ -131,7 +131,7 @@ class ScatterPlot {
     updateVis() {
         let vis = this;
 
-        vis.colorValue = d => d.PrimaryGenre;
+        vis.colorValue = d => d.Genre;
         vis.xValue = d => d.CompletedDroppedRatio;
         vis.yValue = d => d.Scored;
 
@@ -162,7 +162,7 @@ class ScatterPlot {
             .attr('cx', d => vis.xScale(vis.xValue(d)))
             .attr('fill', d => vis.colorScale(vis.colorValue(d)))
             .on('mouseover', (event, d) => {
-                if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     vis.tooltip.transition()
                         .duration(200)
                         .style("opacity", .9);
@@ -177,10 +177,10 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
-                if (vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === d.Genre) {
                     vis.selectedGenre = null; // Deselect if the same genre is clicked again
                 } else {
-                    vis.selectedGenre = d.PrimaryGenre; // Select the new genre
+                    vis.selectedGenre = d.Genre; // Select the new genre
                 }
                 vis.updateFiltered();
                 vis.updateLegendColors();
@@ -245,13 +245,13 @@ class ScatterPlot {
     updateFiltered() {
         let vis = this;
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
-                vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+                vis.colorScale(d.Genre) : '#d3d3d3')
+            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
                 1 : 0.3) // Lower opacity for greyed-out points
             .attr('stroke-opacity', 1)
             .each(function(d) {
-                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
