@@ -4,6 +4,7 @@ class TopPackedBubbleChart {
         this.config = {
           parentElement: _config.parentElement,
           parentElementLegend: _config.parentElementLegend,
+          parentTitleElement: _config.parentTitleElement,
           containerWidth: 800,
           containerHeight: 800,
           legendWidth: 400,
@@ -21,9 +22,9 @@ class TopPackedBubbleChart {
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
         this.zoomedIn = false;
-        this.svgLegend = d3.select(this.config.parentElementLegend)
-                          .attr('width', this.legendWidth)
-                          .attr('height', this.legendHeight);
+        this.svgTitle = d3.select(this.config.parentTitleElement)
+                          .attr('width', 400)
+                          .attr('height', 40);
         
         this.initVis();
       }
@@ -73,7 +74,7 @@ class TopPackedBubbleChart {
         vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
         vis.updateVis();
-        vis.renderLegend();
+        vis.renderTitle();
     }
 
     updateVis() {
@@ -287,58 +288,40 @@ class TopPackedBubbleChart {
             });
     }
 
-    renderLegend() {
-        // let vis = this;
+    renderTitle() {
+        let vis = this;
 
-        // const circleDefinitions = [300, 200, 100, 50];
-        // //legend
-        // vis.svgLegend = d3.select(vis.config.parentElementLegend)
-        //                   .attr('width', 1000)
-        //                   .attr('height', 1000);
-        
-        // vis.svgLegend.append('rect')
-        //     .attr('width', 1000)
-        //     .attr('height', 1000)    
-        //     .attr('fill', 'grey')
-        //     .attr('stroke', 'grey') 
-        //     .attr('stroke-width', '2px');
+        //title
+        vis.svgTitle.append('rect')
+        .attr('width', 400)
+        .attr('height', 40)
+        .attr('fill', 'white')
+        .attr('stroke', 'grey') 
+        .attr('stroke-width', '2px');
 
-        // vis.legendGroup = vis.svgLegend.append('g')
-        //     .attr('class', 'legend');
-        
-        // vis.legendGroup.append('text')
-        //     .style('font-size', 14)
-        //     .style('font-weight', 'bold')
-        //     .attr('x', vis.config.legendWidth / 2)
-        //     .attr('text-anchor', 'middle')
-        //     .attr('y', 20)
-        //     .text("The Number Of Anime In the Genre");
-        
-        // vis.legendGroup.selectAll('.legend-item')
-        //     .data(circleDefinitions)
-        //     .enter()
-        //     .append('circle')
-        //     .attr('class', 'legend-item')
-        //     .attr('fill', 'none')
-        //     .attr('stroke', '#2b2c41')
-        //     .attr('stroke-width', 2)
-        //     .attr('r', d => vis.radiusScale(d))
-        //     .attr('cx', vis.config.legendWidth / 2)
-        //     .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d));
-        
-        // vis.legendGroup.selectAll('.legend-item-text')
-        //     .data(circleDefinitions)
-        //     .enter()
-        //     .append('text')
-        //     .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
-        //     .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 10) // Above the circle
-        //     .attr('class', 'legend-item-text')
-        //     .attr('text-anchor', 'middle') 
-        //     .style('alignment-baseline', 'top')
-        //     .text(d => `${d}`)
-        //     .attr('text-anchor', 'middle') // Center the text at the x position
-        //     .attr('alignment-baseline', 'middle') // Center the text vertically
-        //     .style('font-size', '12px'); // Set the font size
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+                                    .attr('class', 'title');
+
+        vis.legendTitleGroup.append('text')
+        .attr('class', 'title-topView-text')
+        .style('font-size', '14px')
+        .attr('x', 0)
+        .attr('y', 20) // Set the y attribute to the desired position
+        .style('font-weight', 'bold')
+        .attr('text-anchor', 'start') // Use 'middle' to horizontally center the text
+        .attr('dominant-baseline', 'middle') // Use 'middle' to vertically center the text
+        .text("Top 1000 most popular anime counted by genre");
+
+        vis.legendTitleGroup.append('text')
+        .attr('class', 'title-drillDown-text')
+        .style('font-size', '14px')
+        .style('opacity', 0)
+        .attr('x', 0)
+        .attr('y', 20) // Set the y attribute to the desired position
+        .style('font-weight', 'bold')
+        .attr('text-anchor', 'start') // Use 'middle' to horizontally center the text
+        .attr('dominant-baseline', 'middle') // Use 'middle' to vertically center the text
+        .text("Anime sorted by rating in the genre");
         }
 
       applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
@@ -374,6 +357,12 @@ class TopPackedBubbleChart {
         vis.svg.selectAll('.legend-rating').transition()
                 .duration(750)
                 .style('opacity', 1);
+        vis.svgTitle.selectAll('.title-topView-text').transition()
+                .duration(750)
+                .style('opacity', 0);
+        vis.svgTitle.selectAll('.title-drillDown-text').transition()
+                .duration(750)
+                .style('opacity', 1);
       }
 
       applyLegendTransitionDrillDownToTop() {
@@ -386,6 +375,12 @@ class TopPackedBubbleChart {
         vis.svg.selectAll('.legend-rating').transition()
                 .duration(750)
                 .style('opacity', 0);
+        vis.svgTitle.selectAll('.title-drillDown-text').transition()
+                .duration(750)
+                .style('opacity', 0);
+        vis.svgTitle.selectAll('.title-topView-text').transition()
+                .duration(750)
+                .style('opacity', 1);
       }
       
 }

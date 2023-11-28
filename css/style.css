@@ -78,3 +78,19 @@ rect {
     shape-rendering: crispEdges;
 }
 
+#container-packed-bubble {
+    display: flex;
+    flex-direction: row; /* Aligns children (charts) side by side */
+    align-items: flex-start; /* Aligns children to the start (left) horizontally */
+}
+
+#packed-bubble-title {
+    align-self: center; /* Centers the title SVG in the flex container */
+    /* Set a specific width if necessary, or it will default to the size of the SVG content */
+    width: 78%; /* Adjust the width as necessary */
+}
+
+#scatter-plot {
+    /* Style the scatter plot as needed */
+    margin-left: 20px; /* Optional: adds some space between the charts */
+}
