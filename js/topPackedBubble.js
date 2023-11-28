@@ -9,10 +9,16 @@ class TopPackedBubbleChart {
           containerHeight: 750,
           tooltipPadding: 15,
           margin: {
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+          },
+          zoomMargin: {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 10
           }
         }
         this.data = _data;
@@ -31,6 +37,9 @@ class TopPackedBubbleChart {
 
         vis.config.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.config.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
+
+        vis.config.zoomWidth = vis.config.containerWidth - vis.config.zoomMargin.left - vis.config.zoomMargin.right;
+        vis.config.zoomHeight = vis.config.containerHeight - vis.config.zoomMargin.top - vis.config.zoomMargin.bottom;
 
         // Define size of SVG drawing area
         vis.svg = d3.select(vis.config.parentElement)
@@ -66,7 +75,7 @@ class TopPackedBubbleChart {
             .size([vis.config.containerWidth, vis.config.containerHeight])
             .padding(15);
 
-        vis.radiusScale = d3.scaleSqrt().range([35,175]);
+        vis.radiusScale = d3.scaleSqrt().range([45,171]);
 
         vis.renderTitle();
         vis.updateVis();
@@ -191,13 +200,13 @@ class TopPackedBubbleChart {
         }
     
         // Calculate the scale for zooming
-        const targetRadius = Math.min(vis.config.width, vis.config.height) / 2;
+        const targetRadius = Math.min(vis.config.zoomWidth, vis.config.zoomHeight) / 2;
         const scale = targetRadius / vis.radiusScale(currClickedNode.data.count);
     
         // Calculate the translation needed to center the bubble
         // Adjust the translation to account for initial chart area translation
-        const translateX = vis.config.width / 2 - scale * currClickedNode.x + vis.config.margin.left;
-        const translateY = vis.config.height / 2 - scale * currClickedNode.y + vis.config.margin.top;
+        const translateX = vis.config.zoomWidth / 2 - scale * currClickedNode.x + vis.config.zoomMargin.left;
+        const translateY = vis.config.zoomHeight / 2 - scale * currClickedNode.y + vis.config.zoomMargin.top;
 
         // remove previous groups vis if it exists
         let bubbles = vis.svg.selectAll('.bubble-anime');
@@ -293,7 +302,7 @@ class TopPackedBubbleChart {
         // Append the first text element
         let text1 = vis.legendTitleGroup.append('text')
             .attr('class', 'title-topView-text')
-            .style('font-size', '14px')
+            .style('font-size', '18px')
             .style('font-weight', 'bold')
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
@@ -302,12 +311,12 @@ class TopPackedBubbleChart {
         // Append the second text element
         let text2 = vis.legendTitleGroup.append('text')
             .attr('class', 'title-drillDown-text')
-            .style('font-size', '14px')
+            .style('font-size', '18px')
             .style('opacity', 0)
             .style('font-weight', 'bold')
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
-            .text("Anime in the Genre");
+            .text("Animes in the Genre");
     
         // Calculate the maximum width of both text elements
         let text1Width = text1.node().getBBox().width;
