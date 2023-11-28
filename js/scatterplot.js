@@ -1,6 +1,6 @@
 class ScatterPlot {
 
-    constructor(_config, _data) {
+    constructor(_config, _data, _genreToInfo) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 500,
@@ -16,6 +16,7 @@ class ScatterPlot {
         }
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
+        this.genreToInfo = _genreToInfo;
         this.initVis();
     }
 
@@ -27,19 +28,6 @@ class ScatterPlot {
 
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
-        vis.genres = ['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem'];
-        vis.genreToInfo = {
-            "Action": { color: "#fd7f6f" },
-            "Comedy": { color: "#7eb0d5" },
-            "Sci-Fi": { color: "#b2e061", },
-            "Adventure": { color: "#bd7ebe" },
-            "Music": { color: "#ffb55a" },
-            "Game": { color: "#beb9db", },
-            "Mystery": { color: "#fdcce5" },
-            "Harem": { color: "#8bd3c7" },
-            "Drama": { color: "#bbd2de" },
-            "Slice of Life": { color: "#ffee65" },
-        }
 
         // Extract genre names for the domain
         const genres = Object.keys(vis.genreToInfo);
