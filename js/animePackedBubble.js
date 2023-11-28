@@ -48,7 +48,7 @@ class AnimePackedBubbleChart {
         vis.renderLegend();
       }
 
-      updateVis(genreToView, animeData, rerenderLegend) {
+      updateVis(genreToView, animeData) {
         let vis = this;
 
         //PERHAPS SCALE DATA BY GLOBAL MINIMUM rather than just the minimum in the genre
@@ -66,8 +66,6 @@ class AnimePackedBubbleChart {
             .sum(d => d.Score);
 
         vis.nodes = vis.pack(vis.root).leaves();
-
-        vis.rerenderLegend = rerenderLegend;
 
         vis.renderVis();
       }

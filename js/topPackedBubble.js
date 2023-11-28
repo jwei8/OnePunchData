@@ -143,7 +143,15 @@ class TopPackedBubbleChart {
                 .attr('stroke-width', 0)
                 .attr('fill', d => vis.genreToInfo[d.data.genre].color);
         
-        vis.genreText = vis.bubblesGroups.selectAll('.top-bubble-title')
+        vis.genreInfoGroup = vis.bubblesGroups.selectAll('.top-bubble-info')
+                .data(d => d, d => d.data.genre) 
+            .join('g')
+                .attr('class', 'top-bubble-info')
+                .attr("x", 0)
+                .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
+
+        
+        vis.genreText = vis.genreInfoGroup.selectAll('.top-bubble-title')
                 .data(d => d, d => d.data.genre)
             .join('text')
                 .attr('class', 'top-bubble-title')
@@ -153,11 +161,9 @@ class TopPackedBubbleChart {
                 .attr('font-weight', 'bold')
                 .attr('text-anchor', 'middle')
                 .text(d => d.data.genre)
-                .attr("x", 0)
-                .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
         
-        vis.genreCount = vis.bubblesGroups.selectAll('.top-bubble-count')
-                .data(d => d, d => d.data.count)
+        vis.genreCount = vis.genreInfoGroup.selectAll('.top-bubble-count')
+                .data(d => d, d => d.data.genre)
             .join('text')
                 .attr('class', 'top-bubble-count')
                 .attr('dy', "1.5em")
@@ -166,9 +172,6 @@ class TopPackedBubbleChart {
                 .attr('font-weight', 'bold')
                 .attr('text-anchor', 'middle')
                 .text(d => d.data.count)
-                .attr("x", 0)
-                .attr("y", (d, i, nodes) => `${i - nodes.length / 2 + 0.5}em`);
-        
 
         simulation.on("tick", () => {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
@@ -224,14 +227,12 @@ class TopPackedBubbleChart {
                     // Only run code when all transitions complete
                     vis.svg.select('.anime-level-group').remove();
 
-                    vis.genreText.each(function() {
-                        let textElement = d3.select(this);
+                    vis.genreInfoGroup.each(function() {
+                        let currGroup = d3.select(this);
+                        let textElement = currGroup.select('.top-bubble-title');
                         if (prevNode != null && (textElement.text() === prevNode.data.genre)) {
                             // Apply fade-out transition to the matching element
-                            vis.genreCount.transition()
-                            .duration(500)
-                            .style("opacity", 1)
-                            textElement.transition()
+                            currGroup.transition()
                                 .duration(500)
                                 .style("opacity", 1)
                                 .on('end', () => {
@@ -264,15 +265,12 @@ class TopPackedBubbleChart {
             .attr('opacity', 0)
             .on('end', () => {
                 vis.svg.select('.anime-level-group').remove()
-                vis.genreText.each(function() {
-                    let textElement = d3.select(this);
+                vis.genreInfoGroup.each(function() {
+                    let currGroup = d3.select(this);
+                    let textElement = currGroup.select('.top-bubble-title');
                     if (textElement.text() === prevNode.data.genre) {
                         // Apply fade-out transition to the matching element
-                        vis.genreCount.transition()
-                            .duration(350)
-                            .style("opacity", 1)
-                        
-                        textElement.transition()
+                        currGroup.transition()
                             .duration(350)
                             .style("opacity", 1)
                             .on('end', () => {
@@ -345,30 +343,24 @@ class TopPackedBubbleChart {
 
       applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
         let vis = this;
-        let rerenderLegend = false;
-        if (prevNode === null) {
-            rerenderLegend = true;
-        }
+
         vis.chartArea.transition()
             .duration(750)
             .attr("transform", `translate(${translateX}, ${translateY}) scale(${scale})`)
             .on("end", () => {
-                vis.genreText.each(function() {
-                    let textElement = d3.select(this);
+                vis.genreInfoGroup.each(function() {
+                    let currGroup = d3.select(this);
+                    let textElement = currGroup.select('.top-bubble-title');
                     if (textElement.text() === currClickedNode.data.genre) {
                         // Apply fade-out transition to the matching element
-                        textElement.transition()
+                        currGroup.transition()
                             .duration(500)
                             .style("opacity", 0)
                             .on('end', () => {
-                                vis.dispatcher.call('mainToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes, rerenderLegend);
+                                vis.dispatcher.call('mainToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
                                 vis.notClickableGlobal = false;
                             });
                     }
-
-                vis.genreCount.transition()
-                    .duration(500)
-                    .style("opacity", 0)
                 });
             });
       }

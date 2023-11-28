@@ -65,8 +65,8 @@ dispatcher.on('mainToScatterGenreSelect', (genreName) => {
     scatterPlot.updateChart(genreName);
 });
 
-dispatcher.on('mainToDrillDown', (genreName, animes, rerenderLegend) => {
+dispatcher.on('mainToDrillDown', (genreName, animes) => {
   if (genreName !== null) {
-    animeLevelBubble.updateVis(genreName, animes, rerenderLegend);
+    animeLevelBubble.updateVis(genreName, animes);
   }
 });
