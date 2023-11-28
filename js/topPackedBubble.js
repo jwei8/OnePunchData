@@ -4,6 +4,7 @@ class TopPackedBubbleChart {
         this.config = {
           parentElement: _config.parentElement,
           parentElementLegend: _config.parentElementLegend,
+          parentTitleElement: _config.parentTitleElement,
           containerWidth: 800,
           containerHeight: 800,
           legendWidth: 400,
@@ -21,9 +22,7 @@ class TopPackedBubbleChart {
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
         this.zoomedIn = false;
-        this.svgLegend = d3.select(this.config.parentElementLegend)
-                          .attr('width', this.legendWidth)
-                          .attr('height', this.legendHeight);
+        this.svgTitle = d3.select(this.config.parentTitleElement);
         
         this.initVis();
       }
@@ -73,7 +72,7 @@ class TopPackedBubbleChart {
         vis.radiusScale = d3.scaleSqrt().range([40,170]);
 
         vis.updateVis();
-        vis.renderLegend();
+        vis.renderTitle();
     }
 
     updateVis() {
@@ -287,61 +286,56 @@ class TopPackedBubbleChart {
             });
     }
 
-    renderLegend() {
-        // let vis = this;
+    
+    renderTitle() {
+        let vis = this;
+    
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+            .attr('class', 'title')
+            .attr('transform', `translate(${0},${0})`);
+    
+        // Append the first text element
+        let text1 = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-topView-text')
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Top 10 Genres By Count Of Anime");
+    
+        // Append the second text element
+        let text2 = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-drillDown-text')
+            .style('font-size', '14px')
+            .style('opacity', 0)
+            .style('font-weight', 'bold')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Anime in the Genre");
+    
+        // Calculate the maximum width of both text elements
+        let text1Width = text1.node().getBBox().width;
+        let text2Width = text2.node().getBBox().width;
+        let maxWidth = Math.max(text1Width, text2Width);
 
-        // const circleDefinitions = [300, 200, 100, 50];
-        // //legend
-        // vis.svgLegend = d3.select(vis.config.parentElementLegend)
-        //                   .attr('width', 1000)
-        //                   .attr('height', 1000);
-        
-        // vis.svgLegend.append('rect')
-        //     .attr('width', 1000)
-        //     .attr('height', 1000)    
-        //     .attr('fill', 'grey')
-        //     .attr('stroke', 'grey') 
-        //     .attr('stroke-width', '2px');
+        // Calculate the maximum height of both text elements
+        let text1Height = text1.node().getBBox().height;
+        let text2Height = text2.node().getBBox().height;
+        let maxHeight = Math.max(text1Height, text2Height);
 
-        // vis.legendGroup = vis.svgLegend.append('g')
-        //     .attr('class', 'legend');
-        
-        // vis.legendGroup.append('text')
-        //     .style('font-size', 14)
-        //     .style('font-weight', 'bold')
-        //     .attr('x', vis.config.legendWidth / 2)
-        //     .attr('text-anchor', 'middle')
-        //     .attr('y', 20)
-        //     .text("The Number Of Anime In the Genre");
-        
-        // vis.legendGroup.selectAll('.legend-item')
-        //     .data(circleDefinitions)
-        //     .enter()
-        //     .append('circle')
-        //     .attr('class', 'legend-item')
-        //     .attr('fill', 'none')
-        //     .attr('stroke', '#2b2c41')
-        //     .attr('stroke-width', 2)
-        //     .attr('r', d => vis.radiusScale(d))
-        //     .attr('cx', vis.config.legendWidth / 2)
-        //     .attr('cy', d => vis.config.legendHeight - vis.radiusScale(d));
-        
-        // vis.legendGroup.selectAll('.legend-item-text')
-        //     .data(circleDefinitions)
-        //     .enter()
-        //     .append('text')
-        //     .attr('x', vis.config.legendWidth / 2) // Horizontal center of the circle
-        //     .attr('y', d => vis.config.legendHeight - vis.radiusScale(d) * 2 - 10) // Above the circle
-        //     .attr('class', 'legend-item-text')
-        //     .attr('text-anchor', 'middle') 
-        //     .style('alignment-baseline', 'top')
-        //     .text(d => `${d}`)
-        //     .attr('text-anchor', 'middle') // Center the text at the x position
-        //     .attr('alignment-baseline', 'middle') // Center the text vertically
-        //     .style('font-size', '12px'); // Set the font size
-        }
+        // set svg height
+        vis.svgTitle.attr('width', maxWidth)
+            .attr('height', maxHeight);
 
-      applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
+        vis.legendTitleGroup
+            .attr('transform', `translate(${maxWidth / 2}, ${maxHeight / 2})`);
+
+        // text1.attr('x', maxWidth / 2);
+
+        // text2.attr('x', maxWidth / 2);
+    }
+
+    applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode, prevNode) {
         let vis = this;
 
         vis.chartArea.transition()
@@ -363,29 +357,48 @@ class TopPackedBubbleChart {
                     }
                 });
             });
-      }
+    }
 
-      applyLegendTransitionTopToDrillDown() {
-        let vis = this;
-  
-        vis.svg.selectAll('.legend-bubble').transition()
-                .duration(750)
-                .style('opacity', 1);
-        vis.svg.selectAll('.legend-rating').transition()
-                .duration(750)
-                .style('opacity', 1);
-      }
-
-      applyLegendTransitionDrillDownToTop() {
+    applyLegendTransitionTopToDrillDown() {
         let vis = this;
 
         vis.svg.selectAll('.legend-bubble').transition()
-                .duration(750)
-                .style('opacity', 0);
+            .duration(750)
+            .style('opacity', 1);
+            
+        vis.svg.selectAll('.legend-rating').transition()
+            .duration(750)
+            .style('opacity', 1);
+
+        vis.svgTitle.selectAll('.title-topView-text').transition()
+            .duration(375)
+            .style('opacity', 0)
+            .on('end', () => {
+                vis.svgTitle.selectAll('.title-drillDown-text').transition()
+                    .duration(375)
+                    .style('opacity', 1);
+            });
+    }
+
+    applyLegendTransitionDrillDownToTop() {
+        let vis = this;
+
+        vis.svg.selectAll('.legend-bubble').transition()
+            .duration(750)
+            .style('opacity', 0);
 
         vis.svg.selectAll('.legend-rating').transition()
-                .duration(750)
-                .style('opacity', 0);
-      }
+            .duration(750)
+            .style('opacity', 0);
+
+        vis.svgTitle.selectAll('.title-drillDown-text').transition()
+            .duration(375)
+            .style('opacity', 0)
+            .on('end', () => {
+                vis.svgTitle.selectAll('.title-topView-text').transition()
+                    .duration(375)
+                    .style('opacity', 1);
+            });
+    }
       
 }

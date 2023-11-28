@@ -78,3 +78,17 @@ rect {
     shape-rendering: crispEdges;
 }
 
+#container-packed-bubble {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center; 
+}
+
+
+#packed-bubble-scatter {
+    display: flex;
+    flex-direction: row; 
+    justify-content: start;
+    align-items: start; 
+}

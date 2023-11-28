@@ -10,25 +10,38 @@
 <body>
     <h1>One Punch Data: Knockout Anime Recommendations!</h1>
 
-    <div id="container-packed-bubble"> <svg id="packed-bubble"></svg>
-        <svg id="scatter-plot"></svg>
+    <div id="container">
+        <div id="charts-container">
 
-        <svg id="packed-bubble-legend">
-        </svg>
-    </div>
+            <div id = "packed-bubble-scatter"> 
+                <div id="container-packed-bubble">
+                    <svg id="packed-bubble-title"></svg>
+                    <svg id="packed-bubble"></svg>
+                </div>
 
-    <form>
-        <label>
-            <input type="radio" name="mode" value="stacked" checked="" /> Stacked
-        </label>
-        <label>
-            <input type="radio" name="mode" value="grouped" /> Grouped
-        </label>
+                <svg id="scatter-plot"></svg>
 
-    </form>
+            </div>
 
-    <div>
-        <svg id="bar-chart"></svg>
+            <svg id="scatter-plot"></svg>
+
+            <form>
+                <label>
+                    <input type="radio" name="mode" value="stacked" checked="" /> Stacked
+                </label>
+                <label>
+                    <input type="radio" name="mode" value="grouped" /> Grouped
+                </label>
+        
+            </form>
+        
+            <div>
+                <svg id="bar-chart"></svg>
+            </div>
+
+
+
+        </div>
     </div>
 
     <script src="js/d3.v6.min.js"></script>

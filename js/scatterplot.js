@@ -1,6 +1,6 @@
 class ScatterPlot {
 
-    constructor(_config, _data) {
+    constructor(_config, _data, _genreToInfo) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 500,
@@ -16,6 +16,7 @@ class ScatterPlot {
         }
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
+        this.genreToInfo = _genreToInfo;
         this.initVis();
     }
 
@@ -27,19 +28,6 @@ class ScatterPlot {
 
         vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
         vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
-        vis.genres = ['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem'];
-        vis.genreToInfo = {
-            "Action": { color: "#fd7f6f" },
-            "Comedy": { color: "#7eb0d5" },
-            "Sci-Fi": { color: "#b2e061", },
-            "Adventure": { color: "#bd7ebe" },
-            "Music": { color: "#ffb55a" },
-            "Game": { color: "#beb9db", },
-            "Mystery": { color: "#fdcce5" },
-            "Harem": { color: "#8bd3c7" },
-            "Drama": { color: "#bbd2de" },
-            "Slice of Life": { color: "#ffee65" },
-        }
 
         // Extract genre names for the domain
         const genres = Object.keys(vis.genreToInfo);
@@ -131,7 +119,7 @@ class ScatterPlot {
     updateVis() {
         let vis = this;
 
-        vis.colorValue = d => d.PrimaryGenre;
+        vis.colorValue = d => d.Genre;
         vis.xValue = d => d.CompletedDroppedRatio;
         vis.yValue = d => d.Scored;
 
@@ -162,7 +150,7 @@ class ScatterPlot {
             .attr('cx', d => vis.xScale(vis.xValue(d)))
             .attr('fill', d => vis.colorScale(vis.colorValue(d)))
             .on('mouseover', (event, d) => {
-                if (vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     vis.tooltip.transition()
                         .duration(200)
                         .style("opacity", .9);
@@ -177,10 +165,10 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
-                if (vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === d.Genre) {
                     vis.selectedGenre = null; // Deselect if the same genre is clicked again
                 } else {
-                    vis.selectedGenre = d.PrimaryGenre; // Select the new genre
+                    vis.selectedGenre = d.Genre; // Select the new genre
                 }
                 vis.updateFiltered();
                 vis.updateLegendColors();
@@ -245,13 +233,13 @@ class ScatterPlot {
     updateFiltered() {
         let vis = this;
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
-                vis.colorScale(d.PrimaryGenre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) ?
+            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+                vis.colorScale(d.Genre) : '#d3d3d3')
+            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
                 1 : 0.3) // Lower opacity for greyed-out points
             .attr('stroke-opacity', 1)
             .each(function(d) {
-                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.PrimaryGenre) {
+                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
