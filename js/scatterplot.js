@@ -177,8 +177,13 @@ class ScatterPlot {
 
                 if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
                     vis.selectedAnimes.push(d.MAL_ID);
-                    vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
+                } else if (vis.selectedGenre === d.Genre && vis.selectedAnimes.includes(d.MAL_ID)) {
+                    const index = vis.selectedAnimes.indexOf(d.MAL_ID);
+                    if (index > -1) {
+                        vis.selectedAnimes.splice(index, 1);
+                    }
                 }
+                vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
                 vis.updateFilteredByAnime();
             })        
 

@@ -105,6 +105,11 @@ class AnimePackedBubbleChart {
                     console.log(d.data.MAL_ID);
                     if (!vis.selectedAnimes.includes(d.data.MAL_ID)) {
                         vis.selectedAnimes.push(d.data.MAL_ID);
+                    } else {
+                        const index = vis.selectedAnimes.indexOf(d.data.MAL_ID);
+                         if (index > -1) {
+                            vis.selectedAnimes.splice(index, 1);
+                        }
                     }
                 vis.dispatcher.call('selectAnimeOnClick', null, vis.selectedAnimes);
                 })
