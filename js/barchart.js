@@ -61,6 +61,7 @@ class Barchart {
             .attr('height', vis.config.containerHeight);
 
         vis.chart = vis.svg.append('g')
+            .attr('class', "bars")
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
         vis.xAxisG = vis.chart.append('g')
@@ -406,9 +407,9 @@ class Barchart {
     transitionOneGenre() {
         let vis = this;
 
-        vis.stackedData = vis.stack(vis.flattenedData);
+        d3.selectAll("#bar-chart > .bars > g > rect").remove();
 
-        vis.isStacked = true;
+        vis.stackedData = vis.stack(vis.flattenedData);
 
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
 
@@ -494,23 +495,26 @@ class Barchart {
 
         // vis.updateVis();
         if (vis.isStacked) {
+            console.log('stacked');
             if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
                 vis.stack = d3.stack()
                     .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
 
                 vis.updateVis();
 
             } else {
-                d3.selectAll("#bar-chart > g > g > rect").remove();
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
                 vis.stack = d3.stack()
                     .keys([vis.selectedGenre]);
 
-                vis.updateVis();
-                // vis.transitionOneGenre();
+                // vis.updateVis();
+                vis.isStacked = true;
+                vis.transitionOneGenre();
             }
 
         } else {
-            console.log('test');
+            console.log('grouped');
 
             // vis.selectedGenre === null;
 
@@ -519,16 +523,16 @@ class Barchart {
             console.log(vis.selectedGenre);
             if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
                 vis.transitionGrouped();
-                console.log("elo");
+                console.log("unselected");
 
             } else {
                 console.log('ello');
-                d3.selectAll("#bar-chart > g > g > rect").remove();
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
                 vis.stack = d3.stack()
                     .keys([vis.selectedGenre]);
 
-                vis.updateVis();
-                // vis.transitionOneGenre();
+                // vis.updateVis();
+                vis.transitionOneGenre();
             }
         }
 
