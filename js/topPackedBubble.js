@@ -182,6 +182,8 @@ class TopPackedBubbleChart {
         const prevNode = vis.clickedNode;
         vis.clickedNode = currClickedNode;
         vis.zoomedIn = true;
+        vis.dispatcher.call('clearSelectedAnimes', null, []);
+        
 
         // Make current node notClickable and prev node clickable
         currClickedNode.data.isClickable = false;
@@ -252,7 +254,9 @@ class TopPackedBubbleChart {
             prevNode.data.isClickable = true;
         }
 
-        vis.dispatcher.call('mainToScatterGenreSelect', null)
+        vis.dispatcher.call('mainToScatterGenreSelect', null, null);
+        console.log('change bubble')
+        vis.dispatcher.call('clearSelectedAnimes', null, []);
 
         // remove previous groups vis if it exists
         vis.svg.selectAll('.bubble-anime').transition()

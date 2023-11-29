@@ -73,6 +73,28 @@ form {
     gap: 2px;
 }
 
+.tooltip li {
+    font-size: 12px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+
+.tooltip h3 {
+    margin: 0;
+    padding-bottom: 8px;
+    font-size: 15px;
+    border-bottom: 1px solid #ccc;
+    font-weight: 600;
+}
+
+.tooltip p {
+    margin: 8px 0;
+    color: #555;
+    font-size: 12px;
+}
+
+
 /* Stacked bar chart */
 rect {
     shape-rendering: crispEdges;

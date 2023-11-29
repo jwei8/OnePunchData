@@ -1,6 +1,6 @@
 class AnimePackedBubbleChart {
 
-    constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore) {
+    constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
           parentElementLegend: _config.parentElementLegend,
@@ -17,6 +17,8 @@ class AnimePackedBubbleChart {
         this.genreToInfo = _genreToInfo;
         this.globalMinScore = _globalMinScore;
         this.globalMaxScore = _globalMaxScore;
+        this.selectedAnimes = [];
+        this.dispatcher = _dispatcher;
         this.ratingToColor = {
             "G - All Ages": "#ffffff",
             "PG - Children": "#ffff00",
@@ -25,6 +27,7 @@ class AnimePackedBubbleChart {
             "R+ - Mild Nudity": "#000000",
         }
         this.initVis();
+
     }
 
     initVis() {
@@ -45,7 +48,12 @@ class AnimePackedBubbleChart {
                         .domain([vis.globalMinScore, vis.globalMaxScore]);
 
         vis.renderLegend();
-    }
+
+        // tooltip
+        vis.tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+      }
 
     updateVis(genreToView, animeData) {
         let vis = this;
@@ -94,23 +102,48 @@ class AnimePackedBubbleChart {
                 .data(d => d, d => d.data.MAL_ID)
             .join('circle')
                 .on('click', (event, d) => {
-                    console.log(d.data)
+                    console.log(d.data.MAL_ID);
+                    if (!vis.selectedAnimes.includes(d.data.MAL_ID)) {
+                        vis.selectedAnimes.push(d.data.MAL_ID);
+                    }
+                vis.dispatcher.call('selectAnimeOnClick', null, vis.selectedAnimes);
                 })
                 .on('mouseover', function(event, d) {
                     d3.select(this)
                         .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
                         .attr('stroke-width', 2); // Increase the stroke-width on hover
-                })
+                        
+                    vis.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 1);
+                    vis.tooltip.html(
+                    `
+                        <h3>${d.data.Name}</h3>
+                        <ul>
+                          <li>Score: ${d.data.Score}</li>
+                          <li>Rating: ${d.data.Rating} years</li>
+                          <li>Studio: ${d.data.Studios}</li>
+                        </ul>
+                    `)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+
+                    })
                 // Add mouseout event
                 .on('mouseout', function(event, d) {
                     d3.select(this)
-                        .attr('stroke', null)     // Reset the stroke on mouseout
-                        .attr('stroke-width', null); // Reset the stroke-width on mouseout
+                        .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41' : null)     // Reset the stroke on mouseout
+                        .attr('stroke-width', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 2 : null); // Reset the stroke-width on mouseout
+                    
+                     vis.tooltip.transition()
+                      .duration(500)
+                      .style("opacity", 0);
                 })
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
-                .attr('opacity', 0);
+                // .attr('stroke', d => { vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41' : null})
+                // .attr('stroke-width', d => { vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null});
 
         simulation.on("tick", () => {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
@@ -119,6 +152,16 @@ class AnimePackedBubbleChart {
         bubbles.transition()
             .duration(500)
             .attr('opacity', 1);
+    }
+
+    
+    updateChartByAnime(selectedAnimes) {
+        let vis = this;
+        const animeGroups = vis.chartArea.selectAll('.anime-level-bubble-group')
+                .data(vis.nodes, d => d.data.MAL_ID);
+        animeGroups.selectAll('.bubble-anime')
+            .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41': null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 2 : null);
     }
 
     renderLegend() {

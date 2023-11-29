@@ -3,7 +3,7 @@
  */
 let data, scatterPlot;
 
-const dispatcher = d3.dispatch('mainToScatterGenreSelect', 'mainToDrillDown');
+const dispatcher = d3.dispatch('mainToScatterGenreSelect', 'mainToDrillDown', 'selectAnimeOnClick', 'selectAnimeOnClickScatter', 'clearSelectedAnimes');
 
 let topLevelBubble, animeLevelBubble;
 
@@ -37,7 +37,7 @@ d3.csv('data/anime_processed.csv')
     animeLevelBubble = new AnimePackedBubbleChart({
       parentElement: '#packed-bubble',
       parentElementLegend: '#packed-bubble-legend'
-    }, genreToInfo, globalMinScore, globalMaxScore);
+    }, genreToInfo, globalMinScore, globalMaxScore, dispatcher);
 
     data.forEach(d => {
       // Extract the year from the "Premiered" column and convert to number
@@ -55,7 +55,7 @@ d3.csv('data/anime_processed.csv')
       d.CompletedDroppedRatio = d.Dropped !== 0 ? d.Completed / d.Dropped : d.Completed; // Prevent division by zero
     });
 
-    scatterPlot = new ScatterPlot({ parentElement: '#scatter-plot' }, data, genreToInfo);
+    scatterPlot = new ScatterPlot({ parentElement: '#scatter-plot' }, data, genreToInfo, dispatcher);
     scatterPlot.updateVis();
 
   })
@@ -69,4 +69,20 @@ dispatcher.on('mainToDrillDown', (genreName, animes) => {
   if (genreName !== null) {
     animeLevelBubble.updateVis(genreName, animes);
   }
+});
+
+dispatcher.on('selectAnimeOnClick', (selectedAnimes) => {
+  animeLevelBubble.selectedAnimes.concat(selectedAnimes);
+  scatterPlot.updateChartByAnime(selectedAnimes);
+});
+
+dispatcher.on('selectAnimeOnClickScatter', (selectedAnimes) => {
+  animeLevelBubble.selectedAnimes.concat(selectedAnimes);
+  animeLevelBubble.updateChartByAnime(selectedAnimes);
+});
+
+dispatcher.on('clearSelectedAnimes', (selectedAnimes) => {
+  animeLevelBubble.selectedAnimes = selectedAnimes;
+  scatterPlot.selectedAnimes = selectedAnimes;
+  scatterPlot.updateChartByAnime(selectedAnimes);
 });

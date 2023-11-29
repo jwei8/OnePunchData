@@ -1,10 +1,10 @@
 class ScatterPlot {
 
-    constructor(_config, _data, _genreToInfo) {
+    constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 500,
-            containerHeight: 300,
+            containerHeight: 800,
             margin: {
                 top: 40,
                 right: 40,
@@ -17,6 +17,8 @@ class ScatterPlot {
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
         this.genreToInfo = _genreToInfo;
+        this.selectedAnimes = [];
+        this.dispatcher = _dispatcher;
         this.initVis();
     }
 
@@ -84,7 +86,7 @@ class ScatterPlot {
             .attr('x', vis.config.containerWidth / 2)
             .attr('y', vis.config.containerHeight - 30) // Adjust the position as needed
             .style('text-anchor', 'middle')
-            .text('Completed:Dropped Ratio');
+            .text('Score');
 
         // Append y-axis title
         vis.svg.append('text')
@@ -93,7 +95,7 @@ class ScatterPlot {
             .attr('x', -vis.config.containerHeight / 2)
             .attr('y', 30) // Adjust the position as needed
             .style('text-anchor', 'middle')
-            .text('Score');
+            .text('Completed:Dropped Ratio');
 
         // Initialize stack generator and specify the categories or layers that we want to show in the chart
         vis.stack = d3.stack()
@@ -120,8 +122,8 @@ class ScatterPlot {
         let vis = this;
 
         vis.colorValue = d => d.Genre;
-        vis.xValue = d => d.CompletedDroppedRatio;
-        vis.yValue = d => d.Scored;
+        vis.xValue = d => d.Scored;
+        vis.yValue = d => d.CompletedDroppedRatio;
 
         // Set the scale input domains
         vis.xScale.domain([d3.min(vis.data, vis.xValue), d3.max(vis.data, vis.xValue)]);
@@ -146,6 +148,7 @@ class ScatterPlot {
             .join('circle')
             .attr('class', 'point')
             .attr('r', 4)
+            .style('opacity', 0.65)
             .attr('cy', d => vis.yScale(vis.yValue(d)))
             .attr('cx', d => vis.xScale(vis.xValue(d)))
             .attr('fill', d => vis.colorScale(vis.colorValue(d)))
@@ -153,7 +156,7 @@ class ScatterPlot {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     vis.tooltip.transition()
                         .duration(200)
-                        .style("opacity", .9);
+                        .style("opacity", 1);
                     vis.tooltip.html(d.Name + "<br/> Score: " + d.Score + "<br/> Rating: " + d.Rating)
                         .style("left", (event.pageX) + "px")
                         .style("top", (event.pageY - 28) + "px");
@@ -165,14 +168,19 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
-                if (vis.selectedGenre === d.Genre) {
-                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
-                } else {
-                    vis.selectedGenre = d.Genre; // Select the new genre
+                // if (vis.selectedGenre === d.Genre) {
+                //     vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                // } else {
+                //     vis.selectedGenre = d.Genre; // Select the new genre
+                // }
+                //vis.selectedGenre = d.Genre; // Select the new genre
+
+                if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
+                    vis.selectedAnimes.push(d.MAL_ID);
+                    vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
                 }
                 vis.updateFiltered();
-                vis.updateLegendColors();
-            });
+            })        
 
         // Render the legend
         vis.renderLegend();
@@ -202,7 +210,7 @@ class ScatterPlot {
                 } else {
                     vis.selectedGenre = selectedGenre; // Select the new genre
                 }
-                vis.updateFiltered();
+                //vis.updateFiltered();
                 vis.updateLegendColors();
             });
 
@@ -221,7 +229,7 @@ class ScatterPlot {
             .text(d => d);
 
         // Initial rendering with no genre filtered
-        vis.updateFiltered();
+        //vis.updateFiltered();
     }
 
     updateChart(selectedGenre) {
@@ -230,21 +238,42 @@ class ScatterPlot {
         vis.updateFiltered();
     }
 
+    updateChartByAnime(selectedAnimes) {
+        let vis = this;
+        vis.selectedAnimes = selectedAnimes;
+        vis.updateFilteredByAnime();
+    }
+
     updateFiltered() {
         let vis = this;
         vis.chart.selectAll('.point')
-            .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+            .attr('fill', d => (vis.selectedGenre === null|| vis.selectedGenre === d.Genre) ?
                 vis.colorScale(d.Genre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
                 1 : 0.3) // Lower opacity for greyed-out points
-            .attr('stroke-opacity', 1)
+            .attr('stroke',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 'black' : null)
+            .attr('stroke-width', d => { vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null})
             .each(function(d) {
-                if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
+                if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
 
-        vis.updateLegendColors();
+        //vis.updateLegendColors();
+    }
+
+    updateFilteredByAnime() {
+        let vis = this;
+        vis.chart.selectAll('.point')
+            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#2b2c41' : null)
+            .attr('stroke-opacity',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 2 : null)
+            .each(function(d) {
+                if (vis.selectedAnimes.includes(d.MAL_ID)) {
+                    d3.select(this).raise(); // Bring the selected points to the front
+                }
+            });
+
+        //vis.updateLegendColors();
     }
 
     updateLegendColors() {
