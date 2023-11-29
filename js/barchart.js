@@ -6,10 +6,10 @@ class Barchart {
             containerWidth: 1400,
             containerHeight: 300,
             margin: {
-                top: 30,
-                right: 5,
-                bottom: 20,
-                left: 30
+                top: 40,
+                right: 40,
+                bottom: 40,
+                left: 60
             },
             // Todo: Add or remove attributes from config as needed
             tooltipPadding: 10, // Added a tooltip padding configuration
@@ -40,6 +40,10 @@ class Barchart {
 
         vis.color = d3.scaleOrdinal()
             .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+        // Create the color scale
+        vis.colorScale = d3.scaleOrdinal()
+            .domain(vis.genres)
+            .range(vis.genres.map(genre => vis.genreToInfo[genre].color));
 
         vis.xAxis = d3.axisBottom(vis.xScale)
             // .ticks(6)
@@ -70,9 +74,26 @@ class Barchart {
         // Append axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
-            .attr('x', 0)
+            .attr('x', 40)
             .attr('y', 20)
-        // .text('View 2');
+            .text('Number of Animes By Genre Per Year');
+
+        // Append x-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('x', vis.config.containerWidth / 2)
+            .attr('y', vis.config.containerHeight) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Year');
+
+        // Append y-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -vis.config.containerHeight / 2)
+            .attr('y', 30) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Count');
 
         // tooltip
         vis.tooltip = d3.select("body").append("div")
@@ -171,6 +192,11 @@ class Barchart {
 
 
             })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.pageY - 100 + "px"))
+            })
             .on('mouseout', () => {
                 vis.tooltip.transition()
                     .duration(500)
@@ -188,6 +214,53 @@ class Barchart {
             if (this.value === "grouped") vis.transitionGrouped();
             if (this.value === "stacked") vis.transitionStacked();
         }
+
+        vis.renderLegend();
+    }
+
+    renderLegend() {
+        let vis = this;
+
+        if (vis.svg.select('.legend').empty()) {
+            vis.legend = vis.svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${70},${36})`);
+        }
+
+        // Add legend entries
+        const genres = vis.colorScale.domain();
+        const legendEntry = vis.legend.selectAll('.legend-entry')
+            .data(genres)
+            .join('g')
+            .attr('class', 'legend-entry')
+            .attr('transform', (d, i) => `translate(0, ${i * 20})`)
+            .style('cursor', 'pointer')
+            .on('click', (event, selectedGenre) => {
+                if (vis.selectedGenre === selectedGenre) {
+                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                } else {
+                    vis.selectedGenre = selectedGenre; // Select the new genre
+                }
+                vis.updateFiltered();
+                vis.updateLegendColors();
+            });
+
+        // Add the colored rectangles
+        legendEntry.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 12)
+            .attr('height', 12)
+            .attr('fill', d => vis.colorScale(d));
+
+        // Add the text labels
+        legendEntry.append('text')
+            .attr('x', 20)
+            .attr('y', 12)
+            .text(d => d);
+
+        // Initial rendering with no genre filtered
+        // vis.updateFiltered();
     }
 
 
@@ -220,6 +293,11 @@ class Barchart {
                 `)
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY) + "px");
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") 
+                    .style("top", (event.pageY + "px"))
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()
@@ -270,6 +348,11 @@ class Barchart {
                     .style("top", (event.pageY - 100) + "px");
 
 
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.pageY - 100 + "px"))
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()
