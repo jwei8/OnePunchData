@@ -206,8 +206,10 @@ class Barchart {
             })
 
         // Update axes
-        vis.xAxisG.call(vis.xAxis).call((g) => g.select(".domain").remove());
-        vis.yAxisG.call(vis.yAxis).call((g) => g.select(".domain").remove());
+        const t = d3.transition().duration(500);
+        // vis.yAxisG.transition(t).call(vis.yAxis);
+        vis.xAxisG.transition(t).call(vis.xAxis).call((g) => g.select(".domain").remove());
+        vis.yAxisG.transition(t).call(vis.yAxis).call((g) => g.select(".domain").remove());
 
         // d3.selectAll("input").on("change", vis.change);
         d3.selectAll("input").on("change", change);
@@ -285,7 +287,10 @@ class Barchart {
         let vis = this;
 
         vis.isStacked = false;
-        // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+        // vis.yAxisG.call(vis.yAxis).call((g) => g.select(".domain").remove());
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
 
         vis.chart.selectAll("rect").remove();
         // vis.selectedGenre === null;
@@ -333,7 +338,84 @@ class Barchart {
 
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
 
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
         vis.chart.selectAll("rect").remove();
+
+
+        vis.bars = vis.chart.selectAll(".category")
+            .data(vis.stackedData)
+            .join("g")
+            .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
+            .selectAll("rect")
+            .data(d => d)
+            .join("rect")
+            .attr('x', d => vis.xScale(d.data.Year))
+            .attr('y', d => vis.yScale(d[1]))
+            .attr('width', vis.xScale.bandwidth())
+            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+            .on('mouseover', (event, d) => {
+                vis.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                vis.tooltip.html(`
+                    <div class="tooltip-title">${d.data.Year}</div>
+                    <ul>
+                        <li>Harem: ${d.data.Harem}</li>
+                        <li>Music: ${d.data.Music}</li>
+                        <li>Game: ${d.data.Game}</li>
+                        <li>Adventure: ${d.data.Adventure}</li>
+                        <li>Comedy: ${d.data.Comedy}</li>
+                        <li>Mystery: ${d.data.Mystery}</li>
+                        <li>Slice of Life: ${d.data["Slice of Life"]}</li>
+                        <li>Drama: ${d.data.Drama}</li>
+                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
+                        <li>Action: ${d.data.Action}</li>
+                    </ul>
+                `)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 100) + "px");
+
+
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.pageY - 100 + "px"))
+            })
+            .on('mouseout', () => {
+                vis.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", "0");
+            })
+
+
+
+        // vis.bars.transition()
+        //     .duration(500)
+        //     .delay((d, i) => i * 20)
+        //     .attr('y', d => vis.yScale(d[1]))
+        //     .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+        //     .transition()
+        //     .attr('x', d => vis.xScale(d.data.Year))
+        //     .attr('width', vis.xScale.bandwidth());
+
+    }
+
+    transitionOneGenre() {
+        let vis = this;
+
+        vis.stackedData = vis.stack(vis.flattenedData);
+
+        vis.isStacked = true;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
+        // vis.chart.selectAll("rect").remove();
 
         vis.bars = vis.chart.selectAll(".category")
             .data(vis.stackedData)
@@ -424,6 +506,7 @@ class Barchart {
                     .keys([vis.selectedGenre]);
 
                 vis.updateVis();
+                // vis.transitionOneGenre();
             }
 
         } else {
@@ -445,52 +528,9 @@ class Barchart {
                     .keys([vis.selectedGenre]);
 
                 vis.updateVis();
+                // vis.transitionOneGenre();
             }
         }
-
-        // if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
-        //     vis.stack = d3.stack()
-        //         .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
-
-        //     vis.updateVis();
-        //     // if (vis.isStacked) {
-        //     //     vis.updateVis();
-        //     // } else {
-        //     //     vis.transitionGrouped();
-        //     // }
-        // } else {
-        //     d3.selectAll("#bar-chart > g > g > rect").remove();
-        //     vis.stack = d3.stack()
-        //         .keys([vis.selectedGenre]);
-
-        //     vis.updateVis();
-        //     // if (vis.isStacked) {
-        //     //     vis.updateVis();
-        //     // } else {
-        //     //     vis.transitionGrouped();
-        //     // }
-        // }
-
-        // vis.bars = vis.chart.selectAll(".category")
-        //     .data(vis.stackedData)
-
-        // console.log("update")
-
-        // vis.stackedData = vis.stackOne(vis.flattenedData);
-
-        // vis.renderVis();
-
-        // vis.chart.selectAll('.point')
-        //     .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
-        //         vis.colorScale(d.Genre) : '#d3d3d3')
-        //     .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
-        //         1 : 0.3) // Lower opacity for greyed-out points
-        //     .attr('stroke-opacity', 1)
-        //     .each(function (d) {
-        //         if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
-        //             d3.select(this).raise(); // Bring the selected points to the front
-        //         }
-        //     });
 
         vis.updateLegendColors();
     }
