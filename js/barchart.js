@@ -157,6 +157,8 @@ class Barchart {
     renderVis() {
         let vis = this;
 
+        // vis.isStacked = true;
+
         vis.bars = vis.chart.selectAll(".category")
             .data(vis.stackedData)
             .join("g")
@@ -175,16 +177,16 @@ class Barchart {
                 vis.tooltip.html(`
                     <div class="tooltip-title">${d.data.Year}</div>
                     <ul>
-                        <li>Action: ${d.data.Action}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Game: ${d.data.Game}</li>
                         <li>Harem: ${d.data.Harem}</li>
                         <li>Music: ${d.data.Music}</li>
+                        <li>Game: ${d.data.Game}</li>
+                        <li>Adventure: ${d.data.Adventure}</li>
+                        <li>Comedy: ${d.data.Comedy}</li>
                         <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
                         <li>Slice of Life: ${d.data["Slice of Life"]}</li>
+                        <li>Drama: ${d.data.Drama}</li>
+                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
+                        <li>Action: ${d.data.Action}</li>
                     </ul>
                 `)
                     .style("left", (event.pageX) + "px")
@@ -211,8 +213,23 @@ class Barchart {
         d3.selectAll("input").on("change", change);
 
         function change() {
-            if (this.value === "grouped") vis.transitionGrouped();
-            if (this.value === "stacked") vis.transitionStacked();
+            if (this.value === "grouped") {
+                // vis.updateLegendColors(); 
+                vis.selectedGenre = null;
+                vis.updateLegendColors();
+                vis.updateFiltered();
+
+                vis.transitionGrouped();
+            }
+            if (this.value === "stacked") {
+                vis.selectedGenre = null;
+                vis.updateLegendColors();
+                vis.updateFiltered();
+                vis.stack = d3.stack()
+                    .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+                vis.stackedData = vis.stack(vis.flattenedData);
+                vis.transitionStacked();
+            }
         }
 
         vis.renderLegend();
@@ -241,8 +258,8 @@ class Barchart {
                 } else {
                     vis.selectedGenre = selectedGenre; // Select the new genre
                 }
-                vis.updateFiltered();
                 vis.updateLegendColors();
+                vis.updateFiltered();
             });
 
         // Add the colored rectangles
@@ -267,9 +284,11 @@ class Barchart {
     transitionGrouped() {
         let vis = this;
 
+        vis.isStacked = false;
         // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
 
         vis.chart.selectAll("rect").remove();
+        // vis.selectedGenre === null;
 
         vis.bars = vis.chart.selectAll(".category")
             .remove()
@@ -296,7 +315,7 @@ class Barchart {
             })
             .on('mousemove', function (event, d) {
                 vis.tooltip
-                    .style("left", ((event.pageX)) + "px") 
+                    .style("left", ((event.pageX)) + "px")
                     .style("top", (event.pageY + "px"))
             })
             .on('mouseout', () => {
@@ -309,6 +328,8 @@ class Barchart {
 
     transitionStacked() {
         let vis = this;
+
+        vis.isStacked = true;
 
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
 
@@ -332,16 +353,16 @@ class Barchart {
                 vis.tooltip.html(`
                     <div class="tooltip-title">${d.data.Year}</div>
                     <ul>
-                        <li>Action: ${d.data.Action}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Game: ${d.data.Game}</li>
                         <li>Harem: ${d.data.Harem}</li>
                         <li>Music: ${d.data.Music}</li>
+                        <li>Game: ${d.data.Game}</li>
+                        <li>Adventure: ${d.data.Adventure}</li>
+                        <li>Comedy: ${d.data.Comedy}</li>
                         <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
                         <li>Slice of Life: ${d.data["Slice of Life"]}</li>
+                        <li>Drama: ${d.data.Drama}</li>
+                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
+                        <li>Action: ${d.data.Action}</li>
                     </ul>
                 `)
                     .style("left", (event.pageX) + "px")
@@ -371,6 +392,107 @@ class Barchart {
         //     .attr('x', d => vis.xScale(d.data.Year))
         //     .attr('width', vis.xScale.bandwidth());
 
+    }
+
+    updateLegendColors() {
+        let vis = this;
+
+        vis.legend.selectAll('.legend-entry rect')
+            .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
+            .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
+    }
+
+    updateFiltered() {
+        let vis = this;
+        // d3.selectAll("g > *").remove();
+
+        // d3.selectAll("#bar-chart > g > g > rect").remove();
+        // vis.stack = d3.stack()
+        //     .keys(['Action']);
+
+        // vis.updateVis();
+        if (vis.isStacked) {
+            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+                vis.stack = d3.stack()
+                    .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+
+                vis.updateVis();
+
+            } else {
+                d3.selectAll("#bar-chart > g > g > rect").remove();
+                vis.stack = d3.stack()
+                    .keys([vis.selectedGenre]);
+
+                vis.updateVis();
+            }
+
+        } else {
+            console.log('test');
+
+            // vis.selectedGenre === null;
+
+            // d3.selectAll("#bar-chart > g > g > rect").remove();
+            // console.log("grouped");
+            console.log(vis.selectedGenre);
+            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+                vis.transitionGrouped();
+                console.log("elo");
+
+            } else {
+                console.log('ello');
+                d3.selectAll("#bar-chart > g > g > rect").remove();
+                vis.stack = d3.stack()
+                    .keys([vis.selectedGenre]);
+
+                vis.updateVis();
+            }
+        }
+
+        // if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+        //     vis.stack = d3.stack()
+        //         .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+
+        //     vis.updateVis();
+        //     // if (vis.isStacked) {
+        //     //     vis.updateVis();
+        //     // } else {
+        //     //     vis.transitionGrouped();
+        //     // }
+        // } else {
+        //     d3.selectAll("#bar-chart > g > g > rect").remove();
+        //     vis.stack = d3.stack()
+        //         .keys([vis.selectedGenre]);
+
+        //     vis.updateVis();
+        //     // if (vis.isStacked) {
+        //     //     vis.updateVis();
+        //     // } else {
+        //     //     vis.transitionGrouped();
+        //     // }
+        // }
+
+        // vis.bars = vis.chart.selectAll(".category")
+        //     .data(vis.stackedData)
+
+        // console.log("update")
+
+        // vis.stackedData = vis.stackOne(vis.flattenedData);
+
+        // vis.renderVis();
+
+        // vis.chart.selectAll('.point')
+        //     .attr('fill', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+        //         vis.colorScale(d.Genre) : '#d3d3d3')
+        //     .attr('fill-opacity', d => (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
+        //         1 : 0.3) // Lower opacity for greyed-out points
+        //     .attr('stroke-opacity', 1)
+        //     .each(function (d) {
+        //         if (vis.selectedGenre === undefined || vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
+        //             d3.select(this).raise(); // Bring the selected points to the front
+        //         }
+        //     });
+
+        vis.updateLegendColors();
     }
 
 
