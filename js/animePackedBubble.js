@@ -113,9 +113,7 @@ class AnimePackedBubbleChart {
                         .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
                         .attr('stroke-width', 2); // Increase the stroke-width on hover
                         
-                    vis.tooltip.transition()
-                        .duration(200)
-                        .style("opacity", 1);
+                    vis.tooltip.style("opacity", 1);
                     vis.tooltip.html(
                     `
                         <h3>${d.data.Name}</h3>
@@ -125,9 +123,6 @@ class AnimePackedBubbleChart {
                           <li>Studio: ${d.data.Studios}</li>
                         </ul>
                     `)
-                        .style("left", (event.pageX) + "px")
-                        .style("top", (event.pageY - 28) + "px");
-
                     })
                 // Add mouseout event
                 .on('mouseout', function(event, d) {
@@ -135,15 +130,17 @@ class AnimePackedBubbleChart {
                         .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41' : null)     // Reset the stroke on mouseout
                         .attr('stroke-width', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 2 : null); // Reset the stroke-width on mouseout
                     
-                     vis.tooltip.transition()
-                      .duration(500)
-                      .style("opacity", 0);
+                     vis.tooltip.style("opacity", 0);
+                })
+                .on('mousemove', (event) => {
+                    // move tooltip
+                    vis.tooltip
+                      .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                      .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
                 })
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
-                // .attr('stroke', d => { vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41' : null})
-                // .attr('stroke-width', d => { vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null});
 
         simulation.on("tick", () => {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
