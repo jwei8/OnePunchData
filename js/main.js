@@ -63,6 +63,7 @@ d3.csv('data/anime_processed.csv')
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
     scatterPlot.updateChart(genreName);
+    barchart.updateChart(genreName);
 });
 
 dispatcher.on('mainToDrillDown', (genreName, animes) => {

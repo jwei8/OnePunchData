@@ -158,7 +158,7 @@ class Barchart {
     renderVis() {
         let vis = this;
 
-        // vis.isStacked = true;
+        vis.isStacked = true;
 
         vis.bars = vis.chart.selectAll(".category")
             .data(vis.stackedData)
@@ -404,7 +404,7 @@ class Barchart {
 
     }
 
-    transitionOneGenre() {
+    transitionOneGenre(currGenre) {
         let vis = this;
 
         d3.selectAll("#bar-chart > .bars > g > rect").remove();
@@ -436,16 +436,7 @@ class Barchart {
                 vis.tooltip.html(`
                     <div class="tooltip-title">${d.data.Year}</div>
                     <ul>
-                        <li>Harem: ${d.data.Harem}</li>
-                        <li>Music: ${d.data.Music}</li>
-                        <li>Game: ${d.data.Game}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Slice of Life: ${d.data["Slice of Life"]}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
-                        <li>Action: ${d.data.Action}</li>
+                        <li>${currGenre}: ${d.data[currGenre]}</li>
                     </ul>
                 `)
                     .style("left", (event.pageX) + "px")
@@ -532,11 +523,17 @@ class Barchart {
                     .keys([vis.selectedGenre]);
 
                 // vis.updateVis();
-                vis.transitionOneGenre();
+                vis.transitionOneGenre(vis.selectedGenre);
             }
         }
 
         vis.updateLegendColors();
+    }
+
+    updateChart(selectedGenre) {
+        let vis = this;
+        vis.selectedGenre = selectedGenre;
+        vis.updateFiltered();
     }
 
 
