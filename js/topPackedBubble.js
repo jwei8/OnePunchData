@@ -255,34 +255,40 @@ class TopPackedBubbleChart {
         }
 
         vis.dispatcher.call('mainToScatterGenreSelect', null, null);
-        console.log('change bubble')
         vis.dispatcher.call('clearSelectedAnimes', null, []);
 
+        let bubbles = vis.svg.selectAll('.bubble-anime');
+        let total = bubbles.size();
+        let counter = 0;
+
         // remove previous groups vis if it exists
-        vis.svg.selectAll('.bubble-anime').transition()
+        bubbles.transition()
             .duration(250)
             .attr('opacity', 0)
             .on('end', () => {
-                vis.svg.select('.anime-level-group').remove()
-                vis.genreInfoGroup.each(function() {
-                    let currGroup = d3.select(this);
-                    let textElement = currGroup.select('.top-bubble-title');
-                    if (textElement.text() === prevNode.data.genre) {
-                        // Apply fade-out transition to the matching element
-                        currGroup.transition()
-                            .duration(350)
-                            .style("opacity", 1)
-                            .on('end', () => {
-                                vis.chartArea.transition()
-                                    .duration(750)
-                                    .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
-                                    .on('end', () => {
-                                        vis.notClickableGlobal = false;
-                                        vis.dispatcher.call('mainToDrillDown', null, null,null, null);
-                                    });
-                            });
-                    }
-                });
+                counter++;
+                if (counter === total) {
+                    vis.svg.select('.anime-level-group').remove()
+                    vis.genreInfoGroup.each(function() {
+                        let currGroup = d3.select(this);
+                        let textElement = currGroup.select('.top-bubble-title');
+                        if (textElement.text() === prevNode.data.genre) {
+                            // Apply fade-out transition to the matching element
+                            currGroup.transition()
+                                .duration(350)
+                                .style("opacity", 1)
+                                .on('end', () => {
+                                    vis.chartArea.transition()
+                                        .duration(750)
+                                        .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
+                                        .on('end', () => {
+                                            vis.notClickableGlobal = false;
+                                            vis.dispatcher.call('mainToDrillDown', null, null,null, null);
+                                        });
+                                });
+                        }
+                    });
+                }
             });
     }
 
