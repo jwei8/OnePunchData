@@ -179,7 +179,7 @@ class ScatterPlot {
                     vis.selectedAnimes.push(d.MAL_ID);
                     vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
                 }
-                vis.updateFiltered();
+                vis.updateFilteredByAnime();
             })        
 
         // Render the legend
@@ -251,8 +251,6 @@ class ScatterPlot {
                 vis.colorScale(d.Genre) : '#d3d3d3')
             .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
                 1 : 0.3) // Lower opacity for greyed-out points
-            .attr('stroke',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 'black' : null)
-            .attr('stroke-width', d => { vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null})
             .each(function(d) {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
