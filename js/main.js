@@ -28,14 +28,20 @@ let genreToInfo = {
 }
 
 function resizeContent() {
-  var scaleFactor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  var scaleFactor = Math.min(window.innerWidth / 1920, window.innerHeight / 892);
+  var zoomFactor = 1.35 * Math.min(window.innerWidth / 1920, window.innerHeight / 892);
+
   var container = document.getElementById('container');
-  container.style.transform = `scale(${scaleFactor * 1.3})`;
+  container.style.transform = `scale(${scaleFactor * zoomFactor})`;
   container.style.transformOrigin = 'top center';
 }
 
 window.addEventListener('resize', resizeContent);
 window.addEventListener('load', resizeContent);
+
+console.log("SCALE FACTOR: " + scaleFactor);
+console.log("WINDOW WIDTH" + window.innerWidth)
+console.log("WINDOW HEIGHT" + window.innerHeight)
 
 d3.csv('data/anime_processed.csv')
   .then(_data => {
