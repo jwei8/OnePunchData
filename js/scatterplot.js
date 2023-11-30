@@ -3,16 +3,17 @@ class ScatterPlot {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 700,
+            parentTitleElement: _config.parentTitleElement,
+            containerWidth: 818,
             containerHeight: 800,
             margin: {
-                top: 40,
-                right: 40,
-                bottom: 80,
-                left: 80
+                top: 10,
+                right: 50,
+                bottom: 50,
+                left: 90
             },
             // Todo: Add or remove attributes from config as needed
-            tooltipPadding: 10, // Added a tooltip padding configuration
+            tooltipPadding: 15, // Added a tooltip padding configuration
         }
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
@@ -20,6 +21,7 @@ class ScatterPlot {
         this.selectedAnimes = [];
         this.dispatcher = _dispatcher;
         this.notClickableGlobal = false;
+        this.svgTitle = d3.select(this.config.parentTitleElement);
         this.initVis();
     }
 
@@ -64,8 +66,9 @@ class ScatterPlot {
             .attr('height', vis.config.containerHeight);
 
         vis.chart = vis.svg.append('g')
-            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
-
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
+            .attr('width', vis.config.width)
+            .attr('height', vis.config.height);
 
         vis.xAxisG = vis.chart.append('g')
             .attr('class', 'axis x-axis')
@@ -75,18 +78,11 @@ class ScatterPlot {
         vis.yAxisG = vis.chart.append('g')
             .attr('class', 'axis y-axis');
 
-        // Append axis title
-        vis.svg.append('text')
-            .attr('class', 'axis-title')
-            .attr('x', 20)
-            .attr('y', 20)
-            .text('Correlation of Score VS Completed: Dropped ');
-
         // Append x-axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
             .attr('x', vis.config.containerWidth / 2)
-            .attr('y', vis.config.containerHeight - 30) // Adjust the position as needed
+            .attr('y', vis.config.containerHeight - 10) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Score');
 
@@ -95,7 +91,7 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 20) // Adjust the position as needed
+            .attr('y', 25) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
@@ -114,6 +110,18 @@ class ScatterPlot {
         vis.tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
+
+        vis.chart.append('rect')
+        .attr('width', vis.width)
+        .attr('height', vis.height)
+        .attr('fill', 'transparent')
+        .on('click', (event, d) => {
+            if (!vis.notClickableGlobal) {
+                vis.dispatcher.call('clearSelectedGenre', null);
+            }
+        });
+
+        vis.renderTitle();
     }
 
 
@@ -145,16 +153,6 @@ class ScatterPlot {
     renderVis() {
         let vis = this;
 
-        vis.chart.append('rect')
-                .attr('width', vis.config.containerWidth)
-                .attr('height', vis.config.containerHeight)
-                .attr('fill', 'transparent')
-                .on('click', (event, d) => {
-                    if (!vis.notClickableGlobal) {
-                        vis.dispatcher.call('clearSelectedGenre', null);
-                    }
-        });
-
         vis.chart.selectAll('.point')
             .data(vis.data)
             .join('circle')
@@ -169,10 +167,21 @@ class ScatterPlot {
                     vis.tooltip.transition()
                         .duration(200)
                         .style("opacity", 1);
-                    vis.tooltip.html(d.Name + "<br/> Score: " + d.Score + "<br/> Rating: " + d.Rating)
+                    vis.tooltip.html(`<h3>${d.Name}</h3>
+                    <ul>
+                      <li>Score: ${d.Score}</li>
+                      <li>Rating: ${d.Rating} years</li>
+                      <li>Studio: ${d.Studios}</li>
+                    </ul>`)
                         .style("left", (event.pageX) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 }
+            })
+            .on('mousemove', (event) => {
+                // move tooltip
+                vis.tooltip
+                  .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                  .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()
@@ -203,6 +212,32 @@ class ScatterPlot {
         vis.renderLegend();
     }
 
+
+    renderTitle() {
+        let vis = this;
+    
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+            .attr('class', 'title')
+            .attr('transform', `translate(${0},${0})`);
+    
+        // Append the first text element
+        let titleText = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-topView-text')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Correlation of Score with Completed to Dropped Ratio");
+    
+        // Calculate the maximum width of both text elements
+        let titleWidth = titleText.node().getBBox().width;
+        let titleHeight = titleText.node().getBBox().height;
+
+        // set svg height
+        vis.svgTitle.attr('width', titleWidth)
+            .attr('height', titleHeight);
+
+        vis.legendTitleGroup
+            .attr('transform', `translate(${titleWidth / 2}, ${titleHeight / 2})`);
+    }
 
     renderLegend() {
         let vis = this;
