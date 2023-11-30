@@ -8,46 +8,50 @@
 </head>
 
 <body>
-    <h1>One Punch Data: Knockout Anime Recommendations!</h1>
+<div id="title-container">
+    <div id="speech-bubble">
+        <h1>One Punch Data: Knockout Anime Recommendations!</h1>
+    </div>
+</div>
 
-    <div id="container">
-        <div id="charts-container">
+<div id="container">
+    <div id="charts-container">
 
-            <div id = "packed-bubble-scatter"> 
+        <div class="chart-row">
+            <div id="packed-bubble-container" class="chart-container">
                 <div id="container-packed-bubble">
                     <svg id="packed-bubble-title"></svg>
                     <svg id="packed-bubble"></svg>
                 </div>
+            </div>
 
+            <div id="scatter-plot-container" class="chart-container">
                 <svg id="scatter-plot"></svg>
-
             </div>
-
-            <form>
-                <label>
-                    <input type="radio" name="mode" value="stacked" checked="" /> Stacked
-                </label>
-                <label>
-                    <input type="radio" name="mode" value="grouped" /> Grouped
-                </label>
-        
-            </form>
-        
-            <div>
-                <svg id="bar-chart"></svg>
-            </div>
-
-
-
         </div>
-    </div>
 
-    <script src="js/d3.v6.min.js"></script>
-    <script src="js/topPackedBubble.js"></script>
-    <script src="js/animePackedBubble.js"></script>
-    <script src="js/barchart.js"></script>
-    <script src="js/scatterplot.js"></script>
-    <script src="js/main.js"></script>
+        <form>
+            <label>
+                <input type="radio" name="mode" value="stacked" checked="" /> Stacked
+            </label>
+            <label>
+                <input type="radio" name="mode" value="grouped" /> Grouped
+            </label>
+        </form>
+
+        <div id="bar-chart-container" class="chart-container">
+            <svg id="bar-chart"></svg>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/d3.v6.min.js"></script>
+<script src="js/topPackedBubble.js"></script>
+<script src="js/animePackedBubble.js"></script>
+<script src="js/barchart.js"></script>
+<script src="js/scatterplot.js"></script>
+<script src="js/main.js"></script>
 </body>
 
 </html>

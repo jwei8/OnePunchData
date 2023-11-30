@@ -94,7 +94,7 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 30) // Adjust the position as needed
+            .attr('y', 20) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 

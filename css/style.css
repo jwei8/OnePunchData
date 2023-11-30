@@ -1,7 +1,13 @@
+@font-face {
+    font-family: 'Manga Temple';
+    src: url(../data/mangat.ttf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
 
 body {
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
+    font-family: 'Manga Temple', sans-serif;
+    font-size: 15px;
     padding: 30px;
     background: url('../data/gojo_panels.png') no-repeat center center fixed;
     background-size: cover;
@@ -102,31 +108,103 @@ rect {
     shape-rendering: crispEdges;
 }
 
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Manga Temple', sans-serif;
+}
+
 #container-packed-bubble {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    border: none;
 }
 
+#scatter-plot {
+    background-color: white;
+    padding: 10px;
+    margin-left: 500px;
+    border: none;
+
+}
 
 #packed-bubble-scatter {
     display: flex;
     flex-direction: row;
-    justify-content: start;
-    align-items: start;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* Optional: Adjust as needed */
 }
 
-#packed-bubble-scatter, #bar-chart, #scatter-plot {
+
+#bar-chart,
+#scatter-plot,
+#packed-bubble-scatter,
+#container-packed-bubble {
+    padding: 10px;
+    margin: 0;
+    border: none;
+    border-radius: 10px; /* Adjust as needed */
+}
+
+.chart-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.chart-container {
     background-color: white;
-    padding: 0;
+    padding: 10px;
     margin: 0;
-    border: none;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+#packed-bubble-container,
+#scatter-plot-container {
+    flex: 1;
+    margin-right: 20px;
+}
+
+#bar-chart-container {
 
 }
 
-#packed-bubble-scatter, #bar-chart, #scatter-plot {
-    padding: 0;
-    margin: 0;
-    border: none;
+
+#speech-bubble {
+    position: relative;
+    display: inline-block;
+    background-color: #ffffff; /* Speech bubble background color */
+    padding: 15px; /* Adjust as needed for padding inside the bubble */
+    border-radius: 100px; /* Adjust for rounded corners */
+    margin-bottom: 20px; /* Adjust as needed to create space between the title and the rest of the content */
+    border: 2px solid #000000; /* Set the border color to black */
+    margin-left: 20px; /* Adjust the margin to move the speech bubble to the right */
+    position: relative; /* Ensure relative positioning for child pseudo-element */
 }
+
+#speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -20px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 20px 10px 0;
+    border-color: transparent #000000 transparent transparent; /* Set the border color to black */
+    transform: translateY(-50%);
+    background-color: #ffffff; /* Set the background color to white */
+    border-radius: 8px; /* Adjust for rounded corners */
+}
+
+
+
+
+
+
+
