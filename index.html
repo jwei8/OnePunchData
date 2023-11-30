@@ -19,29 +19,31 @@
 
         <div class="chart-row">
             <div id="packed-bubble-container" class="chart-container">
-                <div id="container-packed-bubble">
-                    <svg id="packed-bubble-title"></svg>
-                    <svg id="packed-bubble"></svg>
-                </div>
-
+                <svg id="packed-bubble"></svg>
             </div>
 
             <div id="scatter-plot-container" class="chart-container">
+                <svg id="scatter-title"></svg>
                 <svg id="scatter-plot"></svg>
                 <svg id="legend-global"></svg>
             </div>
         </div>
 
-
         <div id="bar-chart-container" class="chart-container">
+
+            
+            <svg id="bar-chart-title"></svg>
+
             <form>
-                <label>
+                <label style="font-size: 12px;">
                     <input type="radio" name="mode" value="stacked" checked="" /> Stacked
                 </label>
-                <label>
+                <label style="font-size: 12px;">
                     <input type="radio" name="mode" value="grouped" /> Grouped
                 </label>
             </form>
+
+           
             <svg id="bar-chart"></svg>
         </div>
 

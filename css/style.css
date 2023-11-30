@@ -14,8 +14,8 @@ body {
 }
 
 form {
-    margin-top: 20px;
-    margin-left: 50px;
+    align-self: flex-start;
+    padding-left: 20px;
 }
 
 /* Axis */
@@ -108,14 +108,9 @@ form {
     font-size: 12px;
 }
 
-.chart-row {
-    display: flex;
-    flex-direction: row;
-}
-
 .chart-container {
     background-color: white;
-    padding: 10px;
+    padding-top: 5px;
     margin: 0;
     border: 2px solid #000000;
     border-radius: 10px;
@@ -134,47 +129,58 @@ rect {
     font-family: 'Manga Temple', sans-serif;
 }
 
-#container-packed-bubble {
+#charts-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: none;
-
 }
 
-#scatter-plot {
-    background-color: white;
-    padding: 10px;
-    margin-left: 500px;
-    border: none;
-
-}
-
-#packed-bubble-scatter {
+.chart-row {
     display: flex;
     flex-direction: row;
-    justify-content: start;
-    align-items: start;
-    margin-top: 20px;
 }
 
-
-#bar-chart,
-#scatter-plot,
-#packed-bubble-scatter,
-#container-packed-bubble {
-    padding: 10px;
-    margin: 0;
-    border: none;
-    border-radius: 10px; /* Adjust as needed */
-}
-
-#packed-bubble-container,
-#scatter-plot-container {
-    flex: 1;
+#packed-bubble-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     margin-right: 20px;
+    flex-grow: 1;
+    padding-top: 0px;
 }
+
+#scatter-plot-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#bar-chart-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#scatter-title-widget {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.title-drillDown-text,
+.title-topView-text {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#bar-chart-title {
+    align-self: center;
+}
+
+
 
 #legend-global {
     position: fixed;
@@ -190,11 +196,6 @@ rect {
 #legend-global:active {
     border-style: dashed;
 }
-
-#bar-chart-container {
-
-}
-
 
 #speech-bubble {
     position: relative;

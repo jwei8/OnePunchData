@@ -37,13 +37,10 @@ d3.csv('data/anime_processed.csv')
 
     topLevelBubble = new TopPackedBubbleChart({
       parentElement: '#packed-bubble',
-      parentElementLegend: '#packed-bubble-legend',
-      parentTitleElement: '#packed-bubble-title',
     }, data, genreToInfo, dispatcher);
 
     animeLevelBubble = new AnimePackedBubbleChart({
       parentElement: '#packed-bubble',
-      parentElementLegend: '#packed-bubble-legend'
     }, genreToInfo, globalMinScore, globalMaxScore, dispatcher);
 
     data.forEach(d => {
@@ -51,7 +48,11 @@ d3.csv('data/anime_processed.csv')
       d.YearReleased = parseInt(d.Premiered.match(/\d+/)[0]);
     });
 
-    barchart = new Barchart({ parentElement: '#bar-chart' }, data, genreToInfo);
+    barchart = new Barchart({ 
+      parentElement: '#bar-chart',
+      parentTitleElement: '#bar-chart-title',
+    }, data, genreToInfo);
+
     barchart.updateVis();
 
     data.forEach(d => {
@@ -62,7 +63,10 @@ d3.csv('data/anime_processed.csv')
       d.CompletedDroppedRatio = d.Dropped !== 0 ? d.Completed / d.Dropped : d.Completed; // Prevent division by zero
     });
 
-    scatterPlot = new ScatterPlot({ parentElement: '#scatter-plot' }, data, genreToInfo, dispatcher);
+    scatterPlot = new ScatterPlot({ 
+      parentElement: '#scatter-plot',
+      parentTitleElement: '#scatter-title',
+    }, data, genreToInfo, dispatcher);
     scatterPlot.updateVis();
 
   })
