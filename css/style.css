@@ -20,6 +20,11 @@ form {
     fill: #6b6b6b;
 }
 
+.barAxis text {
+    font-size: 10px;
+    fill: #6b6b6b;
+}
+
 .axis-title {
     font-size: 14px;
     fill: #1b1919;

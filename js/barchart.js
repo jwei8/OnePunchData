@@ -58,12 +58,12 @@ class Barchart {
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
         vis.xAxisG = vis.chart.append('g')
-            .attr('class', 'axis x-axis')
+            .attr('class', 'axis x-axis barAxis')
             .attr('transform', `translate(0,${vis.height})`);
 
         // Append y-axis group 
         vis.yAxisG = vis.chart.append('g')
-            .attr('class', 'axis y-axis');
+            .attr('class', 'axis y-axis barAxis');
 
         // Append axis title
         vis.svg.append('text')
@@ -253,14 +253,14 @@ class Barchart {
         function change() {
             if (this.value === "grouped") {
                 vis.selectedGenre = null;
-                vis.updateLegendColors();
+                
                 vis.updateFiltered();
 
                 vis.transitionGrouped();
             }
             if (this.value === "stacked") {
                 vis.selectedGenre = null;
-                vis.updateLegendColors();
+
                 vis.updateFiltered();
                 vis.stack = d3.stack()
                     .keys(vis.genres);
@@ -268,8 +268,6 @@ class Barchart {
                 vis.transitionStacked();
             }
         }
-
-        vis.renderLegend();
     }
 
     transitionGrouped() {
@@ -347,56 +345,6 @@ class Barchart {
             })
     }
 
-    renderLegend() {
-        let vis = this;
-
-        if (vis.svg.select('.legend').empty()) {
-            vis.legend = vis.svg.append('g')
-                .attr('class', 'legend')
-                .attr('transform', `translate(${70},${36})`);
-        }
-
-        // Add legend entries
-        const genres = vis.colorScale.domain();
-        const legendEntry = vis.legend.selectAll('.legend-entry')
-            .data(genres)
-            .join('g')
-            .attr('class', 'legend-entry')
-            .attr('transform', (d, i) => `translate(0, ${i * 20})`)
-            .style('cursor', 'pointer')
-            .on('click', (event, selectedGenre) => {
-                if (vis.selectedGenre === selectedGenre) {
-                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
-                } else {
-                    vis.selectedGenre = selectedGenre; // Select the new genre
-                }
-                vis.updateLegendColors();
-                vis.updateFiltered();
-            });
-
-        // Add the colored rectangles
-        legendEntry.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 12)
-            .attr('height', 12)
-            .attr('fill', d => vis.colorScale(d));
-
-        // Add the text labels
-        legendEntry.append('text')
-            .attr('x', 20)
-            .attr('y', 12)
-            .text(d => d);
-    }
-
-    updateLegendColors() {
-        let vis = this;
-
-        vis.legend.selectAll('.legend-entry rect')
-            .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
-            .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
-    }
-
     updateFiltered() {
         let vis = this;
 
@@ -425,7 +373,6 @@ class Barchart {
                 vis.transitionOneGenre(vis.selectedGenre);
             }
         }
-        vis.updateLegendColors();
     }
 
     updateChart(selectedGenre) {
