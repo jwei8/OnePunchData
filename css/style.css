@@ -1,4 +1,3 @@
-
 body {
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 13px;
@@ -102,15 +101,15 @@ rect {
 
 #container-packed-bubble {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
 }
 
 
 #packed-bubble-scatter {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     justify-content: start;
-    align-items: start; 
+    align-items: start;
 }

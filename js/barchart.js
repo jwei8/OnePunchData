@@ -6,15 +6,14 @@ class Barchart {
             containerWidth: 1400,
             containerHeight: 300,
             margin: {
-                top: 30,
-                right: 5,
-                bottom: 20,
-                left: 30
+                top: 40,
+                right: 40,
+                bottom: 40,
+                left: 60
             },
             // Todo: Add or remove attributes from config as needed
             tooltipPadding: 10, // Added a tooltip padding configuration
         }
-        //   this.dispatcher = _dispatcher;
         this.data = _data;
         this.genreToInfo = _genreToInfo;
         this.initVis();
@@ -38,17 +37,15 @@ class Barchart {
         vis.yScale = d3.scaleLinear()
             .range([vis.height, 0]);
 
-        vis.color = d3.scaleOrdinal()
-            .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+        // Create the color scale
+        vis.colorScale = d3.scaleOrdinal()
+            .domain(vis.genres)
+            .range(vis.genres.map(genre => vis.genreToInfo[genre].color));
 
         vis.xAxis = d3.axisBottom(vis.xScale)
-            // .ticks(6)
             .tickSizeOuter(0);
 
         vis.yAxis = d3.axisLeft(vis.yScale)
-            // .ticks(6)
-            // .tickSize(-vis.width)
-            // .tickSizeOuter(0)
             .tickFormat(d3.format('d')); // Display years as integers
 
         // Define size of SVG drawing area
@@ -57,6 +54,7 @@ class Barchart {
             .attr('height', vis.config.containerHeight);
 
         vis.chart = vis.svg.append('g')
+            .attr('class', "bars")
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
         vis.xAxisG = vis.chart.append('g')
@@ -70,9 +68,26 @@ class Barchart {
         // Append axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
-            .attr('x', 0)
+            .attr('x', 40)
             .attr('y', 20)
-        // .text('View 2');
+            .text('Number of Animes By Genre Per Year');
+
+        // Append x-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('x', vis.config.containerWidth / 2)
+            .attr('y', vis.config.containerHeight) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Year');
+
+        // Append y-axis title
+        vis.svg.append('text')
+            .attr('class', 'axis-title')
+            .attr('transform', 'rotate(-90)')
+            .attr('x', -vis.config.containerHeight / 2)
+            .attr('y', 30) // Adjust the position as needed
+            .style('text-anchor', 'middle')
+            .text('Count');
 
         // tooltip
         vis.tooltip = d3.select("body").append("div")
@@ -82,7 +97,7 @@ class Barchart {
         // Initialize stack generator and specify the categories or layers
         // that we want to show in the chart
         vis.stack = d3.stack()
-            .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure', 'Game', 'Music', 'Harem']);
+            .keys(vis.genres);
     }
 
 
@@ -116,12 +131,9 @@ class Barchart {
             return a.Year - b.Year;
         });
 
-        // console.log(vis.flattenedData);
-
         // Set the scale input domains
         vis.xScale.domain(vis.flattenedData.map(d => d.Year));
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
-        // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
         vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
 
         // Extract keys for values (assuming 'Action', 'Drama', etc as keys)
@@ -133,8 +145,9 @@ class Barchart {
         vis.renderVis();
     }
 
-    renderVis() {
+    renderStackedBar() {
         let vis = this;
+        vis.isStacked = true;
 
         vis.bars = vis.chart.selectAll(".category")
             .data(vis.stackedData)
@@ -154,16 +167,16 @@ class Barchart {
                 vis.tooltip.html(`
                     <div class="tooltip-title">${d.data.Year}</div>
                     <ul>
-                        <li>Action: ${d.data.Action}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Game: ${d.data.Game}</li>
                         <li>Harem: ${d.data.Harem}</li>
                         <li>Music: ${d.data.Music}</li>
+                        <li>Game: ${d.data.Game}</li>
+                        <li>Adventure: ${d.data.Adventure}</li>
+                        <li>Comedy: ${d.data.Comedy}</li>
                         <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
                         <li>Slice of Life: ${d.data["Slice of Life"]}</li>
+                        <li>Drama: ${d.data.Drama}</li>
+                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
+                        <li>Action: ${d.data.Action}</li>
                     </ul>
                 `)
                     .style("left", (event.pageX) + "px")
@@ -171,32 +184,21 @@ class Barchart {
 
 
             })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px")
+                    .style("top", (event.pageY - 100 + "px"))
+            })
             .on('mouseout', () => {
                 vis.tooltip.transition()
                     .duration(500)
                     .style("opacity", "0");
             })
-
-        // Update axes
-        vis.xAxisG.call(vis.xAxis).call((g) => g.select(".domain").remove());
-        vis.yAxisG.call(vis.yAxis).call((g) => g.select(".domain").remove());
-
-        // d3.selectAll("input").on("change", vis.change);
-        d3.selectAll("input").on("change", change);
-
-        function change() {
-            if (this.value === "grouped") vis.transitionGrouped();
-            if (this.value === "stacked") vis.transitionStacked();
-        }
     }
 
-
-    transitionGrouped() {
+    renderGroupedBar() {
         let vis = this;
-
-        // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
-
-        vis.chart.selectAll("rect").remove();
+        vis.isStacked = false;
 
         vis.bars = vis.chart.selectAll(".category")
             .remove()
@@ -216,10 +218,15 @@ class Barchart {
                     .duration(200)
                     .style("opacity", .9);
                 vis.tooltip.html(`
-                    <div class="tooltip-title">${d.key}: ${d.value}</div>
-                `)
+                <div class="tooltip-title">${d.key}: ${d.value}</div>
+            `)
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY) + "px");
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px")
+                    .style("top", (event.pageY + "px"))
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()
@@ -229,12 +236,79 @@ class Barchart {
 
     }
 
-    transitionStacked() {
+    renderVis() {
         let vis = this;
 
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
+        vis.isStacked = true;
+
+        vis.renderStackedBar();
+
+        // Update axes
+        const t = d3.transition().duration(500);
+        vis.xAxisG.transition(t).call(vis.xAxis).call((g) => g.select(".domain").remove());
+        vis.yAxisG.transition(t).call(vis.yAxis).call((g) => g.select(".domain").remove());
+
+        d3.selectAll("input").on("change", change);
+
+        function change() {
+            if (this.value === "grouped") {
+                vis.selectedGenre = null;
+                vis.updateLegendColors();
+                vis.updateFiltered();
+
+                vis.transitionGrouped();
+            }
+            if (this.value === "stacked") {
+                vis.selectedGenre = null;
+                vis.updateLegendColors();
+                vis.updateFiltered();
+                vis.stack = d3.stack()
+                    .keys(vis.genres);
+                vis.stackedData = vis.stack(vis.flattenedData);
+                vis.transitionStacked();
+            }
+        }
+
+        vis.renderLegend();
+    }
+
+    transitionGrouped() {
+        let vis = this;
+        vis.isStacked = false;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
 
         vis.chart.selectAll("rect").remove();
+
+        vis.renderGroupedBar();
+    }
+
+    transitionStacked() {
+        let vis = this;
+        vis.isStacked = true;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
+        vis.chart.selectAll("rect").remove();
+
+        vis.renderStackedBar();
+    }
+
+    transitionOneGenre(currGenre) {
+        let vis = this;
+
+        d3.selectAll("#bar-chart > .bars > g > rect").remove();
+
+        vis.stackedData = vis.stack(vis.flattenedData);
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
 
         vis.bars = vis.chart.selectAll(".category")
             .data(vis.stackedData)
@@ -254,42 +328,109 @@ class Barchart {
                 vis.tooltip.html(`
                     <div class="tooltip-title">${d.data.Year}</div>
                     <ul>
-                        <li>Action: ${d.data.Action}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Game: ${d.data.Game}</li>
-                        <li>Harem: ${d.data.Harem}</li>
-                        <li>Music: ${d.data.Music}</li>
-                        <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
-                        <li>Slice of Life: ${d.data["Slice of Life"]}</li>
+                        <li>${currGenre}: ${d.data[currGenre]}</li>
                     </ul>
                 `)
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 100) + "px");
 
-
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.pageY - 100 + "px"))
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()
                     .duration(500)
                     .style("opacity", "0");
             })
-
-
-
-        // vis.bars.transition()
-        //     .duration(500)
-        //     .delay((d, i) => i * 20)
-        //     .attr('y', d => vis.yScale(d[1]))
-        //     .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-        //     .transition()
-        //     .attr('x', d => vis.xScale(d.data.Year))
-        //     .attr('width', vis.xScale.bandwidth());
-
     }
 
+    renderLegend() {
+        let vis = this;
 
+        if (vis.svg.select('.legend').empty()) {
+            vis.legend = vis.svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', `translate(${70},${36})`);
+        }
 
+        // Add legend entries
+        const genres = vis.colorScale.domain();
+        const legendEntry = vis.legend.selectAll('.legend-entry')
+            .data(genres)
+            .join('g')
+            .attr('class', 'legend-entry')
+            .attr('transform', (d, i) => `translate(0, ${i * 20})`)
+            .style('cursor', 'pointer')
+            .on('click', (event, selectedGenre) => {
+                if (vis.selectedGenre === selectedGenre) {
+                    vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                } else {
+                    vis.selectedGenre = selectedGenre; // Select the new genre
+                }
+                vis.updateLegendColors();
+                vis.updateFiltered();
+            });
+
+        // Add the colored rectangles
+        legendEntry.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 12)
+            .attr('height', 12)
+            .attr('fill', d => vis.colorScale(d));
+
+        // Add the text labels
+        legendEntry.append('text')
+            .attr('x', 20)
+            .attr('y', 12)
+            .text(d => d);
+    }
+
+    updateLegendColors() {
+        let vis = this;
+
+        vis.legend.selectAll('.legend-entry rect')
+            .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
+            .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
+    }
+
+    updateFiltered() {
+        let vis = this;
+
+        if (vis.isStacked) {
+            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
+                vis.stack = d3.stack()
+                    .keys(vis.genres);
+                vis.updateVis();
+
+            } else {
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
+                vis.stack = d3.stack()
+                    .keys([vis.selectedGenre]);
+                vis.isStacked = true;
+                vis.transitionOneGenre(vis.selectedGenre);
+            }
+
+        } else {
+            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+                vis.transitionGrouped();
+            } else {
+                d3.selectAll("#bar-chart > .bars > g > rect").remove();
+                vis.stack = d3.stack()
+                    .keys([vis.selectedGenre]);
+                vis.transitionOneGenre(vis.selectedGenre);
+            }
+        }
+        vis.updateLegendColors();
+    }
+
+    updateChart(selectedGenre) {
+        let vis = this;
+        vis.selectedGenre = selectedGenre;
+        vis.updateFiltered();
+    }
 }
