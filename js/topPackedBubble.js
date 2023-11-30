@@ -19,7 +19,9 @@ class TopPackedBubbleChart {
         this.genreToInfo = _genreToInfo;
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
+        this.selectedGenre = null; // Initially, no genre is selected
         this.zoomedIn = false;
+        this.notClickableGlobal = false;
         this.svgTitle = d3.select(this.config.parentTitleElement);
         
         this.initVis();
@@ -118,7 +120,8 @@ class TopPackedBubbleChart {
                 .on('mouseover', function(event, d) {
                     if (vis.clickedNode === null || d.data.genre !== vis.clickedNode.data.genre) {
                         d3.select(this).select('.bubble') 
-                            .attr('stroke-width', 2); 
+                            .attr('stroke', '#99ffff')
+                            .attr('stroke-width', 4); 
                     }
                 })
                 .on('mouseout', function(event, d) {
@@ -172,7 +175,14 @@ class TopPackedBubbleChart {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         }).on("end", () => {
             vis.notClickableGlobal = false;
+            vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
         });
+    }
+
+    selectGenre(genreName) {
+        let vis = this;
+        const bubbleToZoom = vis.nodes.find(node => node.data.genre === genreName);
+        vis.zoomToBubble(bubbleToZoom);
     }
 
 
@@ -182,6 +192,9 @@ class TopPackedBubbleChart {
         const prevNode = vis.clickedNode;
         vis.clickedNode = currClickedNode;
         vis.zoomedIn = true;
+        vis.dispatcher.call('clearSelectedAnimes', null, []);
+        vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
+        
 
         // Make current node notClickable and prev node clickable
         currClickedNode.data.isClickable = false;
@@ -243,6 +256,7 @@ class TopPackedBubbleChart {
     zoomOut() {
         let vis = this;
         vis.notClickableGlobal = true;
+        vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
         vis.zoomedIn = false;
@@ -252,33 +266,42 @@ class TopPackedBubbleChart {
             prevNode.data.isClickable = true;
         }
 
-        vis.dispatcher.call('mainToScatterGenreSelect', null)
+        vis.dispatcher.call('mainToScatterGenreSelect', null, null);
+        vis.dispatcher.call('clearSelectedAnimes', null, []);
+
+        let bubbles = vis.svg.selectAll('.bubble-anime');
+        let total = bubbles.size();
+        let counter = 0;
 
         // remove previous groups vis if it exists
-        vis.svg.selectAll('.bubble-anime').transition()
+        bubbles.transition()
             .duration(250)
             .attr('opacity', 0)
             .on('end', () => {
-                vis.svg.select('.anime-level-group').remove()
-                vis.genreInfoGroup.each(function() {
-                    let currGroup = d3.select(this);
-                    let textElement = currGroup.select('.top-bubble-title');
-                    if (textElement.text() === prevNode.data.genre) {
-                        // Apply fade-out transition to the matching element
-                        currGroup.transition()
-                            .duration(350)
-                            .style("opacity", 1)
-                            .on('end', () => {
-                                vis.chartArea.transition()
-                                    .duration(750)
-                                    .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
-                                    .on('end', () => {
-                                        vis.notClickableGlobal = false;
-                                        vis.dispatcher.call('mainToDrillDown', null, null,null, null);
-                                    });
-                            });
-                    }
-                });
+                counter++;
+                if (counter === total) {
+                    vis.svg.select('.anime-level-group').remove()
+                    vis.genreInfoGroup.each(function() {
+                        let currGroup = d3.select(this);
+                        let textElement = currGroup.select('.top-bubble-title');
+                        if (textElement.text() === prevNode.data.genre) {
+                            // Apply fade-out transition to the matching element
+                            currGroup.transition()
+                                .duration(350)
+                                .style("opacity", 1)
+                                .on('end', () => {
+                                    vis.chartArea.transition()
+                                        .duration(750)
+                                        .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
+                                        .on('end', () => {
+                                            vis.notClickableGlobal = false;
+                                            vis.dispatcher.call('mainToDrillDown', null, null,null, null);
+                                            vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
+                                        });
+                                });
+                        }
+                    });
+                }
             });
     }
 
@@ -345,6 +368,7 @@ class TopPackedBubbleChart {
                             .on('end', () => {
                                 vis.dispatcher.call('mainToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
                                 vis.notClickableGlobal = false;
+                                vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
                             });
                     }
                 });
