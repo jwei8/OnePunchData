@@ -102,10 +102,6 @@ class ScatterPlot {
         vis.stack = d3.stack()
             .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure',
                 'Game', 'Music', 'Harem']);
-                // vis.chart.append('rect')
-                // .attr('width', vis.config.containerWidth)
-                // .attr('height', vis.config.containerHeight)
-                // .attr('fill', '#343235');
 
         // Initialize x-axis and append it to the chart
         vis.xAxisG.call(vis.xAxis);
@@ -148,6 +144,14 @@ class ScatterPlot {
     renderVis() {
         let vis = this;
 
+        vis.chart.append('rect')
+                .attr('width', vis.config.containerWidth)
+                .attr('height', vis.config.containerHeight)
+                .attr('fill', 'transparent')
+                .on('click', (event, d) => {
+                    vis.dispatcher.call('clearSelectedGenre', null);
+        });
+
         vis.chart.selectAll('.point')
             .data(vis.data)
             .join('circle')
@@ -180,6 +184,18 @@ class ScatterPlot {
                 // }
                 //vis.selectedGenre = d.Genre; // Select the new genre
 
+                if (vis.selectedGenre === null && d.Genre !== null) {
+                    vis.selectedGenre = d.Genre;
+                    vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
+                }
+
+                if (d.Genre === null) {
+                    console.log('clicked whitespace');
+
+                }
+                
+
+                //after selecting genre on main view
                 if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
                     vis.selectedAnimes.push(d.MAL_ID);
                 } else if (vis.selectedGenre === d.Genre && vis.selectedAnimes.includes(d.MAL_ID)) {

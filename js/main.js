@@ -3,7 +3,13 @@
  */
 let data, scatterPlot;
 
-const dispatcher = d3.dispatch('mainToScatterGenreSelect', 'mainToDrillDown', 'selectAnimeOnClick', 'selectAnimeOnClickScatter', 'clearSelectedAnimes');
+const dispatcher = d3.dispatch('mainToScatterGenreSelect',
+                                'mainToDrillDown',
+                                'selectAnimeOnClick',
+                                'selectGenreOnClickScatter',
+                                'selectAnimeOnClickScatter', 
+                                'clearSelectedGenre',
+                                'clearSelectedAnimes');
 
 let topLevelBubble, animeLevelBubble;
 
@@ -80,6 +86,17 @@ dispatcher.on('selectAnimeOnClickScatter', (selectedAnimes) => {
   animeLevelBubble.selectedAnimes.concat(selectedAnimes);
   animeLevelBubble.updateChartByAnime(selectedAnimes);
 });
+
+dispatcher.on('selectGenreOnClickScatter', (selectedGenre) => {
+  topLevelBubble.selectedGenre = selectedGenre;
+  topLevelBubble.selectGenre(selectedGenre);
+});
+
+dispatcher.on('clearSelectedGenre', () => {
+  topLevelBubble.selectedGenre = null;
+  scatterPlot.selectGenre = null;
+  topLevelBubble.zoomOut();
+})
 
 dispatcher.on('clearSelectedAnimes', (selectedAnimes) => {
   animeLevelBubble.selectedAnimes = selectedAnimes;
