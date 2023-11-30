@@ -7,7 +7,8 @@ const dispatcher = d3.dispatch('mainToScatterGenreSelect',
                                 'mainToDrillDown',
                                 'selectAnimeOnClick',
                                 'selectGenreOnClickScatter',
-                                'selectAnimeOnClickScatter', 
+                                'selectAnimeOnClickScatter',
+                                'notClickableGlobal',
                                 'clearSelectedGenre',
                                 'clearSelectedAnimes');
 
@@ -69,11 +70,14 @@ d3.csv('data/anime_processed.csv')
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
     scatterPlot.updateChart(genreName);
+    scatterPlot.updateLegendColors();
+    barchart.updateChart(genreName);
 });
 
 dispatcher.on('mainToDrillDown', (genreName, animes) => {
   if (genreName !== null) {
     animeLevelBubble.updateVis(genreName, animes);
+    scatterPlot.updateLegendColors();
   }
 });
 
@@ -92,9 +96,14 @@ dispatcher.on('selectGenreOnClickScatter', (selectedGenre) => {
   topLevelBubble.selectGenre(selectedGenre);
 });
 
+dispatcher.on('notClickableGlobal', (notClickableGlobal) => {
+  scatterPlot.notClickableGlobal = notClickableGlobal;
+})
+
 dispatcher.on('clearSelectedGenre', () => {
   topLevelBubble.selectedGenre = null;
   scatterPlot.selectGenre = null;
+  scatterPlot.updateLegendColors();
   topLevelBubble.zoomOut();
 })
 

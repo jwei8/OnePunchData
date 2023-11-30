@@ -121,6 +121,7 @@ rect {
     justify-content: center;
     align-items: center;
     border: none;
+
 }
 
 #scatter-plot {
@@ -134,9 +135,9 @@ rect {
 #packed-bubble-scatter {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px; /* Optional: Adjust as needed */
+    justify-content: start;
+    align-items: start;
+    margin-top: 20px;
 }
 
 
@@ -201,10 +202,5 @@ rect {
     background-color: #ffffff; /* Set the background color to white */
     border-radius: 8px; /* Adjust for rounded corners */
 }
-
-
-
-
-
 
 

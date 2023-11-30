@@ -21,6 +21,7 @@ class TopPackedBubbleChart {
         this.clickedNode = null;
         this.selectedGenre = null; // Initially, no genre is selected
         this.zoomedIn = false;
+        this.notClickableGlobal = false;
         this.svgTitle = d3.select(this.config.parentTitleElement);
         
         this.initVis();
@@ -174,6 +175,7 @@ class TopPackedBubbleChart {
             vis.bubblesGroups.attr("transform", d => `translate(${d.x},${d.y})`);
         }).on("end", () => {
             vis.notClickableGlobal = false;
+            vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
         });
     }
 
@@ -191,6 +193,7 @@ class TopPackedBubbleChart {
         vis.clickedNode = currClickedNode;
         vis.zoomedIn = true;
         vis.dispatcher.call('clearSelectedAnimes', null, []);
+        vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
         
 
         // Make current node notClickable and prev node clickable
@@ -253,6 +256,7 @@ class TopPackedBubbleChart {
     zoomOut() {
         let vis = this;
         vis.notClickableGlobal = true;
+        vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
         const prevNode = vis.clickedNode;
         vis.clickedNode = null;
         vis.zoomedIn = false;
@@ -292,6 +296,7 @@ class TopPackedBubbleChart {
                                         .on('end', () => {
                                             vis.notClickableGlobal = false;
                                             vis.dispatcher.call('mainToDrillDown', null, null,null, null);
+                                            vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
                                         });
                                 });
                         }
@@ -363,6 +368,7 @@ class TopPackedBubbleChart {
                             .on('end', () => {
                                 vis.dispatcher.call('mainToDrillDown', null, currClickedNode.data.genre, currClickedNode.data.animes);
                                 vis.notClickableGlobal = false;
+                                vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
                             });
                     }
                 });

@@ -19,6 +19,7 @@ class ScatterPlot {
         this.genreToInfo = _genreToInfo;
         this.selectedAnimes = [];
         this.dispatcher = _dispatcher;
+        this.notClickableGlobal = false;
         this.initVis();
     }
 
@@ -149,7 +150,9 @@ class ScatterPlot {
                 .attr('height', vis.config.containerHeight)
                 .attr('fill', 'transparent')
                 .on('click', (event, d) => {
-                    vis.dispatcher.call('clearSelectedGenre', null);
+                    if (!vis.notClickableGlobal) {
+                        vis.dispatcher.call('clearSelectedGenre', null);
+                    }
         });
 
         vis.chart.selectAll('.point')
@@ -178,17 +181,10 @@ class ScatterPlot {
             })
             .on('click', (event, d) => {
 
-                if (vis.selectedGenre === null && d.Genre !== null) {
+                if (vis.selectedGenre === null && !vis.notClickableGlobal) {
                     vis.selectedGenre = d.Genre;
                     vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
                 }
-
-                if (d.Genre === null) {
-                    console.log('clicked whitespace');
-
-                }
-                
-
                 //after selecting genre on main view
                 if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
                     vis.selectedAnimes.push(d.MAL_ID);
@@ -210,28 +206,31 @@ class ScatterPlot {
     renderLegend() {
         let vis = this;
 
-        if (vis.svg.select('.legend').empty()) {
-            vis.legend = vis.svg.append('g')
-                .attr('class', 'legend')
-                .attr('transform', `translate(${vis.config.containerWidth - 150},${20})`);
-        }
+        vis.legendGlobal = d3.select('#legend-global')
+                        .attr('class', 'legend-global')
+                        .attr('width', 200)
+                        .attr('height',400);
 
         // Add legend entries
         const genres = vis.colorScale.domain();
-        const legendEntry = vis.legend.selectAll('.legend-entry')
+        const legendEntry = vis.legendGlobal.selectAll('.legend-entry')
             .data(genres)
             .join('g')
             .attr('class', 'legend-entry')
             .attr('transform', (d, i) => `translate(0, ${i * 20})`)
             .style('cursor', 'pointer')
             .on('click', (event, selectedGenre) => {
-                if (vis.selectedGenre === selectedGenre) {
+                if (vis.selectedGenre === selectedGenre && !vis.notClickableGlobal) {
                     vis.selectedGenre = null; // Deselect if the same genre is clicked again
+                    vis.dispatcher.call('clearSelectedGenre', null);
                 } else {
                     vis.selectedGenre = selectedGenre; // Select the new genre
                 }
-                //vis.updateFiltered();
-                vis.updateLegendColors();
+                if (!vis.notClickableGlobal) {
+                    vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
+                    vis.updateFiltered();
+                    vis.updateLegendColors();
+                }
             });
 
         // Add the colored rectangles
@@ -249,7 +248,7 @@ class ScatterPlot {
             .text(d => d);
 
         // Initial rendering with no genre filtered
-        //vis.updateFiltered();
+        vis.updateFiltered();
     }
 
     updateChart(selectedGenre) {
@@ -297,7 +296,7 @@ class ScatterPlot {
     updateLegendColors() {
         let vis = this;
 
-        vis.legend.selectAll('.legend-entry rect')
+        vis.legendGlobal.selectAll('.legend-entry rect')
             .attr('fill', d => vis.selectedGenre === null || vis.selectedGenre === d ? vis.colorScale(d) : '#d3d3d3')
             .attr('fill-opacity', d => vis.selectedGenre === null || vis.selectedGenre === d ? 1 : 0.3); // Lower opacity for greyed-out legend boxes
     }
