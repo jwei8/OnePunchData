@@ -177,12 +177,12 @@ rect {
 
 #legend-global {
     position: absolute;
-    right: 100px;
+    right: 630px;
     background: white;
     border: 2px solid #000000;
     border-radius: 10px;
     padding: 10px;
-    top: 100px;
+    top: 245px;
     cursor: move;
 }
 
