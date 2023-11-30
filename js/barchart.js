@@ -3,7 +3,7 @@ class Barchart {
     constructor(_config, _data, _genreToInfo) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 1400,
+            containerWidth: 1700,
             containerHeight: 300,
             margin: {
                 top: 40,

@@ -95,7 +95,7 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 30) // Adjust the position as needed
+            .attr('y', 20) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
@@ -180,7 +180,9 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
+
                 if (vis.selectedGenre === null && !vis.notClickableGlobal) {
+
                     vis.selectedGenre = d.Genre;
                     vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
                 }
@@ -208,7 +210,7 @@ class ScatterPlot {
         vis.legendGlobal = d3.select('#legend-global')
                         .attr('class', 'legend-global')
                         .attr('width', 200)
-                        .attr('height',400);
+                        .attr('height',200);
 
         // Add legend entries
         const genres = vis.colorScale.domain();
