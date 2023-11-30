@@ -17,12 +17,12 @@ form {
 }
 
 .axis text {
-    font-size: 8px;
+    font-size: 14px;
     fill: #6b6b6b;
 }
 
 .axis-title {
-    font-size: 13px;
+    font-size: 14px;
     fill: #1b1919;
 }
 

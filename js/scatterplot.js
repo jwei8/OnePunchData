@@ -3,7 +3,7 @@ class ScatterPlot {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 500,
+            containerWidth: 700,
             containerHeight: 800,
             margin: {
                 top: 40,
@@ -65,6 +65,7 @@ class ScatterPlot {
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
+
         vis.xAxisG = vis.chart.append('g')
             .attr('class', 'axis x-axis')
             .attr('transform', `translate(0,${vis.height})`);
@@ -101,6 +102,10 @@ class ScatterPlot {
         vis.stack = d3.stack()
             .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure',
                 'Game', 'Music', 'Harem']);
+                // vis.chart.append('rect')
+                // .attr('width', vis.config.containerWidth)
+                // .attr('height', vis.config.containerHeight)
+                // .attr('fill', '#343235');
 
         // Initialize x-axis and append it to the chart
         vis.xAxisG.call(vis.xAxis);
@@ -147,8 +152,8 @@ class ScatterPlot {
             .data(vis.data)
             .join('circle')
             .attr('class', 'point')
-            .attr('r', 4)
-            .style('opacity', 0.65)
+            .attr('r', 8)
+            .style('fill-opacity', 0.65)
             .attr('cy', d => vis.yScale(vis.yValue(d)))
             .attr('cx', d => vis.xScale(vis.xValue(d)))
             .attr('fill', d => vis.colorScale(vis.colorValue(d)))
@@ -253,9 +258,7 @@ class ScatterPlot {
         let vis = this;
         vis.chart.selectAll('.point')
             .attr('fill', d => (vis.selectedGenre === null|| vis.selectedGenre === d.Genre) ?
-                vis.colorScale(d.Genre) : '#d3d3d3')
-            .attr('fill-opacity', d => (vis.selectedGenre === null || vis.selectedGenre === d.Genre) ?
-                1 : 0.3) // Lower opacity for greyed-out points
+                vis.colorScale(d.Genre) : 'transparent')
             .each(function(d) {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
@@ -268,15 +271,17 @@ class ScatterPlot {
     updateFilteredByAnime() {
         let vis = this;
         vis.chart.selectAll('.point')
-            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#2b2c41' : null)
-            .attr('stroke-opacity',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 2 : null)
+            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#99ffff' : null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null)
+            .attr('stroke-opacity',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 1 : 0)
+            .attr('fill-opacity', d => vis.selectedAnimes.includes(d.MAL_ID) ? 1 : 0.1)
             .each(function(d) {
                 if (vis.selectedAnimes.includes(d.MAL_ID)) {
                     d3.select(this).raise(); // Bring the selected points to the front
                 }
             });
 
-        //vis.updateLegendColors();
+        vis.updateFiltered();
     }
 
     updateLegendColors() {

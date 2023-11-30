@@ -115,8 +115,8 @@ class AnimePackedBubbleChart {
                 })
                 .on('mouseover', function(event, d) {
                     d3.select(this)
-                        .attr('stroke', '#2b2c41')  // Set the stroke to black on hover
-                        .attr('stroke-width', 2); // Increase the stroke-width on hover
+                        .attr('stroke', '#99ffff')  // Set the stroke to black on hover
+                        .attr('stroke-width', 4); // Increase the stroke-width on hover
                         
                     vis.tooltip.style("opacity", 1);
                     vis.tooltip.html(
@@ -132,8 +132,8 @@ class AnimePackedBubbleChart {
                 // Add mouseout event
                 .on('mouseout', function(event, d) {
                     d3.select(this)
-                        .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41' : null)     // Reset the stroke on mouseout
-                        .attr('stroke-width', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 2 : null); // Reset the stroke-width on mouseout
+                        .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff' : null)     // Reset the stroke on mouseout
+                        .attr('stroke-width', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null); // Reset the stroke-width on mouseout
                     
                      vis.tooltip.style("opacity", 0);
                 })
@@ -162,8 +162,8 @@ class AnimePackedBubbleChart {
         const animeGroups = vis.chartArea.selectAll('.anime-level-bubble-group')
                 .data(vis.nodes, d => d.data.MAL_ID);
         animeGroups.selectAll('.bubble-anime')
-            .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#2b2c41': null)
-            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 2 : null);
+            .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff': null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null);
     }
 
     renderLegend() {
