@@ -102,10 +102,6 @@ class ScatterPlot {
         vis.stack = d3.stack()
             .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure',
                 'Game', 'Music', 'Harem']);
-                // vis.chart.append('rect')
-                // .attr('width', vis.config.containerWidth)
-                // .attr('height', vis.config.containerHeight)
-                // .attr('fill', '#343235');
 
         // Initialize x-axis and append it to the chart
         vis.xAxisG.call(vis.xAxis);
@@ -173,12 +169,6 @@ class ScatterPlot {
                     .style("opacity", 0);
             })
             .on('click', (event, d) => {
-                // if (vis.selectedGenre === d.Genre) {
-                //     vis.selectedGenre = null; // Deselect if the same genre is clicked again
-                // } else {
-                //     vis.selectedGenre = d.Genre; // Select the new genre
-                // }
-                //vis.selectedGenre = d.Genre; // Select the new genre
 
                 if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
                     vis.selectedAnimes.push(d.MAL_ID);

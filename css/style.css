@@ -3,6 +3,8 @@ body {
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 13px;
     padding: 30px;
+    background: url('../data/gojo_panels.png') no-repeat center center fixed;
+    background-size: cover;
 }
 
 form {
@@ -102,15 +104,29 @@ rect {
 
 #container-packed-bubble {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
 }
 
 
 #packed-bubble-scatter {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     justify-content: start;
-    align-items: start; 
+    align-items: start;
+}
+
+#packed-bubble-scatter, #bar-chart, #scatter-plot {
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    border: none;
+
+}
+
+#packed-bubble-scatter, #bar-chart, #scatter-plot {
+    padding: 0;
+    margin: 0;
+    border: none;
 }
