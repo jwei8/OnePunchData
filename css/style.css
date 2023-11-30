@@ -148,8 +148,8 @@ rect {
     margin-right: 20px;
     flex-grow: 1;
     padding-top: 0px;
-    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
-    url('../data/fight_panel_no_text.jpeg') no-repeat center center fixed;
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    url('../data/jogo_vs_sukuna.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -160,8 +160,8 @@ rect {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-    url('../data/gojo_panels.png') no-repeat center center fixed;
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    url('../data/fight_panel_no_text.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -172,8 +172,8 @@ rect {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-    url('../data/gojo_panels.png') no-repeat center center fixed;
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    url('../data/berserk.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
