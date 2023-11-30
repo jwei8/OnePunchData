@@ -70,11 +70,13 @@ d3.csv('data/anime_processed.csv')
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
     scatterPlot.updateChart(genreName);
+    scatterPlot.updateLegendColors();
 });
 
 dispatcher.on('mainToDrillDown', (genreName, animes) => {
   if (genreName !== null) {
     animeLevelBubble.updateVis(genreName, animes);
+    scatterPlot.updateLegendColors();
   }
 });
 
