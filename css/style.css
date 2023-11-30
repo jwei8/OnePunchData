@@ -148,7 +148,7 @@ rect {
     margin-right: 20px;
     flex-grow: 1;
     padding-top: 0px;
-    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
     url('../data/jogo_vs_sukuna.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
@@ -172,7 +172,7 @@ rect {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+    background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
     url('../data/berserk.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
