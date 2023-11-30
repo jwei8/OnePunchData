@@ -145,9 +145,8 @@ class Barchart {
         vis.renderVis();
     }
 
-    renderVis() {
+    renderStackedBar() {
         let vis = this;
-
         vis.isStacked = true;
 
         vis.bars = vis.chart.selectAll(".category")
@@ -195,14 +194,60 @@ class Barchart {
                     .duration(500)
                     .style("opacity", "0");
             })
+    }
+
+    renderGroupedBar() {
+        let vis = this;
+        vis.isStacked = false;
+
+        vis.bars = vis.chart.selectAll(".category")
+            .remove()
+            .data(vis.flattenedData)
+            .join("g")
+            .attr("transform", function (d) { return "translate(" + vis.xScale(d.Year) + ",0)"; }) // place each bar along the x-axis at the place defined by the xScale variable
+            .selectAll("rect")
+            .data(d => vis.valueKeys.map(key => ({ key, value: d[key] }))) // use the keys to access the data separately
+            .join("rect")
+            .attr("x", function (d) { return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
+            .attr("y", function (d) { return vis.yScale(d.value); }) // draw the height of the barse using the data from the keys as the height value
+            .attr("width", vis.x1.bandwidth()) // bar is the width defined by the x1 variable
+            .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
+            .attr("fill", function (d) { return vis.genreToInfo[d.key].color; })
+            .on('mouseover', (event, d) => {
+                vis.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                vis.tooltip.html(`
+                <div class="tooltip-title">${d.key}: ${d.value}</div>
+            `)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY) + "px");
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px")
+                    .style("top", (event.pageY + "px"))
+            })
+            .on('mouseout', () => {
+                vis.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", "0");
+            })
+
+    }
+
+    renderVis() {
+        let vis = this;
+
+        vis.isStacked = true;
+
+        vis.renderStackedBar();
 
         // Update axes
         const t = d3.transition().duration(500);
-        // vis.yAxisG.transition(t).call(vis.yAxis);
         vis.xAxisG.transition(t).call(vis.xAxis).call((g) => g.select(".domain").remove());
         vis.yAxisG.transition(t).call(vis.yAxis).call((g) => g.select(".domain").remove());
 
-        // d3.selectAll("input").on("change", vis.change);
         d3.selectAll("input").on("change", change);
 
         function change() {
@@ -225,6 +270,81 @@ class Barchart {
         }
 
         vis.renderLegend();
+    }
+
+    transitionGrouped() {
+        let vis = this;
+        vis.isStacked = false;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
+        vis.chart.selectAll("rect").remove();
+
+        vis.renderGroupedBar();
+    }
+
+    transitionStacked() {
+        let vis = this;
+        vis.isStacked = true;
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
+        vis.chart.selectAll("rect").remove();
+
+        vis.renderStackedBar();
+    }
+
+    transitionOneGenre(currGenre) {
+        let vis = this;
+
+        d3.selectAll("#bar-chart > .bars > g > rect").remove();
+
+        vis.stackedData = vis.stack(vis.flattenedData);
+
+        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
+
+        const t = d3.transition().duration(500);
+        vis.yAxisG.transition(t).call(vis.yAxis);
+
+        vis.bars = vis.chart.selectAll(".category")
+            .data(vis.stackedData)
+            .join("g")
+            .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
+            .selectAll("rect")
+            .data(d => d)
+            .join("rect")
+            .attr('x', d => vis.xScale(d.data.Year))
+            .attr('y', d => vis.yScale(d[1]))
+            .attr('width', vis.xScale.bandwidth())
+            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+            .on('mouseover', (event, d) => {
+                vis.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                vis.tooltip.html(`
+                    <div class="tooltip-title">${d.data.Year}</div>
+                    <ul>
+                        <li>${currGenre}: ${d.data[currGenre]}</li>
+                    </ul>
+                `)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 100) + "px");
+
+            })
+            .on('mousemove', function (event, d) {
+                vis.tooltip
+                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+                    .style("top", (event.pageY - 100 + "px"))
+            })
+            .on('mouseout', () => {
+                vis.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", "0");
+            })
     }
 
     renderLegend() {
@@ -269,164 +389,6 @@ class Barchart {
             .text(d => d);
     }
 
-
-    transitionGrouped() {
-        let vis = this;
-
-        vis.isStacked = false;
-
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
-        const t = d3.transition().duration(500);
-        vis.yAxisG.transition(t).call(vis.yAxis);
-
-        vis.chart.selectAll("rect").remove();
-
-        vis.bars = vis.chart.selectAll(".category")
-            .remove()
-            .data(vis.flattenedData)
-            .join("g")
-            .attr("transform", function (d) { return "translate(" + vis.xScale(d.Year) + ",0)"; }) // place each bar along the x-axis at the place defined by the xScale variable
-            .selectAll("rect")
-            .data(d => vis.valueKeys.map(key => ({ key, value: d[key] }))) // use the keys to access the data separately
-            .join("rect")
-            .attr("x", function (d) { return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
-            .attr("y", function (d) { return vis.yScale(d.value); }) // draw the height of the barse using the data from the keys as the height value
-            .attr("width", vis.x1.bandwidth()) // bar is the width defined by the x1 variable
-            .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
-            .attr("fill", function (d) { return vis.genreToInfo[d.key].color; })
-            .on('mouseover', (event, d) => {
-                vis.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                vis.tooltip.html(`
-                    <div class="tooltip-title">${d.key}: ${d.value}</div>
-                `)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY) + "px");
-            })
-            .on('mousemove', function (event, d) {
-                vis.tooltip
-                    .style("left", ((event.pageX)) + "px")
-                    .style("top", (event.pageY + "px"))
-            })
-            .on('mouseout', () => {
-                vis.tooltip.transition()
-                    .duration(500)
-                    .style("opacity", "0");
-            })
-
-    }
-
-    transitionStacked() {
-        let vis = this;
-
-        vis.isStacked = true;
-
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
-
-        const t = d3.transition().duration(500);
-        vis.yAxisG.transition(t).call(vis.yAxis);
-
-        vis.chart.selectAll("rect").remove();
-
-
-        vis.bars = vis.chart.selectAll(".category")
-            .data(vis.stackedData)
-            .join("g")
-            .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
-            .selectAll("rect")
-            .data(d => d)
-            .join("rect")
-            .attr('x', d => vis.xScale(d.data.Year))
-            .attr('y', d => vis.yScale(d[1]))
-            .attr('width', vis.xScale.bandwidth())
-            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-            .on('mouseover', (event, d) => {
-                vis.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                vis.tooltip.html(`
-                    <div class="tooltip-title">${d.data.Year}</div>
-                    <ul>
-                        <li>Harem: ${d.data.Harem}</li>
-                        <li>Music: ${d.data.Music}</li>
-                        <li>Game: ${d.data.Game}</li>
-                        <li>Adventure: ${d.data.Adventure}</li>
-                        <li>Comedy: ${d.data.Comedy}</li>
-                        <li>Mystery: ${d.data.Mystery}</li>
-                        <li>Slice of Life: ${d.data["Slice of Life"]}</li>
-                        <li>Drama: ${d.data.Drama}</li>
-                        <li>Sci-Fi: ${d.data["Sci-Fi"]}</li>
-                        <li>Action: ${d.data.Action}</li>
-                    </ul>
-                `)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 100) + "px");
-
-
-            })
-            .on('mousemove', function (event, d) {
-                vis.tooltip
-                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                    .style("top", (event.pageY - 100 + "px"))
-            })
-            .on('mouseout', () => {
-                vis.tooltip.transition()
-                    .duration(500)
-                    .style("opacity", "0");
-            })
-    }
-
-    transitionOneGenre(currGenre) {
-        let vis = this;
-
-        d3.selectAll("#bar-chart > .bars > g > rect").remove();
-
-        vis.stackedData = vis.stack(vis.flattenedData);
-
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
-
-        const t = d3.transition().duration(500);
-        vis.yAxisG.transition(t).call(vis.yAxis);
-
-        vis.bars = vis.chart.selectAll(".category")
-            .data(vis.stackedData)
-            .join("g")
-            .attr("fill", function (d) { return vis.genreToInfo[d.key].color })
-            .selectAll("rect")
-            .data(d => d)
-            .join("rect")
-            .attr('x', d => vis.xScale(d.data.Year))
-            .attr('y', d => vis.yScale(d[1]))
-            .attr('width', vis.xScale.bandwidth())
-            .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
-            .on('mouseover', (event, d) => {
-                vis.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                vis.tooltip.html(`
-                    <div class="tooltip-title">${d.data.Year}</div>
-                    <ul>
-                        <li>${currGenre}: ${d.data[currGenre]}</li>
-                    </ul>
-                `)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 100) + "px");
-
-
-            })
-            .on('mousemove', function (event, d) {
-                vis.tooltip
-                    .style("left", ((event.pageX)) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-                    .style("top", (event.pageY - 100 + "px"))
-            })
-            .on('mouseout', () => {
-                vis.tooltip.transition()
-                    .duration(500)
-                    .style("opacity", "0");
-            })
-    }
-
     updateLegendColors() {
         let vis = this;
 
@@ -437,14 +399,12 @@ class Barchart {
 
     updateFiltered() {
         let vis = this;
-        
+
         if (vis.isStacked) {
-            console.log('stacked');
             if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
                 d3.selectAll("#bar-chart > .bars > g > rect").remove();
                 vis.stack = d3.stack()
                     .keys(vis.genres);
-
                 vis.updateVis();
 
             } else {
@@ -465,7 +425,6 @@ class Barchart {
                 vis.transitionOneGenre(vis.selectedGenre);
             }
         }
-
         vis.updateLegendColors();
     }
 
@@ -474,7 +433,4 @@ class Barchart {
         vis.selectedGenre = selectedGenre;
         vis.updateFiltered();
     }
-
-
-
 }
