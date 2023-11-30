@@ -13,42 +13,44 @@
         <h1>One Punch Data: Knockout Anime Recommendations!</h1>
     </div>
 </div>
+<div id="container-legend">
+    <div id="container">
+        <div id="charts-container">
 
-<div id="container">
-    <div id="charts-container">
+            <div class="chart-row">
+                <div id="packed-bubble-container" class="chart-container">
+                    <svg id="packed-bubble"></svg>
+                </div>
 
-        <div class="chart-row">
-            <div id="packed-bubble-container" class="chart-container">
-                <svg id="packed-bubble"></svg>
+                <div id="scatter-plot-container" class="chart-container">
+                    <svg id="scatter-title"></svg>
+                    <svg id="scatter-plot"></svg>
+                </div>
             </div>
 
-            <div id="scatter-plot-container" class="chart-container">
-                <svg id="scatter-title"></svg>
-                <svg id="scatter-plot"></svg>
-                <svg id="legend-global"></svg>
+            <div id="bar-chart-container" class="chart-container">
+
+
+                <svg id="bar-chart-title"></svg>
+
+                <form>
+                    <label style="font-size: 12px;">
+                        <input type="radio" name="mode" value="stacked" checked="" /> Stacked
+                    </label>
+                    <label style="font-size: 12px;">
+                        <input type="radio" name="mode" value="grouped" /> Grouped
+                    </label>
+                </form>
+
+
+                <svg id="bar-chart"></svg>
             </div>
+
         </div>
-
-        <div id="bar-chart-container" class="chart-container">
-
-            
-            <svg id="bar-chart-title"></svg>
-
-            <form>
-                <label style="font-size: 12px;">
-                    <input type="radio" name="mode" value="stacked" checked="" /> Stacked
-                </label>
-                <label style="font-size: 12px;">
-                    <input type="radio" name="mode" value="grouped" /> Grouped
-                </label>
-            </form>
-
-           
-            <svg id="bar-chart"></svg>
-        </div>
-
     </div>
+    <svg id="legend-global"></svg>
 </div>
+
 
 <script src="js/d3.v6.min.js"></script>
 <script src="js/topPackedBubble.js"></script>

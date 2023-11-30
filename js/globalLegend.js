@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     var dragItem = document.querySelector("#legend-global");
-    var container = document.querySelector("#container");
+    var container = document.querySelector("#container-legend");
 
     var active = false;
     var currentX;
