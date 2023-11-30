@@ -3,16 +3,17 @@ class ScatterPlot {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 700,
+            parentTitleElement: _config.parentTitleElement,
+            containerWidth: 800,
             containerHeight: 800,
             margin: {
-                top: 40,
+                top: 10,
                 right: 40,
-                bottom: 80,
+                bottom: 50,
                 left: 80
             },
             // Todo: Add or remove attributes from config as needed
-            tooltipPadding: 10, // Added a tooltip padding configuration
+            tooltipPadding: 15, // Added a tooltip padding configuration
         }
         this.selectedGenre = null; // Initially, no genre is selected
         this.data = _data;
@@ -20,6 +21,7 @@ class ScatterPlot {
         this.selectedAnimes = [];
         this.dispatcher = _dispatcher;
         this.notClickableGlobal = false;
+        this.svgTitle = d3.select(this.config.parentTitleElement);
         this.initVis();
     }
 
@@ -66,7 +68,6 @@ class ScatterPlot {
         vis.chart = vis.svg.append('g')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
-
         vis.xAxisG = vis.chart.append('g')
             .attr('class', 'axis x-axis')
             .attr('transform', `translate(0,${vis.height})`);
@@ -75,18 +76,11 @@ class ScatterPlot {
         vis.yAxisG = vis.chart.append('g')
             .attr('class', 'axis y-axis');
 
-        // Append axis title
-        vis.svg.append('text')
-            .attr('class', 'axis-title')
-            .attr('x', 20)
-            .attr('y', 20)
-            .text('Correlation of Score VS Completed: Dropped ');
-
         // Append x-axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
             .attr('x', vis.config.containerWidth / 2)
-            .attr('y', vis.config.containerHeight - 30) // Adjust the position as needed
+            .attr('y', vis.config.containerHeight - 10) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Score');
 
@@ -95,7 +89,7 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 20) // Adjust the position as needed
+            .attr('y', 13) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
@@ -114,6 +108,8 @@ class ScatterPlot {
         vis.tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
+
+        vis.renderTitle();
     }
 
 
@@ -203,6 +199,32 @@ class ScatterPlot {
         vis.renderLegend();
     }
 
+
+    renderTitle() {
+        let vis = this;
+    
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+            .attr('class', 'title')
+            .attr('transform', `translate(${0},${0})`);
+    
+        // Append the first text element
+        let titleText = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-topView-text')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Correlation of Score with Completed to Dropped Ratio");
+    
+        // Calculate the maximum width of both text elements
+        let titleWidth = titleText.node().getBBox().width;
+        let titleHeight = titleText.node().getBBox().height;
+
+        // set svg height
+        vis.svgTitle.attr('width', titleWidth)
+            .attr('height', titleHeight);
+
+        vis.legendTitleGroup
+            .attr('transform', `translate(${titleWidth / 2}, ${titleHeight / 2})`);
+    }
 
     renderLegend() {
         let vis = this;

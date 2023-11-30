@@ -3,7 +3,6 @@ class TopPackedBubbleChart {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
-          parentElementLegend: _config.parentElementLegend,
           parentTitleElement: _config.parentTitleElement,
           containerWidth: 750,
           containerHeight: 750,
@@ -63,15 +62,6 @@ class TopPackedBubbleChart {
                     vis.zoomOut();
                 }
             })
-        
-        vis.svg.append('rect')
-            .attr('width', vis.config.containerWidth)
-            .attr('height', vis.config.containerHeight)
-            .attr('rx', 10)          
-            .attr('ry', 10)          
-            .attr('fill', 'none')   
-            .attr('stroke', 'grey') 
-            .attr('stroke-width', '2px');
 
         vis.pack = d3.pack()
             .size([vis.config.containerWidth, vis.config.containerHeight])
@@ -325,8 +315,6 @@ class TopPackedBubbleChart {
         // Append the first text element
         let text1 = vis.legendTitleGroup.append('text')
             .attr('class', 'title-topView-text')
-            .style('font-size', '18px')
-            .style('font-weight', 'bold')
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .text("Top 10 Genres By Count Of Anime");
@@ -334,9 +322,7 @@ class TopPackedBubbleChart {
         // Append the second text element
         let text2 = vis.legendTitleGroup.append('text')
             .attr('class', 'title-drillDown-text')
-            .style('font-size', '18px')
             .style('opacity', 0)
-            .style('font-weight', 'bold')
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .text("Animes in the Genre");

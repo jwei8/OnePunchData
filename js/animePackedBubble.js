@@ -3,7 +3,6 @@ class AnimePackedBubbleChart {
     constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
-          parentElementLegend: _config.parentElementLegend,
           containerWidth: 750,
           containerHeight: 750,
           tooltipPadding: 15,

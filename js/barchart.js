@@ -3,6 +3,7 @@ class Barchart {
     constructor(_config, _data, _genreToInfo) {
         this.config = {
             parentElement: _config.parentElement,
+            parentTitleElement: _config.parentTitleElement,
             containerWidth: 1700,
             containerHeight: 300,
             margin: {
@@ -16,6 +17,7 @@ class Barchart {
         }
         this.data = _data;
         this.genreToInfo = _genreToInfo;
+        this.svgTitle = d3.select(this.config.parentTitleElement);
         this.initVis();
     }
 
@@ -65,13 +67,6 @@ class Barchart {
         vis.yAxisG = vis.chart.append('g')
             .attr('class', 'axis y-axis barAxis');
 
-        // Append axis title
-        vis.svg.append('text')
-            .attr('class', 'axis-title')
-            .attr('x', 40)
-            .attr('y', 20)
-            .text('Number of Animes By Genre Per Year');
-
         // Append x-axis title
         vis.svg.append('text')
             .attr('class', 'axis-title')
@@ -98,8 +93,9 @@ class Barchart {
         // that we want to show in the chart
         vis.stack = d3.stack()
             .keys(vis.genres);
-    }
 
+        vis.renderTitle();
+    }
 
     updateVis() {
         let vis = this;
@@ -268,6 +264,32 @@ class Barchart {
                 vis.transitionStacked();
             }
         }
+    }
+
+    renderTitle() {
+        let vis = this;
+    
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+            .attr('class', 'title')
+            .attr('transform', `translate(${0},${0})`);
+    
+        // Append the first text element
+        let titleText = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-topView-text')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Number of Animes by Genre Per Year");
+    
+        // Calculate the maximum width of both text elements
+        let titleWidth = titleText.node().getBBox().width;
+        let titleHeight = titleText.node().getBBox().height;
+
+        // set svg height
+        vis.svgTitle.attr('width', titleWidth)
+            .attr('height', titleHeight);
+
+        vis.legendTitleGroup
+            .attr('transform', `translate(${titleWidth / 2}, ${titleHeight / 2})`);
     }
 
     transitionGrouped() {
