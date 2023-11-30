@@ -182,6 +182,7 @@ class ScatterPlot {
             .on('click', (event, d) => {
 
                 if (vis.selectedGenre === null && !vis.notClickableGlobal) {
+
                     vis.selectedGenre = d.Genre;
                     vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
                 }
@@ -209,7 +210,7 @@ class ScatterPlot {
         vis.legendGlobal = d3.select('#legend-global')
                         .attr('class', 'legend-global')
                         .attr('width', 200)
-                        .attr('height',400);
+                        .attr('height',200);
 
         // Add legend entries
         const genres = vis.colorScale.domain();

@@ -102,6 +102,19 @@ form {
     font-size: 12px;
 }
 
+.chart-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.chart-container {
+    background-color: white;
+    padding: 10px;
+    margin: 0;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    margin-top: 20px;
+}
 
 /* Stacked bar chart */
 rect {
@@ -151,24 +164,25 @@ rect {
     border-radius: 10px; /* Adjust as needed */
 }
 
-.chart-row {
-    display: flex;
-    flex-direction: row;
-}
-
-.chart-container {
-    background-color: white;
-    padding: 10px;
-    margin: 0;
-    border: 2px solid #000000;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
 #packed-bubble-container,
 #scatter-plot-container {
     flex: 1;
     margin-right: 20px;
+}
+
+#legend-global {
+    position: absolute;
+    right: 100px;
+    background: white;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    padding: 10px;
+    top: 100px;
+    cursor: move;
+}
+
+#legend-global:active {
+    border-style: dashed;
 }
 
 #bar-chart-container {
@@ -179,13 +193,13 @@ rect {
 #speech-bubble {
     position: relative;
     display: inline-block;
-    background-color: #ffffff; /* Speech bubble background color */
-    padding: 15px; /* Adjust as needed for padding inside the bubble */
-    border-radius: 100px; /* Adjust for rounded corners */
-    margin-bottom: 20px; /* Adjust as needed to create space between the title and the rest of the content */
-    border: 2px solid #000000; /* Set the border color to black */
-    margin-left: 20px; /* Adjust the margin to move the speech bubble to the right */
-    position: relative; /* Ensure relative positioning for child pseudo-element */
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    border: 2px solid #000000;
+    margin-left: 20px;
+    position: relative;
 }
 
 #speech-bubble::before {
@@ -197,10 +211,10 @@ rect {
     height: 0;
     border-style: solid;
     border-width: 10px 20px 10px 0;
-    border-color: transparent #000000 transparent transparent; /* Set the border color to black */
+    border-color: transparent #000000 transparent transparent;
     transform: translateY(-50%);
-    background-color: #ffffff; /* Set the background color to white */
-    border-radius: 8px; /* Adjust for rounded corners */
+    background-color: #ffffff;
+    border-radius: 8px;
 }
 
 
