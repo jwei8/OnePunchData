@@ -100,8 +100,7 @@ class AnimePackedBubbleChart {
         const bubbles = animeGroups.selectAll('.bubble-anime')
                 .data(d => d, d => d.data.MAL_ID)
             .join('circle')
-                .on('click', (event, d) => {
-                    console.log(d.data.MAL_ID);
+                .on('click', function(event, d) {
                     if (!vis.selectedAnimes.includes(d.data.MAL_ID)) {
                         vis.selectedAnimes.push(d.data.MAL_ID);
                     } else {
@@ -109,6 +108,7 @@ class AnimePackedBubbleChart {
                          if (index > -1) {
                             vis.selectedAnimes.splice(index, 1);
                         }
+                        d3.select(this).attr('stroke', null);
                     }
                 vis.dispatcher.call('selectAnimeOnClick', null, vis.selectedAnimes);
                 })
