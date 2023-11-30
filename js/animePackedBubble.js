@@ -3,14 +3,14 @@ class AnimePackedBubbleChart {
     constructor(_config, _genreToInfo, _globalMinScore, _globalMaxScore, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
-          containerWidth: 750,
-          containerHeight: 750,
+          containerWidth: 860,
+          containerHeight: 860,
           tooltipPadding: 15,
           margin: {
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25
           }
         }
         this.genreToInfo = _genreToInfo;
@@ -43,7 +43,7 @@ class AnimePackedBubbleChart {
             .padding(15);
         
         vis.radiusScale = d3.scaleLinear()
-                        .range([6,30])
+                        .range([8,32])
                         .domain([vis.globalMinScore, vis.globalMaxScore]);
 
         vis.renderLegend();
@@ -215,7 +215,7 @@ class AnimePackedBubbleChart {
             .attr('class', 'legend-bubble-item-text')
             .attr('x', vis.config.containerWidth - (largestRadius) - rightOffset) // Horizontal center of the circle
             .attr('y', d => 2 * largestRadius - (2 * vis.radiusScale(d)) + topOffset) // Above the circle
-            .attr('dy', -5)
+            .attr('dy', -8)
             .text(d => `${d}`)
             .attr('text-anchor', 'middle') // Center the text at the x position
             .attr('alignment-baseline', 'middle') // Center the text vertically

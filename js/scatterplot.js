@@ -4,13 +4,13 @@ class ScatterPlot {
         this.config = {
             parentElement: _config.parentElement,
             parentTitleElement: _config.parentTitleElement,
-            containerWidth: 800,
+            containerWidth: 818,
             containerHeight: 800,
             margin: {
                 top: 10,
-                right: 40,
+                right: 50,
                 bottom: 50,
-                left: 80
+                left: 90
             },
             // Todo: Add or remove attributes from config as needed
             tooltipPadding: 15, // Added a tooltip padding configuration
@@ -66,7 +66,9 @@ class ScatterPlot {
             .attr('height', vis.config.containerHeight);
 
         vis.chart = vis.svg.append('g')
-            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
+            .attr('width', vis.config.width)
+            .attr('height', vis.config.height);
 
         vis.xAxisG = vis.chart.append('g')
             .attr('class', 'axis x-axis')
@@ -89,7 +91,7 @@ class ScatterPlot {
             .attr('class', 'axis-title')
             .attr('transform', 'rotate(-90)')
             .attr('x', -vis.config.containerHeight / 2)
-            .attr('y', 13) // Adjust the position as needed
+            .attr('y', 25) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
@@ -108,6 +110,16 @@ class ScatterPlot {
         vis.tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
             .style("opacity", 0);
+
+        vis.chart.append('rect')
+        .attr('width', vis.width)
+        .attr('height', vis.height)
+        .attr('fill', 'transparent')
+        .on('click', (event, d) => {
+            if (!vis.notClickableGlobal) {
+                vis.dispatcher.call('clearSelectedGenre', null);
+            }
+        });
 
         vis.renderTitle();
     }
@@ -140,16 +152,6 @@ class ScatterPlot {
 
     renderVis() {
         let vis = this;
-
-        vis.chart.append('rect')
-                .attr('width', vis.config.containerWidth)
-                .attr('height', vis.config.containerHeight)
-                .attr('fill', 'transparent')
-                .on('click', (event, d) => {
-                    if (!vis.notClickableGlobal) {
-                        vis.dispatcher.call('clearSelectedGenre', null);
-                    }
-        });
 
         vis.chart.selectAll('.point')
             .data(vis.data)

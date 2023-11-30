@@ -110,7 +110,7 @@ form {
 
 .chart-container {
     background-color: white;
-    padding: 10px;
+    padding-top: 5px;
     margin: 0;
     border: 2px solid #000000;
     border-radius: 10px;
@@ -146,6 +146,7 @@ rect {
     align-items: center;
     margin-right: 20px;
     flex-grow: 1;
+    padding-top: 0px;
 }
 
 #scatter-plot-container {
@@ -153,8 +154,6 @@ rect {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding-left: 30px;
-    padding-right: 30px;
 }
 
 #bar-chart-container {

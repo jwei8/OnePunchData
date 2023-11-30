@@ -3,9 +3,8 @@ class TopPackedBubbleChart {
     constructor(_config, _data, _genreToInfo, _dispatcher) {
         this.config = {
           parentElement: _config.parentElement,
-          parentTitleElement: _config.parentTitleElement,
-          containerWidth: 750,
-          containerHeight: 750,
+          containerWidth: 860,
+          containerHeight: 860,
           tooltipPadding: 15,
           margin: {
             top: 0,
@@ -14,10 +13,10 @@ class TopPackedBubbleChart {
             left: 0
           },
           zoomMargin: {
-            top: 10,
-            right: 10,
-            bottom: 10,
-            left: 10
+            top: 25,
+            right: 25,
+            bottom: 25,
+            left: 25
           }
         }
         this.data = _data;
@@ -27,7 +26,6 @@ class TopPackedBubbleChart {
         this.selectedGenre = null; // Initially, no genre is selected
         this.zoomedIn = false;
         this.notClickableGlobal = false;
-        this.svgTitle = d3.select(this.config.parentTitleElement);
         
         this.initVis();
       }
@@ -67,7 +65,7 @@ class TopPackedBubbleChart {
             .size([vis.config.containerWidth, vis.config.containerHeight])
             .padding(15);
 
-        vis.radiusScale = d3.scaleSqrt().range([45,171]);
+        vis.radiusScale = d3.scaleSqrt().range([42,182]);
 
         vis.renderTitle();
         vis.updateVis();
@@ -193,7 +191,6 @@ class TopPackedBubbleChart {
         vis.zoomedIn = true;
         vis.dispatcher.call('clearSelectedAnimes', null, []);
         vis.dispatcher.call('notClickableGlobal', null, vis.notClickableGlobal);
-        
 
         // Make current node notClickable and prev node clickable
         currClickedNode.data.isClickable = false;
@@ -226,7 +223,7 @@ class TopPackedBubbleChart {
 
         // switch to other bubble
         bubbles.transition()
-            .duration(250)
+            .duration(350)
             .attr('opacity', 0)
             .on('end', () => {
                 counter++;
@@ -274,7 +271,7 @@ class TopPackedBubbleChart {
 
         // remove previous groups vis if it exists
         bubbles.transition()
-            .duration(250)
+            .duration(350)
             .attr('opacity', 0)
             .on('end', () => {
                 counter++;
@@ -286,11 +283,11 @@ class TopPackedBubbleChart {
                         if (textElement.text() === prevNode.data.genre) {
                             // Apply fade-out transition to the matching element
                             currGroup.transition()
-                                .duration(350)
+                                .duration(500)
                                 .style("opacity", 1)
                                 .on('end', () => {
                                     vis.chartArea.transition()
-                                        .duration(750)
+                                        .duration(500)
                                         .attr("transform", `translate(${vis.config.margin.left},${vis.config.margin.top}) scale(1)`)
                                         .on('end', () => {
                                             vis.notClickableGlobal = false;
@@ -308,9 +305,9 @@ class TopPackedBubbleChart {
     renderTitle() {
         let vis = this;
     
-        vis.legendTitleGroup = vis.svgTitle.append('g')
+        vis.legendTitleGroup = vis.svg.append('g')
             .attr('class', 'title')
-            .attr('transform', `translate(${0},${0})`);
+            .attr('transform', `translate(${vis.config.width / 2},${14})`);
     
         // Append the first text element
         let text1 = vis.legendTitleGroup.append('text')
@@ -326,23 +323,6 @@ class TopPackedBubbleChart {
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .text("Animes in the Genre");
-    
-        // Calculate the maximum width of both text elements
-        let text1Width = text1.node().getBBox().width;
-        let text2Width = text2.node().getBBox().width;
-        let maxWidth = Math.max(text1Width, text2Width);
-
-        // Calculate the maximum height of both text elements
-        let text1Height = text1.node().getBBox().height;
-        let text2Height = text2.node().getBBox().height;
-        let maxHeight = Math.max(text1Height, text2Height);
-
-        // set svg height
-        vis.svgTitle.attr('width', maxWidth)
-            .attr('height', maxHeight);
-
-        vis.legendTitleGroup
-            .attr('transform', `translate(${maxWidth / 2}, ${maxHeight / 2})`);
     }
 
     applyTransitionAndTextFade(translateX, translateY, scale, currClickedNode) {
@@ -381,11 +361,11 @@ class TopPackedBubbleChart {
             .duration(750)
             .style('opacity', 1);
 
-        vis.svgTitle.selectAll('.title-topView-text').transition()
+        vis.legendTitleGroup.selectAll('.title-topView-text').transition()
             .duration(375)
             .style('opacity', 0)
             .on('end', () => {
-                vis.svgTitle.selectAll('.title-drillDown-text').transition()
+                vis.legendTitleGroup.selectAll('.title-drillDown-text').transition()
                     .duration(375)
                     .style('opacity', 1);
             });
@@ -402,11 +382,11 @@ class TopPackedBubbleChart {
             .duration(750)
             .style('opacity', 0);
 
-        vis.svgTitle.selectAll('.title-drillDown-text').transition()
+        vis.legendTitleGroup.selectAll('.title-drillDown-text').transition()
             .duration(375)
             .style('opacity', 0)
             .on('end', () => {
-                vis.svgTitle.selectAll('.title-topView-text').transition()
+                vis.legendTitleGroup.selectAll('.title-topView-text').transition()
                     .duration(375)
                     .style('opacity', 1);
             });

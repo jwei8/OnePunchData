@@ -37,7 +37,6 @@ d3.csv('data/anime_processed.csv')
 
     topLevelBubble = new TopPackedBubbleChart({
       parentElement: '#packed-bubble',
-      parentTitleElement: '#packed-bubble-title',
     }, data, genreToInfo, dispatcher);
 
     animeLevelBubble = new AnimePackedBubbleChart({
