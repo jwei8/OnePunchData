@@ -169,10 +169,21 @@ class ScatterPlot {
                     vis.tooltip.transition()
                         .duration(200)
                         .style("opacity", 1);
-                    vis.tooltip.html(d.Name + "<br/> Score: " + d.Score + "<br/> Rating: " + d.Rating)
+                    vis.tooltip.html(`<h3>${d.Name}</h3>
+                    <ul>
+                      <li>Score: ${d.Score}</li>
+                      <li>Rating: ${d.Rating} years</li>
+                      <li>Studio: ${d.Studios}</li>
+                    </ul>`)
                         .style("left", (event.pageX) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 }
+            })
+            .on('mousemove', (event) => {
+                // move tooltip
+                vis.tooltip
+                  .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                  .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
             })
             .on('mouseout', () => {
                 vis.tooltip.transition()

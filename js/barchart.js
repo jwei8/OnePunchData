@@ -165,7 +165,7 @@ class Barchart {
                     .duration(200)
                     .style("opacity", .9);
                 vis.tooltip.html(`
-                    <div class="tooltip-title">${d.data.Year}</div>
+                    <h3>${d.data.Year}</h3>
                     <ul>
                         <li>Harem: ${d.data.Harem}</li>
                         <li>Music: ${d.data.Music}</li>
