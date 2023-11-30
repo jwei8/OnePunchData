@@ -103,6 +103,7 @@ class AnimePackedBubbleChart {
                 .on('click', function(event, d) {
                     if (!vis.selectedAnimes.includes(d.data.MAL_ID)) {
                         vis.selectedAnimes.push(d.data.MAL_ID);
+                        d3.select(this).attr('stroke', '#99ffff');
                     } else {
                         const index = vis.selectedAnimes.indexOf(d.data.MAL_ID);
                          if (index > -1) {
