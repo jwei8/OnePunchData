@@ -71,7 +71,7 @@ class Barchart {
         vis.svg.append('text')
             .attr('class', 'axis-title')
             .attr('x', vis.config.containerWidth / 2)
-            .attr('y', vis.config.containerHeight) // Adjust the position as needed
+            .attr('y', vis.config.containerHeight - 5) // Adjust the position as needed
             .style('text-anchor', 'middle')
             .text('Year');
 
@@ -156,6 +156,7 @@ class Barchart {
             .attr('y', d => vis.yScale(d[1]))
             .attr('width', vis.xScale.bandwidth())
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
+            .style('fill-opacity', .9)
             .on('mouseover', (event, d) => {
                 vis.tooltip.transition()
                     .duration(200)

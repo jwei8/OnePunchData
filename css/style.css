@@ -27,17 +27,17 @@ form {
 }
 
 .axis text {
-    font-size: 14px;
-    fill: #6b6b6b;
+    font-size: 13px;
+    fill: #1b1919;
 }
 
 .barAxis text {
-    font-size: 10px;
-    fill: #6b6b6b;
+    font-size: 13px;
+    fill: #1b1919;
 }
 
 .axis-title {
-    font-size: 14px;
+    font-size: 16px;
     fill: #1b1919;
 }
 
@@ -188,7 +188,7 @@ rect {
 
 .title-drillDown-text,
 .title-topView-text {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
 }
 

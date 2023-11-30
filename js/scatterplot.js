@@ -228,7 +228,7 @@ class ScatterPlot {
             .text("Correlation of Score with Completed to Dropped Ratio");
     
         // Calculate the maximum width of both text elements
-        let titleWidth = titleText.node().getBBox().width;
+        let titleWidth = titleText.node().getBBox().width + 20;
         let titleHeight = titleText.node().getBBox().height;
 
         // set svg height
