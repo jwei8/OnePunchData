@@ -127,7 +127,7 @@ class TopPackedBubbleChart {
                 })
                 .attr('class', 'top-level-bubble-group')
                 .attr("transform", d => `translate(${d.x}, ${d.y})`)
-                .attr('opacity', 0.7);
+                .attr('opacity', 0.9);
 
         vis.bubbles = vis.bubblesGroups.selectAll('.bubble')
                 .data(d => d, d => d.data.genre)
