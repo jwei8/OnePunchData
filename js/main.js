@@ -7,7 +7,8 @@ const dispatcher = d3.dispatch('mainToScatterGenreSelect',
                                 'mainToDrillDown',
                                 'selectAnimeOnClick',
                                 'selectGenreOnClickScatter',
-                                'selectAnimeOnClickScatter', 
+                                'selectAnimeOnClickScatter',
+                                'notClickableGlobal',
                                 'clearSelectedGenre',
                                 'clearSelectedAnimes');
 
@@ -92,9 +93,14 @@ dispatcher.on('selectGenreOnClickScatter', (selectedGenre) => {
   topLevelBubble.selectGenre(selectedGenre);
 });
 
+dispatcher.on('notClickableGlobal', (notClickableGlobal) => {
+  scatterPlot.notClickableGlobal = notClickableGlobal;
+})
+
 dispatcher.on('clearSelectedGenre', () => {
   topLevelBubble.selectedGenre = null;
   scatterPlot.selectGenre = null;
+  scatterPlot.updateLegendColors();
   topLevelBubble.zoomOut();
 })
 
