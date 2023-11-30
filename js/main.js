@@ -39,7 +39,6 @@ function resizeContent() {
 window.addEventListener('resize', resizeContent);
 window.addEventListener('load', resizeContent);
 
-console.log("SCALE FACTOR: " + scaleFactor);
 console.log("WINDOW WIDTH" + window.innerWidth)
 console.log("WINDOW HEIGHT" + window.innerHeight)
 
