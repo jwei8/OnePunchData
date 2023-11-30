@@ -144,6 +144,14 @@ class ScatterPlot {
     renderVis() {
         let vis = this;
 
+        vis.chart.append('rect')
+                .attr('width', vis.config.containerWidth)
+                .attr('height', vis.config.containerHeight)
+                .attr('fill', 'transparent')
+                .on('click', (event, d) => {
+                    vis.dispatcher.call('clearSelectedGenre', null);
+        });
+
         vis.chart.selectAll('.point')
             .data(vis.data)
             .join('circle')
@@ -170,6 +178,18 @@ class ScatterPlot {
             })
             .on('click', (event, d) => {
 
+                if (vis.selectedGenre === null && d.Genre !== null) {
+                    vis.selectedGenre = d.Genre;
+                    vis.dispatcher.call('selectGenreOnClickScatter', null, vis.selectedGenre);
+                }
+
+                if (d.Genre === null) {
+                    console.log('clicked whitespace');
+
+                }
+                
+
+                //after selecting genre on main view
                 if (vis.selectedGenre === d.Genre && !vis.selectedAnimes.includes(d.MAL_ID)) {
                     vis.selectedAnimes.push(d.MAL_ID);
                 } else if (vis.selectedGenre === d.Genre && vis.selectedAnimes.includes(d.MAL_ID)) {

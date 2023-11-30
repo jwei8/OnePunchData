@@ -19,6 +19,7 @@ class TopPackedBubbleChart {
         this.genreToInfo = _genreToInfo;
         this.dispatcher = _dispatcher;
         this.clickedNode = null;
+        this.selectedGenre = null; // Initially, no genre is selected
         this.zoomedIn = false;
         this.svgTitle = d3.select(this.config.parentTitleElement);
         
@@ -174,6 +175,12 @@ class TopPackedBubbleChart {
         }).on("end", () => {
             vis.notClickableGlobal = false;
         });
+    }
+
+    selectGenre(genreName) {
+        let vis = this;
+        const bubbleToZoom = vis.nodes.find(node => node.data.genre === genreName);
+        vis.zoomToBubble(bubbleToZoom);
     }
 
 
