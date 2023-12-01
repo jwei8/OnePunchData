@@ -58,7 +58,6 @@ form {
     display: none;
 }
 
-
 .tooltip {
     position: absolute;
     text-align: center;
@@ -134,6 +133,13 @@ rect {
 #charts-container {
     display: flex;
     flex-direction: column;
+    margin-bottom: 175px;
+}
+
+#title-container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
 }
 
 .chart-row {
