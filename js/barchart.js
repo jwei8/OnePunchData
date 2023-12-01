@@ -84,6 +84,46 @@ class Barchart {
             .style('text-anchor', 'middle')
             .text('Count');
 
+        // Append x-axis group
+        vis.xAxisG = vis.chart.append('g')
+            .attr('class', 'axis x-axis barAxis')
+            .attr('transform', `translate(0,${vis.height})`);
+
+        // Append x-axis line
+        vis.xAxisG.append("line")
+            .attr("class", "axis-line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", vis.width)
+            .attr("y2", 0)
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+
+        // Append x-axis ticks
+        vis.xAxisG.selectAll(".tick line")
+            .attr("class", "axis-tick")
+            .style("stroke", "black");
+
+        // Append y-axis group
+        vis.yAxisG = vis.chart.append('g')
+            .attr('class', 'axis y-axis barAxis');
+
+        // Append y-axis line
+        vis.yAxisG.append("line")
+            .attr("class", "axis-line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", vis.height)
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+
+        // Append y-axis ticks
+        vis.yAxisG.selectAll(".tick line")
+            .attr("class", "axis-tick")
+            .style("stroke", "black");
+
+
         // tooltip
         vis.tooltip = d3.select("body").append("div")
             .attr("class", "tooltip")

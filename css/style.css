@@ -22,17 +22,18 @@ form {
 /* Axis */
 .axis line {
     fill: none;
-    stroke: #ddd;
+    stroke: #000;
     shape-rendering: crispEdges;
 }
 
 .axis text {
     font-size: 13px;
     fill: #1b1919;
+    font-family: 'Manga Temple', sans-serif;
 }
 
 .barAxis text {
-    font-size: 13px;
+    font-size: 10px;
     fill: #1b1919;
 }
 
@@ -42,7 +43,7 @@ form {
 }
 
 .y-axis .tick:first-child line {
-    stroke: #b1b1b1;
+    stroke: #000;
 }
 
 .y-axis .tick:first-child text {

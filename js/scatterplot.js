@@ -52,12 +52,12 @@ class ScatterPlot {
 
         // Set up x-axis
         vis.xAxis = d3.axisBottom(vis.xScale)
-            .tickSizeOuter(0)
+            .tickSizeOuter(1)
             .tickFormat(d3.format('.2f'));
 
         // Set up y-axis
         vis.yAxis = d3.axisLeft(vis.yScale)
-            .tickSizeOuter(0)
+            .tickSizeOuter(1)
             .tickFormat(d3.format('.2f')); // Use fixed-point notation with two decimal places
 
         // Define size of SVG drawing area
@@ -95,16 +95,64 @@ class ScatterPlot {
             .style('text-anchor', 'middle')
             .text('Completed:Dropped Ratio');
 
+        // Append x-axis group
+        vis.xAxisG = vis.chart.append('g')
+            .attr('class', 'axis x-axis')
+            .attr('transform', `translate(0,${vis.height})`);
+
+        // Append x-axis line
+        vis.xAxisG.append("line")
+            .attr("class", "axis-line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", vis.width)
+            .attr("y2", 0)
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+
+        // Append x-axis ticks
+        vis.xAxisG.selectAll(".tick line")
+            .attr("class", "axis-tick")
+            .style("stroke", "black");
+
+        // Append y-axis group
+        vis.yAxisG = vis.chart.append('g')
+            .attr('class', 'axis y-axis');
+
+        // Append y-axis line
+        vis.yAxisG.append("line")
+            .attr("class", "axis-line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", vis.height)
+            .style("stroke", "black")
+            .style("stroke-width", 2);
+
+        // Append y-axis ticks
+        vis.yAxisG.selectAll(".tick line")
+            .attr("class", "axis-tick")
+            .style("stroke", "black");
+
+
+
         // Initialize stack generator and specify the categories or layers that we want to show in the chart
         vis.stack = d3.stack()
             .keys(['Action', 'Sci-Fi', 'Drama', 'Slice of Life', 'Mystery', 'Comedy', 'Adventure',
                 'Game', 'Music', 'Harem']);
 
         // Initialize x-axis and append it to the chart
-        vis.xAxisG.call(vis.xAxis);
+        vis.xAxisG.call(vis.xAxis)
+            .selectAll("text") // Select all the text elements for further customization
+            .style("font-family", "Manga Temple")
+            .style("font-size", "12px"); // Set the desired font-family and font-size
 
         // Initialize y-axis and append it to the chart
-        vis.yAxisG.call(vis.yAxis);
+        vis.yAxisG.call(vis.yAxis)
+            .selectAll("text") // Select all the text elements for further customization
+            .style("font-family", "Manga Temple")
+            .style("font-size", "12px"); // Set the desired font-family and font-size
+
 
         // tooltip
         vis.tooltip = d3.select("body").append("div")
@@ -139,11 +187,17 @@ class ScatterPlot {
         vis.xScale.domain([d3.min(vis.data, vis.xValue), d3.max(vis.data, vis.xValue)]);
         vis.yScale.domain([d3.min(vis.data, vis.yValue), d3.max(vis.data, vis.yValue)]);
 
-        // Update x-axis
-        vis.xAxisG.call(vis.xAxis);
+        // Initialize x-axis and append it to the chart
+        vis.xAxisG.call(vis.xAxis)
+            .selectAll("text") // Select all the text elements for further customization
+            .style("font-family", "Manga Temple")
+            .style("font-size", "12px"); // Set the desired font-family and font-size
 
-        // Update y-axis
-        vis.yAxisG.call(vis.yAxis);
+        // Initialize y-axis and append it to the chart
+        vis.yAxisG.call(vis.yAxis)
+            .selectAll("text") // Select all the text elements for further customization
+            .style("font-family", "Manga Temple")
+            .style("font-size", "12px"); // Set the desired font-family and font-size
 
         // Render the visualization
         vis.renderVis();
