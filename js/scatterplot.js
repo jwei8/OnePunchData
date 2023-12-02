@@ -221,20 +221,25 @@ class ScatterPlot {
                     vis.tooltip.transition()
                         .duration(200)
                         .style("opacity", 1);
-                    vis.tooltip.html(`<h3>${d.Name}</h3>
-                    <ul>
-                      <li>Score: ${d.Score}</li>
-                      <li>Rating: ${d.Rating} years</li>
-                      <li>Studio: ${d.Studios}</li>
-                    </ul>`)
-                        .style("left", (event.pageX) + "px")
+                        vis.tooltip.html(`
+                        <h3>${d.Name}</h3>
+                        <ul>
+                            <li><strong>Score:</strong> ${d.Score}</li>
+                            <li><strong>Rating:</strong> ${d.Rating} years</li>
+                            <li><strong>Studio:</strong> ${d.Studios}</li>
+                            <li><strong>Premiered:</strong> ${d.Premiered}</li>
+                            <li><strong>Source:</strong> ${d.Source}</li>
+                            <li><strong>Completed to Dropped Ratio:</strong> ${d.CompletedDroppedRatio.toFixed(1)}</li>
+                        </ul>
+                    `)
+                        .style("right", (window.innerWidth - event.pageX) + "px")
                         .style("top", (event.pageY - 28) + "px");
                 }
             })
             .on('mousemove', (event) => {
                 // move tooltip
                 vis.tooltip
-                  .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                  .style('right', (window.innerWidth - event.pageX) + 'px')
                   .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
             })
             .on('mouseout', () => {
