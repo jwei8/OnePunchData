@@ -8,11 +8,11 @@
 </head>
 
 <body>
-<div id="title-container">
-    <div id="speech-bubble">
-        <h1>Domain Expansion: Expanding Anime Horizons With Data!</h1>
+    <div id="title-container">
+        <div id="speech-bubble">
+            <h1>Domain Expansion: Expanding Anime Horizons With Data!</h1>
+        </div>
     </div>
-</div>
     <div id="container">
         <div id="charts-container">
 
@@ -28,21 +28,17 @@
             </div>
 
             <div id="bar-chart-container" class="chart-container">
-
-
                 <svg id="bar-chart-title"></svg>
 
-                <form>
-                    <select id="selectButtonFrom"></select>
-                    <select id="selectButtonTo"></select>
-                    <!-- <label style="font-size: 12px;">
-                        <input type="radio" name="mode" value="stacked" checked="" /> Stacked
-                    </label>
-                    <label style="font-size: 12px;">
-                        <input type="radio" name="mode" value="grouped" /> Grouped
-                    </label> -->
-                </form>
+                <div class="wrap-selector">
+                    <div class="year-selector">
+                        <span>From: </span>
+                        <select id="selectButtonFrom"></select>
 
+                        <span>To: </span>
+                        <select id="selectButtonTo"></select>
+                    </div>
+                </div>
 
                 <svg id="bar-chart"></svg>
             </div>
@@ -52,13 +48,13 @@
     </div>
 
 
-<script src="js/d3.v6.min.js"></script>
-<script src="js/topPackedBubble.js"></script>
-<script src="js/animePackedBubble.js"></script>
-<script src="js/barchart.js"></script>
-<script src="js/scatterplot.js"></script>
-<script src="js/main.js"></script>
-<script src="js/globalLegend.js"></script>
+    <script src="js/d3.v6.min.js"></script>
+    <script src="js/topPackedBubble.js"></script>
+    <script src="js/animePackedBubble.js"></script>
+    <script src="js/barchart.js"></script>
+    <script src="js/scatterplot.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/globalLegend.js"></script>
 
 </body>
 

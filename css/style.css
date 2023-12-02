@@ -14,10 +14,34 @@ body {
     position: relative;
 }
 
-form {
+/* Selector */
+.wrap-selector {
     align-self: flex-start;
     padding-left: 20px;
+    position:relative;
 }
+
+.year-selector select {
+    -webkit-appearance: none;
+    display: none;
+    appearance: none;
+    font-family: 'Manga Temple', sans-serif;
+    min-width: 6em;
+    font-size: 1rem;
+    padding: 0.4em 0.6em 0.4em 0.6em;
+    background: transparent;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 98%;
+    background-position-y: 5px;
+    background-color: #fff;
+    border: 1px solid #caced1;
+    border-radius: 0.25rem;
+    color: #000;
+    cursor: pointer;
+    display: inline-block;
+}
+
 
 /* Axis */
 .axis line {
@@ -134,8 +158,6 @@ rect {
     display: flex;
     flex-direction: column;
     margin-bottom: 175px;
-    transform: scale(0.80);
-    transform-origin: top center;
 }
 
 #title-container {
@@ -204,8 +226,6 @@ rect {
 #bar-chart-title {
     align-self: center;
 }
-
-
 
 #legend-global {
     position: fixed;

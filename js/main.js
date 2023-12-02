@@ -4,13 +4,13 @@
 let data, scatterPlot;
 
 const dispatcher = d3.dispatch('mainToScatterGenreSelect',
-  'mainToDrillDown',
-  'selectAnimeOnClick',
-  'selectGenreOnClickScatter',
-  'selectAnimeOnClickScatter',
-  'notClickableGlobal',
-  'clearSelectedGenre',
-  'clearSelectedAnimes');
+                                'mainToDrillDown',
+                                'selectAnimeOnClick',
+                                'selectGenreOnClickScatter',
+                                'selectAnimeOnClickScatter',
+                                'notClickableGlobal',
+                                'clearSelectedGenre',
+                                'clearSelectedAnimes');
 
 let topLevelBubble, animeLevelBubble;
 
@@ -26,6 +26,21 @@ let genreToInfo = {
   "Drama": { color: "#bbd2de", chargeModifier: -60 }, //27
   "Slice of Life": { color: "#ffee65", chargeModifier: -36 }, //22
 }
+
+function resizeContent() {
+  var div = document.getElementById('charts-container');
+
+  var widthDiv = div.clientWidth;
+
+  var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
+
+  var container = document.getElementById('charts-container');
+  container.style.transform = `scale(${scaleFactor})`;
+  container.style.transformOrigin = 'top center';
+}
+
+window.addEventListener('resize', resizeContent);
+window.addEventListener('load', resizeContent);
 
 d3.csv('data/anime_processed.csv')
   .then(_data => {
@@ -43,11 +58,10 @@ d3.csv('data/anime_processed.csv')
     }, genreToInfo, globalMinScore, globalMaxScore, dispatcher);
 
     data.forEach(d => {
-      // Extract the year from the "Premiered" column and convert to number
       d.YearReleased = parseInt(d.Premiered.match(/\d+/)[0]);
     });
 
-    barchart = new Barchart({
+    barchart = new Barchart({ 
       parentElement: '#bar-chart',
       parentTitleElement: '#bar-chart-title',
     }, data, genreToInfo);
@@ -62,20 +76,28 @@ d3.csv('data/anime_processed.csv')
       d.CompletedDroppedRatio = d.Dropped !== 0 ? d.Completed / d.Dropped : d.Completed; // Prevent division by zero
     });
 
-    scatterPlot = new ScatterPlot({
+    scatterPlot = new ScatterPlot({ 
       parentElement: '#scatter-plot',
       parentTitleElement: '#scatter-title',
     }, data, genreToInfo, dispatcher);
     scatterPlot.updateVis();
 
+    var div = document.getElementById('charts-container');
+
+    var widthDiv = div.clientWidth;
+  
+    var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
+  
+    var container = document.getElementById('charts-container');
+    container.style.transform = `scale(${scaleFactor})`;
+    container.style.transformOrigin = 'top center';
   })
   .catch(error => console.error(error));
 
-
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
-  scatterPlot.updateChart(genreName);
-  scatterPlot.updateLegendColors();
-  barchart.updateChart(genreName);
+    scatterPlot.updateChart(genreName);
+    scatterPlot.updateLegendColors();
+    barchart.updateChart(genreName);
 });
 
 dispatcher.on('mainToDrillDown', (genreName, animes) => {
