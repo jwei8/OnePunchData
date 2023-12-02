@@ -235,6 +235,8 @@ rect {
     border-radius: 10px;
     padding: 10px;
     top: 245px;
+    background: white url('../data/dragIcon.png') no-repeat no-repeat right top;
+    background-size: 30px 30px;
     cursor: move;
 }
 
