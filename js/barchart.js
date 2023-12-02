@@ -137,6 +137,33 @@ class Barchart {
         vis.renderTitle();
     }
 
+    renderTitle() {
+        let vis = this;
+
+        vis.legendTitleGroup = vis.svgTitle.append('g')
+            .attr('class', 'title')
+            .attr('transform', `translate(${0},${0})`);
+
+        // Append the first text element
+        let titleText = vis.legendTitleGroup.append('text')
+            .attr('class', 'title-topView-text')
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .text("Annual Breakdown of Anime Counts by Genre");
+
+        // Calculate the maximum width of both text elements
+        let titleWidth = titleText.node().getBBox().width;
+        let titleHeight = titleText.node().getBBox().height;
+
+        // set svg height
+        vis.svgTitle
+            .attr('width', titleWidth)
+            .attr('height', titleHeight);
+
+        vis.legendTitleGroup
+            .attr('transform', `translate(${titleWidth / 2}, ${titleHeight / 2})`);
+    }
+
     updateVis() {
         let vis = this;
 
@@ -196,14 +223,8 @@ class Barchart {
             vis.updateYearRange(vis.from, vis.to);
         })
 
-        const start = 1990;
-        console.log(start);
-        const finish = 2010;
-        const yearRange = Array.from({ length: finish - start + 1 }, (_, a) => a + start);
-        console.log(yearRange);
 
         // Set the scale input domains
-        // vis.xScale.domain(vis.years);
         vis.xScale.domain(vis.years);
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
         vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
@@ -214,22 +235,17 @@ class Barchart {
         // Call stack generator on the dataset
         vis.stackedData = vis.stack(vis.flattenedData);
 
-        vis.renderVis();
+        vis.renderStackedBar();
     }
 
     updateYearRange(from, to) {
         let vis = this;
 
         d3.selectAll("#bar-chart > .bars > g > rect").remove();
-        console.log(from);
-        console.log(to);
         let start = parseInt(from);
         let finish = parseInt(to);
         let yearRange = Array.from({ length: finish - start + 1 }, (_, a) => a + start);
-        console.log(yearRange);
 
-        // Set the scale input domains
-        // vis.xScale.domain(vis.years);
         vis.xScale.domain(yearRange);
         vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
         vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
@@ -237,16 +253,13 @@ class Barchart {
         vis.filteredByYearData = vis.flattenedData.filter((data) => data.Year >= vis.from && data.Year <= vis.to);
         vis.stackedData = vis.stack(vis.filteredByYearData);
 
-        console.log(vis.filteredByYearData);
-        console.log(vis.stackedData);
-
-        // vis.renderVis();
         if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
             d3.selectAll("#bar-chart > .bars > g > rect").remove();
             vis.stack = d3.stack()
                 .keys(vis.genres);
-            // vis.updateVis();
+
             vis.renderStackedBar();
+
             // Update axes
             const t = d3.transition().duration(500);
             vis.xAxisG.transition(t).call(vis.xAxis).call((g) => g.select(".domain").remove());
@@ -270,10 +283,6 @@ class Barchart {
         let vis = this;
         vis.isStacked = true;
 
-        // vis.xScale.domain(yearRange);
-        // vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
-        // vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
-
         vis.filteredByYearData = vis.flattenedData.filter((data) => data.Year >= vis.from && data.Year <= vis.to);
         vis.stackedData = vis.stack(vis.filteredByYearData);
 
@@ -284,11 +293,9 @@ class Barchart {
             .selectAll("rect")
             .data(d => d)
             .join("rect")
-            // .attr('x', d => `${vis.xScale(d.data.Year) + 54}`)
             .attr('x', d => `${vis.xScale(d.data.Year)}`)
             .attr('y', d => vis.yScale(d[1]))
             .attr('width', vis.xScale.bandwidth())
-            // .attr('width', "30px")
             .attr('height', d => vis.yScale(d[0]) - vis.yScale(d[1]))
             .style('fill-opacity', .9)
             .on('mouseover', (event, d) => {
@@ -325,133 +332,16 @@ class Barchart {
                     .duration(500)
                     .style("opacity", "0");
             })
-    }
-
-    renderGroupedBar() {
-        let vis = this;
-        vis.isStacked = false;
-
-        vis.bars = vis.chart.selectAll(".category")
-            .remove()
-            .data(vis.flattenedData)
-            .join("g")
-            .attr("transform", function (d) { return "translate(" + vis.xScale(d.Year) + ",0)"; }) // place each bar along the x-axis at the place defined by the xScale variable
-            .selectAll("rect")
-            .data(d => vis.valueKeys.map(key => ({ key, value: d[key] }))) // use the keys to access the data separately
-            .join("rect")
-            .attr("x", function (d) { return vis.x1(d.key); }) // use the x1 variable to place the grouped bars
-            .attr("y", function (d) { return vis.yScale(d.value); }) // draw the height of the barse using the data from the keys as the height value
-            .attr("width", vis.x1.bandwidth()) // bar is the width defined by the x1 variable
-            .attr("height", d => vis.yScale(0) - vis.yScale(d.value))
-            .attr("fill", function (d) { return vis.genreToInfo[d.key].color; })
-            .on('mouseover', (event, d) => {
-                vis.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                vis.tooltip.html(`
-                <div class="tooltip-title">${d.key}: ${d.value}</div>
-            `)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY) + "px");
-            })
-            .on('mousemove', function (event, d) {
-                vis.tooltip
-                    .style("left", ((event.pageX)) + "px")
-                    .style("top", (event.pageY + "px"))
-            })
-            .on('mouseout', () => {
-                vis.tooltip.transition()
-                    .duration(500)
-                    .style("opacity", "0");
-            })
-
-    }
-
-    renderVis() {
-        let vis = this;
-
-        vis.isStacked = true;
-
-        vis.renderStackedBar();
 
         // Update axes
         const t = d3.transition().duration(500);
         vis.xAxisG.transition(t).call(vis.xAxis).call((g) => g.select(".domain").remove());
         vis.yAxisG.transition(t).call(vis.yAxis).call((g) => g.select(".domain").remove());
-
-        d3.selectAll("input").on("change", change);
-
-        function change() {
-            if (this.value === "grouped") {
-                vis.selectedGenre = null;
-
-                vis.updateFiltered();
-
-                vis.transitionGrouped();
-            }
-            if (this.value === "stacked") {
-                vis.selectedGenre = null;
-
-                vis.updateFiltered();
-                vis.stack = d3.stack()
-                    .keys(vis.genres);
-                vis.stackedData = vis.stack(vis.flattenedData);
-                vis.transitionStacked();
-            }
-        }
     }
 
-    renderTitle() {
-        let vis = this;
 
-        vis.legendTitleGroup = vis.svgTitle.append('g')
-            .attr('class', 'title')
-            .attr('transform', `translate(${0},${0})`);
 
-        // Append the first text element
-        let titleText = vis.legendTitleGroup.append('text')
-            .attr('class', 'title-topView-text')
-            .attr('text-anchor', 'middle')
-            .attr('dominant-baseline', 'middle')
-            .text("Number of Animes by Genre Per Year");
 
-        // Calculate the maximum width of both text elements
-        let titleWidth = titleText.node().getBBox().width;
-        let titleHeight = titleText.node().getBBox().height;
-
-        // set svg height
-        vis.svgTitle.attr('width', titleWidth)
-            .attr('height', titleHeight);
-
-        vis.legendTitleGroup
-            .attr('transform', `translate(${titleWidth / 2}, ${titleHeight / 2})`);
-    }
-
-    transitionGrouped() {
-        let vis = this;
-        vis.isStacked = false;
-
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d3.max(vis.genres, key => d[key]))]) // in each key, look for the maximum number
-        const t = d3.transition().duration(500);
-        vis.yAxisG.transition(t).call(vis.yAxis);
-
-        vis.chart.selectAll("rect").remove();
-
-        vis.renderGroupedBar();
-    }
-
-    transitionStacked() {
-        let vis = this;
-        vis.isStacked = true;
-
-        vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
-        const t = d3.transition().duration(500);
-        vis.yAxisG.transition(t).call(vis.yAxis);
-
-        vis.chart.selectAll("rect").remove();
-
-        vis.renderStackedBar();
-    }
 
     transitionOneGenre(currGenre) {
         let vis = this;
@@ -506,42 +396,30 @@ class Barchart {
     updateFiltered() {
         let vis = this;
 
-        if (vis.isStacked) {
-            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
-                d3.selectAll("#bar-chart > .bars > g > rect").remove();
-                vis.stack = d3.stack()
-                    .keys(vis.genres);
-                // vis.updateVis();
-                vis.xScale.domain(vis.years);
-                vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
-                vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
+        if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
+            d3.selectAll("#bar-chart > .bars > g > rect").remove();
+            vis.stack = d3.stack()
+                .keys(vis.genres);
 
-                // Extract keys for values (assuming 'Action', 'Drama', etc as keys)
-                vis.valueKeys = Object.keys(vis.flattenedData[0]).filter(key => key !== 'Year');
+            vis.xScale.domain(vis.years);
+            vis.yScale.domain([0, d3.max(vis.flattenedData, d => d.Action + d['Sci-Fi'] + d.Drama + d['Slice of Life'] + d.Mystery + d.Comedy + d.Adventure + d.Game + d.Music + d.Harem)]);
+            vis.x1.domain(vis.genres).rangeRound([0, vis.xScale.bandwidth()]);
 
-                // Call stack generator on the dataset
-                vis.stackedData = vis.stack(vis.flattenedData);
+            // Extract keys for values (assuming 'Action', 'Drama', etc as keys)
+            vis.valueKeys = Object.keys(vis.flattenedData[0]).filter(key => key !== 'Year');
 
-                // vis.renderVis();
-                vis.updateYearRange(vis.from, vis.to);
+            // Call stack generator on the dataset
+            vis.stackedData = vis.stack(vis.flattenedData);
 
-            } else {
-                d3.selectAll("#bar-chart > .bars > g > rect").remove();
-                vis.stack = d3.stack()
-                    .keys([vis.selectedGenre]);
-                vis.isStacked = true;
-                vis.transitionOneGenre(vis.selectedGenre);
-            }
+            // vis.renderVis();
+            vis.updateYearRange(vis.from, vis.to);
 
         } else {
-            if (vis.selectedGenre === undefined || vis.selectedGenre === null) {
-                vis.transitionGrouped();
-            } else {
-                d3.selectAll("#bar-chart > .bars > g > rect").remove();
-                vis.stack = d3.stack()
-                    .keys([vis.selectedGenre]);
-                vis.transitionOneGenre(vis.selectedGenre);
-            }
+            d3.selectAll("#bar-chart > .bars > g > rect").remove();
+            vis.stack = d3.stack()
+                .keys([vis.selectedGenre]);
+            vis.isStacked = true;
+            vis.transitionOneGenre(vis.selectedGenre);
         }
     }
 

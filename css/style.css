@@ -128,6 +128,8 @@ rect {
     flex-direction: column;
     align-items: center;
     font-family: 'Manga Temple', sans-serif;
+    transform: scale(0.80);
+    transform-origin: top center;
 }
 
 #charts-container {
@@ -156,7 +158,7 @@ rect {
     flex-grow: 1;
     padding-top: 0px;
     background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
-    url('../data/jogo_vs_sukuna.jpeg') no-repeat center center fixed;
+        url('../data/jogo_vs_sukuna.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -168,7 +170,7 @@ rect {
     justify-content: flex-start;
     align-items: center;
     background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
-    url('../data/fight_panel_no_text.jpeg') no-repeat center center fixed;
+        url('../data/fight_panel_no_text.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -180,7 +182,7 @@ rect {
     justify-content: flex-start;
     align-items: center;
     background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
-    url('../data/berserk.jpeg') no-repeat center center fixed;
+        url('../data/berserk.jpeg') no-repeat center center fixed;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -246,5 +248,3 @@ rect {
     background-color: #ffffff;
     border-radius: 8px;
 }
-
-
