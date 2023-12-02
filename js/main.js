@@ -4,13 +4,13 @@
 let data, scatterPlot;
 
 const dispatcher = d3.dispatch('mainToScatterGenreSelect',
-                                'mainToDrillDown',
-                                'selectAnimeOnClick',
-                                'selectGenreOnClickScatter',
-                                'selectAnimeOnClickScatter',
-                                'notClickableGlobal',
-                                'clearSelectedGenre',
-                                'clearSelectedAnimes');
+  'mainToDrillDown',
+  'selectAnimeOnClick',
+  'selectGenreOnClickScatter',
+  'selectAnimeOnClickScatter',
+  'notClickableGlobal',
+  'clearSelectedGenre',
+  'clearSelectedAnimes');
 
 let topLevelBubble, animeLevelBubble;
 
@@ -47,7 +47,7 @@ d3.csv('data/anime_processed.csv')
       d.YearReleased = parseInt(d.Premiered.match(/\d+/)[0]);
     });
 
-    barchart = new Barchart({ 
+    barchart = new Barchart({
       parentElement: '#bar-chart',
       parentTitleElement: '#bar-chart-title',
     }, data, genreToInfo);
@@ -62,7 +62,7 @@ d3.csv('data/anime_processed.csv')
       d.CompletedDroppedRatio = d.Dropped !== 0 ? d.Completed / d.Dropped : d.Completed; // Prevent division by zero
     });
 
-    scatterPlot = new ScatterPlot({ 
+    scatterPlot = new ScatterPlot({
       parentElement: '#scatter-plot',
       parentTitleElement: '#scatter-title',
     }, data, genreToInfo, dispatcher);
@@ -73,24 +73,29 @@ d3.csv('data/anime_processed.csv')
 
 
 function resizeContent() {
-  var div = document.getElementById('charts-container');
+  var scaleFactor = Math.min(window.innerWidth / 1920, window.innerHeight / 892);
+  var zoomFactor = 1.35 * Math.min(window.innerWidth / 1920, window.innerHeight / 892);
 
-  var widthDiv = div.clientWidth;
-
-  var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
-
-  var container = document.getElementById('charts-container');
-  container.style.transform = `scale(${scaleFactor})`;
+  var container = document.getElementById('container');
+  container.style.transform = `scale(${scaleFactor * zoomFactor})`;
   container.style.transformOrigin = 'top center';
+
+  //
+  // var div = document.getElementById('charts-container');
+  // var widthDiv = div.clientWidth;
+  // var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
+  // var container = document.getElementById('charts-container');
+  // container.style.transform = `scale(${scaleFactor})`;
+  // container.style.transformOrigin = 'top center';
 }
 
 window.addEventListener('resize', resizeContent);
 window.addEventListener('load', resizeContent);
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
-    scatterPlot.updateChart(genreName);
-    scatterPlot.updateLegendColors();
-    barchart.updateChart(genreName);
+  scatterPlot.updateChart(genreName);
+  scatterPlot.updateLegendColors();
+  barchart.updateChart(genreName);
 });
 
 dispatcher.on('mainToDrillDown', (genreName, animes) => {
