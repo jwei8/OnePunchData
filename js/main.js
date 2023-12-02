@@ -27,6 +27,18 @@ let genreToInfo = {
   "Slice of Life": { color: "#ffee65", chargeModifier: -36 }, //22
 }
 
+function resizeContent() {
+  var div = document.getElementById('charts-container');
+
+  var widthDiv = div.clientWidth;
+
+  var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
+
+  var container = document.getElementById('charts-container');
+  container.style.transform = `scale(${scaleFactor})`;
+  container.style.transformOrigin = 'top center';
+}
+
 d3.csv('data/anime_processed.csv')
   .then(_data => {
     data = _data
@@ -68,24 +80,10 @@ d3.csv('data/anime_processed.csv')
     }, data, genreToInfo, dispatcher);
     scatterPlot.updateVis();
 
+    window.addEventListener('resize', resizeContent);
+    window.addEventListener('load', resizeContent);
   })
   .catch(error => console.error(error));
-
-
-function resizeContent() {
-  var div = document.getElementById('charts-container');
-
-  var widthDiv = div.clientWidth;
-
-  var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
-
-  var container = document.getElementById('charts-container');
-  container.style.transform = `scale(${scaleFactor})`;
-  container.style.transformOrigin = 'top center';
-}
-
-window.addEventListener('resize', resizeContent);
-window.addEventListener('load', resizeContent);
 
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
     scatterPlot.updateChart(genreName);
