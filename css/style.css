@@ -128,14 +128,14 @@ rect {
     flex-direction: column;
     align-items: center;
     font-family: 'Manga Temple', sans-serif;
-    transform: scale(0.80);
-    transform-origin: top center;
 }
 
 #charts-container {
     display: flex;
     flex-direction: column;
     margin-bottom: 175px;
+    transform: scale(0.80);
+    transform-origin: top center;
 }
 
 #title-container {

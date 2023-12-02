@@ -72,18 +72,6 @@ d3.csv('data/anime_processed.csv')
   .catch(error => console.error(error));
 
 
-function resizeContent() {
-  var div = document.getElementById('charts-container');
-  var widthDiv = div.clientWidth;
-  var scaleFactor = 0.95 * (window.innerWidth / widthDiv);
-  var container = document.getElementById('charts-container');
-  container.style.transform = `scale(${scaleFactor})`;
-  container.style.transformOrigin = 'top center';
-}
-
-// window.addEventListener('resize', resizeContent);
-// window.addEventListener('load', resizeContent);
-
 dispatcher.on('mainToScatterGenreSelect', (genreName) => {
   scatterPlot.updateChart(genreName);
   scatterPlot.updateLegendColors();
