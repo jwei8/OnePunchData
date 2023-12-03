@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Manga Temple', sans-serif;
-    font-size: 15px;
+    font-size: 12px;
     padding: 30px;
     background: url('../data/gojo_panels.png') no-repeat center center fixed;
     background-size: cover;
@@ -164,6 +164,7 @@ rect {
     display: flex;
     flex-direction: row;
     flex-grow: 1;
+    width: 100%;
 }
 
 .chart-row {
@@ -249,11 +250,14 @@ rect {
     display: inline-block;
     background-color: #ffffff;
     padding: 15px;
+    width: 69%;
     border-radius: 100px;
     margin-bottom: 20px;
     border: 2px solid #000000;
     margin-left: 20px;
     position: relative;
+    height: 60px;
+
 }
 
 #speech-bubble::before {
@@ -270,3 +274,42 @@ rect {
     background-color: #ffffff;
     border-radius: 8px;
 }
+
+#blurb-speech-bubble {
+    position: relative;
+    width: 40%;
+    height: 100px;
+    padding: 15px;
+    border-radius: 100px;
+    margin-top: -60px;
+    margin-bottom: 20px;
+}
+
+#overlay-text {
+    position: absolute;
+    top: 84%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 10px;
+    font-family: 'Manga Temple', sans-serif;
+    color: #000;
+    z-index: 1;
+    width: 75%;
+}
+
+#overlay-text p {
+    margin: 0;
+}
+
+#blurb-speech-bubble img {
+    width: 110%;
+    height: 190%;
+    border-radius: 100px;
+}
+
+
+
+
+
+
