@@ -164,7 +164,7 @@ class ScatterPlot {
         .attr('height', vis.height)
         .attr('fill', 'transparent')
         .on('click', (event, d) => {
-            if (!vis.notClickableGlobal) {
+            if (!vis.notClickableGlobal && vis.selectedGenre !== null) {
                 vis.dispatcher.call('clearSelectedGenre', null);
             }
         });
@@ -263,9 +263,9 @@ class ScatterPlot {
                         vis.selectedAnimes.splice(index, 1);
                     }
                 }
-                vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
                 vis.updateFilteredByAnime();
-            })        
+                vis.dispatcher.call('selectAnimeOnClickScatter', null, vis.selectedAnimes);
+            })
 
         // Render the legend
         vis.renderLegend();
@@ -341,9 +341,6 @@ class ScatterPlot {
             .attr('x', 20)
             .attr('y', 12)
             .text(d => d);
-
-        // Initial rendering with no genre filtered
-        vis.updateFiltered();
     }
 
     updateChart(selectedGenre) {
@@ -363,6 +360,8 @@ class ScatterPlot {
         vis.chart.selectAll('.point')
             .attr('fill', d => (vis.selectedGenre === null|| vis.selectedGenre === d.Genre) ?
                 vis.colorScale(d.Genre) : 'transparent')
+            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#99ffff' : null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null)
             .each(function(d) {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
@@ -385,7 +384,7 @@ class ScatterPlot {
                 }
             });
 
-        vis.updateFiltered();
+        //vis.updateFiltered();
     }
 
     updateLegendColors() {

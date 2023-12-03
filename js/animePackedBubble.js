@@ -151,6 +151,8 @@ class AnimePackedBubbleChart {
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
+                .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff': null)
+                .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null);
 
         simulation.on("tick", () => {
             animeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
