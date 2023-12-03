@@ -114,6 +114,8 @@ class AnimePackedBubbleChart {
                 vis.dispatcher.call('selectAnimeOnClick', null, vis.selectedAnimes);
                 })
                 .on('mouseover', function(event, d) {
+
+                    console.log(d.data)
                     d3.select(this)
                         .attr('stroke', '#99ffff')  // Set the stroke to black on hover
                         .attr('stroke-width', 4); // Increase the stroke-width on hover
@@ -123,9 +125,12 @@ class AnimePackedBubbleChart {
                     `
                         <h3>${d.data.Name}</h3>
                         <ul>
-                          <li>Score: ${d.data.Score}</li>
-                          <li>Rating: ${d.data.Rating} years</li>
-                          <li>Studio: ${d.data.Studios}</li>
+                          <li><strong>Score:</strong> ${d.data.Score}</li>
+                          <li><strong>Rating:</strong> ${d.data.Rating} years</li>
+                          <li><strong>Studio:</strong> ${d.data.Studios}</li>
+                          <li><strong>Premiered:</strong> ${d.data.Premiered}</li>
+                          <li><strong>Source:</strong> ${d.data.Source}</li>
+                          <li><strong>Completed to Dropped Ratio:</strong> ${d.data.CompletedDroppedRatio.toFixed(1)}</li>
                         </ul>
                     `)
                     })

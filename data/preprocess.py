@@ -17,21 +17,20 @@ df = pd.read_csv('anime.csv')
 
 # Define the columns to filter
 columns_to_filter = [
+    'MAL_ID',     # Categorical
     "Name",       # Categorical
     "Score",      # Quantitative
     "Genres",     # Categorical
-    "Episodes",   # Quantitative
     "Studios",    # Categorical
     "Source",     # Categorical
     "Rating",     # Ordinal
-    "Favorites",  # Quantitative
     "Completed",  # Quantitative
     "Dropped",    # Quantitative
     "Premiered",  # Ordinal
 ]
 
 # Include the MAL_ID column
-columns_to_keep = ['MAL_ID'] + columns_to_filter
+columns_to_keep = columns_to_filter
 
 # Apply the filters to the dataframe
 filtered_df = df.copy()
@@ -55,7 +54,6 @@ df = df[df['Genres'].isin(genres_list)]
 
 top_1000_animes = df.sort_values(by='Score', ascending=False).head(1000)
 top_1000_animes['Score'] = pd.to_numeric(df['Score'], errors='coerce')
-top_1000_animes['Episodes'] = pd.to_numeric(df['Episodes'], errors='coerce')
 
 # Count the occurrences of each unique first genre
 genre_counts = top_1000_animes['Genres'].value_counts()

@@ -39,7 +39,6 @@ function resizeContent() {
   container.style.transformOrigin = 'top center';
 }
 
-window.addEventListener('resize', resizeContent);
 window.addEventListener('load', resizeContent);
 
 d3.csv('data/anime_processed.csv')
