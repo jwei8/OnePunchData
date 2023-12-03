@@ -103,7 +103,8 @@ class AnimePackedBubbleChart {
                 .on('click', function(event, d) {
                     if (!vis.selectedAnimes.includes(d.data.MAL_ID)) {
                         vis.selectedAnimes.push(d.data.MAL_ID);
-                        d3.select(this).attr('stroke', '#99ffff');
+                        d3.select(this).attr('stroke', '#39FF14')
+                        .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 6 : null);
                     } else {
                         const index = vis.selectedAnimes.indexOf(d.data.MAL_ID);
                          if (index > -1) {
@@ -117,7 +118,7 @@ class AnimePackedBubbleChart {
 
                     console.log(d.data)
                     d3.select(this)
-                        .attr('stroke', '#99ffff')  // Set the stroke to black on hover
+                        .attr('stroke', '#39FF14')  // Set the stroke to black on hover
                         .attr('stroke-width', 4); // Increase the stroke-width on hover
                         
                     vis.tooltip.style("opacity", 1);
@@ -137,7 +138,7 @@ class AnimePackedBubbleChart {
                 // Add mouseout event
                 .on('mouseout', function(event, d) {
                     d3.select(this)
-                        .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff' : null)     // Reset the stroke on mouseout
+                        .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#39FF14' : null)     // Reset the stroke on mouseout
                         .attr('stroke-width', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null); // Reset the stroke-width on mouseout
                     
                      vis.tooltip.style("opacity", 0);
@@ -151,7 +152,7 @@ class AnimePackedBubbleChart {
                 .attr('class', 'bubble-anime')
                 .attr('r', d => vis.radiusScale(d.data.Score))
                 .attr('fill', d => vis.ratingToColor[d.data.Rating])
-                .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff': null)
+                .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#39FF14': null)
                 .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null);
 
         simulation.on("tick", () => {
@@ -169,8 +170,8 @@ class AnimePackedBubbleChart {
         const animeGroups = vis.chartArea.selectAll('.anime-level-bubble-group')
                 .data(vis.nodes, d => d.data.MAL_ID);
         animeGroups.selectAll('.bubble-anime')
-            .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#99ffff': null)
-            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 4 : null);
+            .attr('stroke', d => vis.selectedAnimes.includes(d.data.MAL_ID) ? '#39FF14': null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.data.MAL_ID) ? 6 : null);
     }
 
     renderLegend() {

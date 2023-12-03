@@ -117,8 +117,8 @@ class TopPackedBubbleChart {
                 .on('mouseover', function(event, d) {
                     if (vis.clickedNode === null || d.data.genre !== vis.clickedNode.data.genre) {
                         d3.select(this).select('.bubble') 
-                            .attr('stroke', '#99ffff')
-                            .attr('stroke-width', 4); 
+                            .attr('stroke', d => vis.genreToInfo[d.data.genre].color)
+                            .attr('stroke-width', 10); 
                     }
                 })
                 .on('mouseout', function(event, d) {

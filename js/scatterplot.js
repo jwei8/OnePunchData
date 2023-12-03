@@ -360,8 +360,8 @@ class ScatterPlot {
         vis.chart.selectAll('.point')
             .attr('fill', d => (vis.selectedGenre === null|| vis.selectedGenre === d.Genre) ?
                 vis.colorScale(d.Genre) : 'transparent')
-            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#99ffff' : null)
-            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null)
+            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#39FF14' : null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 6 : null)
             .each(function(d) {
                 if (vis.selectedGenre === null || vis.selectedGenre === d.Genre) {
                     d3.select(this).raise(); // Bring the selected points to the front
@@ -374,8 +374,8 @@ class ScatterPlot {
     updateFilteredByAnime() {
         let vis = this;
         vis.chart.selectAll('.point')
-            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#99ffff' : null)
-            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 4 : null)
+            .attr('stroke', d =>  vis.selectedAnimes.includes(d.MAL_ID) ?'#39FF14' : null)
+            .attr('stroke-width',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 6 : null)
             .attr('stroke-opacity',  d => vis.selectedAnimes.includes(d.MAL_ID) ? 1 : 0)
             .attr('fill-opacity', d => vis.selectedAnimes.includes(d.MAL_ID) ? 1 : 0.1)
             .each(function(d) {
