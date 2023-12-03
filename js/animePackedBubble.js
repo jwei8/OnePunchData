@@ -169,7 +169,7 @@ class AnimePackedBubbleChart {
     renderLegend() {
         let vis = this;
 
-        const scores = [7.5, 8.5, 9.5];
+        const scores = [7.3, 8.3, 9.3];
 
         const largestRadius = vis.radiusScale(scores[2]);
 
