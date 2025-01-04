@@ -1,2 +1,3 @@
 # CPSC447 Project
 
+The visualization aims to provide insights into the anime industry by offering a comprehensive exploration of various facets. The visualization caters to diverse user needs, including comparing genre popularity, identifying critically acclaimed anime, studying age rating and score correlations, analyzing production fluctuations for historical insights, and examining the relationship between anime scores and completion rates. Tailored for industry experts and casual viewers, our visualization serves as a versatile tool for understanding market trends, guiding production decisions, and enhancing viewer recommendations.
